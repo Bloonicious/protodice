@@ -50,13 +50,13 @@
                     <tr ng-repeat="row in gameData.track">
                         <td ng-repeat="cell in row track by $index"
                             ng-class="{
-                                'defense-zone': $index < 3,
-                                'bridge-zone': $index === 3,
-                                'monster-zone': $index > 3
+                                'defense-zone': $index < 4,
+                                'bridge-zone': $index === 4,
+                                'monster-zone': $index > 4
                             }"
                             ng-drop="true" ng-drop-success="onDropCell($event, $index, $parent.$index)">
-                            <div class="defense" ng-if="cell.type === 'defense'">{{cell.content.type}}</div>
-                            <div class="monster" ng-if="cell.type === 'monster'">{{cell.content.type}}</div>
+                            <div class="defense" ng-if="cell && cell.type === 'defense'">{{cell.content.type}}</div>
+                            <div class="monster" ng-if="cell && cell.type === 'monster'">{{cell.content.type}}</div>
                         </td>
                     </tr>
                 </tbody>
@@ -76,20 +76,5 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/controllers.js"></script>
-    <script>
-        function allowDrop(ev) {
-            ev.preventDefault();
-        }
-
-        function drag(ev) {
-            ev.dataTransfer.setData("text", ev.target.id);
-        }
-
-        function drop(ev) {
-            ev.preventDefault();
-            var data = ev.dataTransfer.getData("text");
-            ev.target.appendChild(document.getElementById(data));
-        }
-    </script>
 </body>
 </html>
