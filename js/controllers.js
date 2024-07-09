@@ -1,26 +1,21 @@
 angular.module('tdGameApp').controller('MainController', ['$scope', function($scope) {
     $scope.showPlaySectionFlag = false;
     $scope.showHelpSectionFlag = false;
-    $scope.showGameArea = false;
     $scope.showBackButton = false;
     $scope.showStartButton = false;
     $scope.showRollDiceButton = false;
+    $scope.showGameArea = false;
     $scope.showTurnIndicator = false;
 
-    $scope.numPlayers = 1;
-    $scope.swapSides = false;
-    $scope.player1Name = '';
-    $scope.player2Name = '';
-
     $scope.togglePlaySection = function() {
-        $scope.showPlaySectionFlag = !$scope.showPlaySectionFlag;
+        $scope.showPlaySectionFlag = true;
         $scope.showHelpSectionFlag = false;
         $scope.showBackButton = true;
         $scope.showStartButton = true;
     };
 
     $scope.toggleHelpSection = function() {
-        $scope.showHelpSectionFlag = !$scope.showHelpSectionFlag;
+        $scope.showHelpSectionFlag = true;
         $scope.showPlaySectionFlag = false;
         $scope.showBackButton = true;
     };
@@ -31,28 +26,24 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
         $scope.showBackButton = false;
         $scope.showStartButton = false;
         $scope.showRollDiceButton = false;
-        $scope.showTurnIndicator = false;
         $scope.showGameArea = false;
+        $scope.showTurnIndicator = false;
     };
 
     $scope.startGame = function() {
-        if ($scope.player1Name.length < 2 || ($scope.numPlayers > 1 && $scope.player2Name.length < 2)) {
-            alert('Players must have at least 2 characters in their name.');
-            return;
-        }
-        $scope.showGameArea = true;
+        $scope.showPlaySectionFlag = false;
+        $scope.showBackButton = true;
         $scope.showRollDiceButton = true;
+        $scope.showGameArea = true;
         $scope.showTurnIndicator = true;
-        $scope.showStartButton = false;
-        $scope.currentPlayerName = $scope.player1Name;
     };
 }]);
 
 angular.module('tdGameApp').controller('GameController', ['$scope', function($scope) {
     $scope.gameData = {
-        track: Array(5).fill().map(() => Array(9).fill(null)),
-        defenses: Array(5).fill().map(() => Array(9).fill(null)),
-        monsters: Array(5).fill().map(() => Array(9).fill(null)),
+        track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
+        defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
+        monsters: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
         currentPlayerIndex: 0,
         players: ['player1', 'player2'],
         status: 'started',
@@ -62,7 +53,6 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
 
     $scope.currentDefense = null;
     $scope.currentMonster = null;
-    $scope.showDefenseHolder = false;
 
     $scope.rollDice = function() {
         const userId = 'player1'; // For demonstration, using player1 as current user
@@ -112,7 +102,6 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
             if (defense) {
                 $scope.currentDefense = defense;
                 alert(`You rolled a ${roll} and got a ${defense.type}. Place your defense.`);
-                $scope.showDefenseHolder = true;
             } else {
                 alert(`You rolled a ${roll}, but no defense was placed.`);
             }
@@ -128,7 +117,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }
     };
 
-    // Create a defense object
+    // Creates defence objects
     function createDefense(type, range, damage, hp, additionalProperties = {}) {
         return Object.assign({
             id: `defense-${Date.now()}-${Math.random()}`,
@@ -139,7 +128,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }, additionalProperties);
     }
 
-    // Create a prototype defense object
+    // Creates prototype defence objects
     function rollPrototypeDefense(game) {
         const roll = Math.floor(Math.random() * 5) + 1;
         let defense;
@@ -167,13 +156,12 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         if (defense) {
             $scope.currentDefense = defense;
             alert(`You rolled a special 6 and got a ${defense.type}. Place your defense.`);
-            $scope.showDefenseHolder = true;
         } else {
             alert(`You rolled a special 6, but no defense was placed.`);
         }
     }
 
-    // Create a monster object
+    // Creates monster objects
     function createMonster(type, range, damage, hp, speed, additionalProperties = {}) {
         return Object.assign({
             id: `monster-${Date.now()}-${Math.random()}`,
@@ -185,7 +173,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }, additionalProperties);
     }
 
-    // Roll for prototype monsters
+    // Creates prototype monster objects
     function rollPrototypeMonster(game) {
         const roll = Math.floor(Math.random() * 5) + 1;
         let monster;
@@ -215,8 +203,8 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
             let placed = false;
 
             for (let i = 0; i < 5; i++) {
-                if (!monsters[i][8]) {
-                    monsters[i][8] = monster;
+                if (!monsters[i][4]) {
+                    monsters[i][4] = monster;
                     placed = true;
                     break;
                 }
@@ -237,7 +225,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         const monsters = game.monsters;
 
         for (let i = 0; i < 5; i++) {
-            if (!monsters[i][8]) {
+            if (!monsters[i][4]) {
                 const roll = Math.floor(Math.random() * 6) + 1;
                 let monster;
 
@@ -249,24 +237,23 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                         monster = createMonster('Orc', 1, 6, 40, 1);
                         break;
                     case 3:
-                        monster = createMonster('Barbarian', 1, 12, 20, 1);
+                        monster = createMonster('Troll', 1, 10, 50, 0.5);
                         break;
                     case 4:
-                        monster = createMonster('Archer', 3, 10, 15, 1);
+                        monster = createMonster('Vampire Bat', 2, 5, 20, 2);
                         break;
                     case 5:
-                        monster = createMonster('Bear', 1, 10, 50, 0.5);
+                        monster = createMonster('Fire Imp', 1, 12, 30, 1);
                         break;
                     case 6:
-                        rollPrototypeMonster(game);
-                        return;
+                        monster = createMonster('Ghost', 2, 8, 25, 1.5);
+                        break;
                     default:
                         monster = null;
                 }
 
                 if (monster) {
-                    monsters[i][8] = monster;
-                    break; // Only one monster placed per turn
+                    monsters[i][4] = monster;
                 }
             }
         }
@@ -277,18 +264,10 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         const monsters = game.monsters;
 
         for (let i = 0; i < 5; i++) {
-            for (let j = 8; j >= 0; j--) {
-                if (monsters[i][j]) {
-                    const monster = monsters[i][j];
-                    const newCol = j - Math.ceil(monster.speed);
-
-                    if (newCol < 0) {
-                        // Monster reached the left end, handle game over condition if necessary
-                        monsters[i][j] = null;
-                    } else if (!monsters[i][newCol]) {
-                        monsters[i][newCol] = monster;
-                        monsters[i][j] = null;
-                    }
+            for (let j = 0; j < 4; j++) {
+                if (monsters[i][j + 1]) {
+                    monsters[i][j] = monsters[i][j + 1];
+                    monsters[i][j + 1] = null;
                 }
             }
         }
@@ -300,11 +279,11 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         const monsters = game.monsters;
 
         for (let i = 0; i < 5; i++) {
-            for (let j = 0; j < 9; j++) {
+            for (let j = 0; j < 4; j++) {
                 const defense = defenses[i][j];
                 if (defense) {
                     for (let k = 1; k <= defense.range; k++) {
-                        if (j + k < 9 && monsters[i][j + k]) {
+                        if (j + k < 4 && monsters[i][j + k]) {
                             const monster = monsters[i][j + k];
                             monster.hp -= defense.damage;
 
@@ -331,11 +310,9 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
     // Check win conditions
     function checkWinConditions(game) {
         const monsters = game.monsters;
-        const gridSize = 5; // Fixed grid size
 
-        for (let i = 0; i < gridSize; i++) {
+        for (let i = 0; i < 5; i++) {
             if (monsters[i][0]) {
-                // Monsters have reached the leftmost column, monsters win
                 alert('Monsters have won the game!');
                 game.status = 'ended';
                 return;
