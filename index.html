@@ -45,23 +45,23 @@
             <p>Instructions on how to play the game.</p>
         </div>
         <div class="game-area" ng-controller="GameController" ng-show="showGameArea">
-            <table>
-                <tbody>
-                    <tr ng-repeat="row in gameData.defenses track by $index">
-                        <td ng-repeat="defense in row track by defense.id">
-                            <div class="defense" ng-if="defense">{{defense.type}}</div>
-                        </td>
-                    </tr>
-                </tbody>
-                <tbody>
-                    <tr ng-repeat="row in gameData.monsters track by $index">
-                        <td ng-repeat="monster in row track by monster.id">
-                            <div class="monster" ng-if="monster">{{monster.type}}</div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <table>
+        <tbody>
+            <tr ng-repeat="row in gameData.defenses track by $index">
+                <td ng-repeat="defense in row track by defense.id">
+                    <div class="defense" ng-if="defense">{{defense.type}}</div>
+                </td>
+            </tr>
+        </tbody>
+        <tbody>
+            <tr ng-repeat="row in gameData.monsters track by $index">
+                <td ng-repeat="monster in row track by monster.id">
+                    <div class="monster" ng-if="monster">{{monster.type}}</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
         <div id="turnIndicator" ng-controller="GameController" ng-show="showTurnIndicator">
             <h3>Current Turn: <span id="currentPlayerName">{{currentPlayerName}}</span></h3>
             <h3>Dice Roll: <span id="diceRollResult">{{diceRollResult}}</span></h3>
