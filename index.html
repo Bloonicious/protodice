@@ -46,13 +46,13 @@
         </div>
         <div class="game-area" ng-controller="GameController" ng-show="showGameArea">
             <table>
-                <tr ng-repeat="row in gameData.defenses">
-                    <td ng-repeat="cell in row">
+                <div ng-repeat="row in gameData.defenses track by $index">
+                    <div ng-repeat="defense in row track by defense.id">
                         <div class="defense" ng-if="cell">{{cell.type}}</div>
                     </td>
                 </tr>
-                <tr ng-repeat="row in gameData.monsters">
-                    <td ng-repeat="cell in row">
+                <div ng-repeat="row in gameData.monsters track by $index">
+                    <div ng-repeat="monster in row track by monster.id">
                         <div class="monster" ng-if="cell">{{cell.type}}</div>
                     </td>
                 </tr>
