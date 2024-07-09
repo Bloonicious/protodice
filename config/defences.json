@@ -1,0 +1,12 @@
+[
+    { "type": "Cannon" },
+    { "type": "Sniper Tower" },
+    { "type": "Machine Gun" },
+    { "type": "Flamethrower" },
+    { "type": "Rocket Launcher" },
+    { "type": "Boom Cannon" },
+    { "type": "Laser Beam" },
+    { "type": "Shock Blaster" },
+    { "type": "Acid Shooter" },
+    { "type": "Microwav'r" }
+]
