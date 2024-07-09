@@ -1,4 +1,4 @@
-angular.module('tdGameApp').controller('MainController', ['$scope', function($scope) {
+app.controller('MainController', ['$scope', function($scope) {
     $scope.showPlaySectionFlag = false;
     $scope.showHelpSectionFlag = false;
     $scope.showBackButton = false;
@@ -39,7 +39,7 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
     };
 }]);
 
-angular.module('tdGameApp').controller('GameController', ['$scope', function($scope) {
+app.controller('GameController', ['$scope', function($scope) {
     $scope.gameData = {
         track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
         defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
