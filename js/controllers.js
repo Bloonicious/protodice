@@ -455,5 +455,4 @@ function checkWinConditions(game) {
         }
     }
 }
-}
 }]);
