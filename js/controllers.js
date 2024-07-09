@@ -343,24 +343,16 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }
     }
 
-    // Handle dropping defenses on the grid
+    // Handle dropping defenses and monsters on the grid
     $scope.onDropCell = function(event, colIndex, rowIndex) {
         if ($scope.currentDefense && colIndex < 4) {
             $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
             $scope.currentDefense = null;
-            $scope.showDefenseHolder = false;
-        } else {
-            alert('You can only place defenses in the first 4 columns.');
-        }
-    };
-
-    // Handle dropping monsters on the grid
-    $scope.onDropMonster = function(event, colIndex, rowIndex) {
-        if ($scope.currentMonster && colIndex > 4) {
+        } else if ($scope.currentMonster && colIndex > 4) {
             $scope.gameData.monsters[rowIndex][colIndex] = $scope.currentMonster;
             $scope.currentMonster = null;
         } else {
-            alert('You can only place monsters in the last 4 columns.');
+            alert('Invalid placement.');
         }
     };
 }]);
