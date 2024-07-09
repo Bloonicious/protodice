@@ -6,6 +6,7 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
     $scope.showStartButton = false;
     $scope.showRollDiceButton = false;
     $scope.showTurnIndicator = false;
+    $scope.showDefenseHolder = false;
 
     $scope.numPlayers = 1;
     $scope.swapSides = false;
@@ -36,6 +37,10 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
     };
 
     $scope.startGame = function() {
+        if ($scope.player1Name.length < 2 || ($scope.numPlayers > 1 && $scope.player2Name.length < 2)) {
+            alert('Players must have at least 2 characters in their name.');
+            return;
+        }
         $scope.showGameArea = true;
         $scope.showRollDiceButton = true;
         $scope.showTurnIndicator = true;
@@ -45,17 +50,16 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
 }]);
 
 angular.module('tdGameApp').controller('GameController', ['$scope', function($scope) {
-    // Game data initialization
     $scope.gameData = {
         defenses: Array(5).fill().map(() => Array(9).fill(null)),
         monsters: Array(5).fill().map(() => Array(9).fill(null)),
         currentPlayerIndex: 0,
         players: ['player1', 'player2'],
         status: 'started',
-        turnCount: 0
+        turnCount: 0,
+        rolledSix: false
     };
 
-    // Roll Dice for Defenses
     $scope.rollDice = function() {
         const userId = 'player1'; // For demonstration, using player1 as current user
         const game = $scope.gameData;
@@ -68,48 +72,61 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         const roll = Math.floor(Math.random() * 6) + 1;
         let defense;
 
-        switch (roll) {
-            case 1:
-                defense = createDefense('Cannon', 5, 10, 50);
-                break;
-            case 2:
-                defense = createDefense('Sniper Tower', 7, 10, 35);
-                break;
-            case 3:
-                defense = createDefense('Machine Gun', 4, Math.floor(Math.random() * 11) + 5, 30);
-                break;
-            case 4:
-                defense = createDefense('Flamethrower', 2, 15, 50, {
-                    burnDamage: 15
-                });
-                break;
-            case 5:
-                defense = createDefense('Rocket Launcher', 8, 12, 20);
-                break;
-            case 6:
-                rollPrototypeDefense(game);
-                return;
-            default:
-                defense = null;
-        }
-
-        if (defense) {
-            $scope.currentDefense = defense;
+        if (roll === 6 && !game.rolledSix) {
+            game.rolledSix = true;
+            alert('You rolled a 6! Roll again for a prototype defense.');
+            return;
+        } else if (roll === 6 && game.rolledSix) {
+            alert('You rolled a 6 and a special prototype defense!');
+            rollPrototypeDefense(game);
+            game.rolledSix = false;
+        } else if (game.rolledSix) {
+            alert('You\'ve already rolled your protodice! Place your prototype defense.');
+            rollPrototypeDefense(game);
+            game.rolledSix = false;
         } else {
-            alert(`You rolled a ${roll}, but no defense was placed.`);
-        }
+            switch (roll) {
+                case 1:
+                    defense = createDefense('Cannon', 5, 10, 50);
+                    break;
+                case 2:
+                    defense = createDefense('Sniper Tower', 7, 10, 35);
+                    break;
+                case 3:
+                    defense = createDefense('Machine Gun', 4, Math.floor(Math.random() * 11) + 5, 30);
+                    break;
+                case 4:
+                    defense = createDefense('Flamethrower', 2, 15, 50, {
+                        burnDamage: 15
+                    });
+                    break;
+                case 5:
+                    defense = createDefense('Rocket Launcher', 8, 12, 20);
+                    break;
+                default:
+                    defense = null;
+            }
 
-        game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
-        game.turnCount++;
-        if (game.turnCount % 2 === 0) {
-            moveMonsters(game);
-            combat(game);
-            spawnMonsters(game);
-            checkWinConditions(game);
+            if (defense) {
+                $scope.currentDefense = defense;
+                alert(`You rolled a ${roll} and got a ${defense.type}. Place your defense.`);
+                $scope.showDefenseHolder = true;
+            } else {
+                alert(`You rolled a ${roll}, but no defense was placed.`);
+            }
+
+            game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
+            game.turnCount++;
+            if (game.turnCount % 2 === 0) {
+                moveMonsters(game);
+                combat(game);
+                spawnMonsters(game);
+                checkWinConditions(game);
+            }
         }
     };
 
-    // Create a defense object
+    // Create a defence object
     function createDefense(type, range, damage, hp, additionalProperties = {}) {
         return Object.assign({
             id: `defense-${Date.now()}-${Math.random()}`,
@@ -117,18 +134,6 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
             range,
             damage,
             hp
-        }, additionalProperties);
-    }
-
-    // Create a monster object
-    function createMonster(type, range, damage, hp, speed, additionalProperties = {}) {
-        return Object.assign({
-            id: `monster-${Date.now()}-${Math.random()}`,
-            type,
-            range,
-            damage,
-            hp,
-            speed
         }, additionalProperties);
     }
 
@@ -166,37 +171,24 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }
 
         if (defense) {
-            const defenses = game.defenses;
-            let placed = false;
-
-            for (let i = 0; i < 5; i++) {
-                for (let j = 0; j < 9; j++) {
-                    if (!defenses[i][j] && j < 4) { // Ensure defenses are only placed in the first 4 columns
-                        defenses[i][j] = defense;
-                        placed = true;
-                        break;
-                    }
-                }
-                if (placed) break;
-            }
-
-            if (placed) {
-                alert(`You rolled a special 6 and placed a ${defense.type} on the grid.`);
-            } else {
-                alert('No space to place a new defense.');
-            }
+            $scope.currentDefense = defense;
+            alert(`You rolled a special 6 and got a ${defense.type}. Place your defense.`);
+            $scope.showDefenseHolder = true;
         } else {
             alert(`You rolled a special 6, but no defense was placed.`);
         }
+    }
 
-        game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
-        game.turnCount++;
-        if (game.turnCount % 2 === 0) {
-            moveMonsters(game);
-            combat(game);
-            spawnMonsters(game);
-            checkWinConditions(game);
-        }
+    // Create a monster object
+    function createMonster(type, range, damage, hp, speed, additionalProperties = {}) {
+        return Object.assign({
+            id: `monster-${Date.now()}-${Math.random()}`,
+            type,
+            range,
+            damage,
+            hp,
+            speed
+        }, additionalProperties);
     }
 
     // Roll for prototype monsters
