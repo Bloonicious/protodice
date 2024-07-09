@@ -71,3 +71,31 @@ h1 {
 #turnIndicator h3 {
     margin: 5px 0;
 }
+
+.defense, .monster {
+    width: 50px;
+    height: 50px;
+    border: 1px solid black;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 50px;
+    user-select: none;
+}
+
+#defenseHolder {
+    margin-top: 20px;
+}
+
+.game-area td {
+    width: 50px;
+    height: 50px;
+    border: 1px solid black;
+}
+
+.game-area td.drag-over {
+    background-color: lightblue;
+}
+
+.game-area td.invalid {
+    background-color: red;
+}
