@@ -39,7 +39,7 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
     };
 }]);
 
-app.controller('GameController', ['$scope', '$http', function($scope, $http) {
+angular.module('tdGameApp').controller('GameController', ['$scope', function($scope) {
     $scope.gameData = {
         defenses: Array(5).fill().map(() => Array(4).fill(null)),
         monsters: Array(5).fill().map(() => Array(9).fill(null)),
