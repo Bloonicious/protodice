@@ -47,7 +47,7 @@
         <div class="game-area" ng-controller="GameController" ng-show="showGameArea">
             <table>
                 <tbody>
-                    <tr ng-repeat="row in gameData.track by $index">
+                    <tr ng-repeat="row in gameData.track">
                         <td ng-repeat="cell in row track by $index"
                             ng-class="{
                                 'defense-zone': $index < 3,
