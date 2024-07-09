@@ -47,25 +47,28 @@
         <div class="game-area" ng-controller="GameController" ng-show="showGameArea">
             <table>
                 <tbody>
-                    <tr ng-repeat="row in gameData.defenses track by $index">
-                        <td ng-repeat="defense in row track by $index">
-                            <div class="defense" ng-if="defense">{{defense.type}}</div>
-                        </td>
-                    </tr>
-                </tbody>
-                <tbody>
-                    <tr ng-repeat="row in gameData.monsters track by $index">
-                        <td ng-repeat="monster in row track by $index">
-                            <div class="monster" ng-if="monster">{{monster.type}}</div>
+                    <tr ng-repeat="row in gameData.track by $index">
+                        <td ng-repeat="cell in row track by $index"
+                            ng-class="{
+                                'defense-zone': $index < 3,
+                                'bridge-zone': $index === 3,
+                                'monster-zone': $index > 3
+                            }"
+                            ng-drop="true" ng-drop-success="onDropCell($event, $index, $parent.$index)">
+                            <div class="defense" ng-if="cell.type === 'defense'">{{cell.content.type}}</div>
+                            <div class="monster" ng-if="cell.type === 'monster'">{{cell.content.type}}</div>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <div id="defenseHolder" ng-show="currentDefense">
-                <div class="defense" draggable="true" ondragstart="drag(event)">{{currentDefense.type}}</div>
+                <div class="defense draggable" draggable="true" ondragstart="drag(event)">{{currentDefense.type}}</div>
+            </div>
+            <div id="monsterHolder" ng-show="currentMonster">
+                <div class="monster draggable" draggable="true" ondragstart="drag(event)">{{currentMonster.type}}</div>
             </div>
         </div>
-        <div id="turnIndicator" ng-controller="GameController" ng-show="showTurnIndicator">
+        <div id="turnIndicator" ng-show="showTurnIndicator">
             <h3>Current Turn: <span id="currentPlayerName">{{currentPlayerName}}</span></h3>
             <h3>Dice Roll: <span id="diceRollResult">{{diceRollResult}}</span></h3>
         </div>
