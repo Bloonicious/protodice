@@ -51,12 +51,18 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
 angular.module('tdGameApp').controller('GameController', ['$scope', function($scope) {
     $scope.gameData = {
         track: Array(5).fill().map(() => Array(9).fill(null)),
+        defenses: Array(5).fill().map(() => Array(9).fill(null)),
+        monsters: Array(5).fill().map(() => Array(9).fill(null)),
         currentPlayerIndex: 0,
         players: ['player1', 'player2'],
         status: 'started',
         turnCount: 0,
         rolledSix: false
     };
+
+    $scope.currentDefense = null;
+    $scope.currentMonster = null;
+    $scope.showDefenseHolder = false;
 
     $scope.rollDice = function() {
         const userId = 'player1'; // For demonstration, using player1 as current user
@@ -94,9 +100,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                     defense = createDefense('Machine Gun', 4, Math.floor(Math.random() * 11) + 5, 30);
                     break;
                 case 4:
-                    defense = createDefense('Flamethrower', 2, 15, 50, {
-                        burnDamage: 15
-                    });
+                    defense = createDefense('Flamethrower', 2, 15, 50, { burnDamage: 15 });
                     break;
                 case 5:
                     defense = createDefense('Rocket Launcher', 8, 12, 20);
@@ -145,24 +149,16 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 defense = createDefense('Boom Cannon', 6, 25, 60);
                 break;
             case 2:
-                defense = createDefense('Laser Beam', 7, 10, 60, {
-                    penetrating: true
-                });
+                defense = createDefense('Laser Beam', 7, 10, 60, { penetrating: true });
                 break;
             case 3:
-                defense = createDefense('Shock Blaster', 7, 15, 60, {
-                    stun: true
-                });
+                defense = createDefense('Shock Blaster', 7, 15, 60, { stun: true });
                 break;
             case 4:
-                defense = createDefense('Acid Shooter', 4, 20, 50, {
-                    debuff: 30
-                });
+                defense = createDefense('Acid Shooter', 4, 20, 50, { debuff: 30 });
                 break;
             case 5:
-                defense = createDefense('Microwav\'r', 3, 20, 80, {
-                    areaDamage: true
-                });
+                defense = createDefense('Microwav\'r', 3, 20, 80, { areaDamage: true });
                 break;
             default:
                 defense = null;
@@ -202,19 +198,13 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 monster = createMonster('Harpy', 2, 5, 30, 2);
                 break;
             case 3:
-                monster = createMonster('Ice Lizard', 2, 8, 35, 1, {
-                    freezeChance: 0.1
-                });
+                monster = createMonster('Ice Lizard', 2, 8, 35, 1, { freezeChance: 0.1 });
                 break;
             case 4:
-                monster = createMonster('Fire Demon', 1, 12, 40, 1, {
-                    burnChance: 0.2
-                });
+                monster = createMonster('Fire Demon', 1, 12, 40, 1, { burnChance: 0.2 });
                 break;
             case 5:
-                monster = createMonster('Electro Mage', 3, 15, 20, 1, {
-                    chainLightningChance: 0.15
-                });
+                monster = createMonster('Electro Mage', 3, 15, 20, 1, { chainLightningChance: 0.15 });
                 break;
             default:
                 monster = null;
@@ -355,17 +345,22 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
 
     // Handle dropping defenses on the grid
     $scope.onDropCell = function(event, colIndex, rowIndex) {
-        if ($scope.currentDefense) {
-            $scope.gameData.track[rowIndex][colIndex] = { type: 'defense', content: $scope.currentDefense };
+        if ($scope.currentDefense && colIndex < 4) {
+            $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
             $scope.currentDefense = null;
+            $scope.showDefenseHolder = false;
+        } else {
+            alert('You can only place defenses in the first 4 columns.');
         }
     };
 
     // Handle dropping monsters on the grid
     $scope.onDropMonster = function(event, colIndex, rowIndex) {
-        if ($scope.currentMonster) {
-            $scope.gameData.track[rowIndex][colIndex] = { type: 'monster', content: $scope.currentMonster };
+        if ($scope.currentMonster && colIndex > 4) {
+            $scope.gameData.monsters[rowIndex][colIndex] = $scope.currentMonster;
             $scope.currentMonster = null;
+        } else {
+            alert('You can only place monsters in the last 4 columns.');
         }
     };
 }]);
