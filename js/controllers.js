@@ -354,21 +354,19 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }
     }
 
-    // Handle dropping defense on the grid
-    $scope.dropDefense = function(event, rowIndex, colIndex) {
-        event.preventDefault();
-        if (!$scope.currentDefense) {
-            return;
+    // Handle dropping defenses on the grid
+    $scope.onDropCell = function(event, colIndex, rowIndex) {
+        if ($scope.currentDefense) {
+            $scope.gameData.track[rowIndex][colIndex] = { type: 'defense', content: $scope.currentDefense };
+            $scope.currentDefense = null;
         }
-        if ($scope.gameData.defenses[rowIndex][colIndex]) {
-            alert('Invalid placement: There is already a defense here.');
-            return;
+    };
+
+    // Handle dropping monsters on the grid
+    $scope.onDropMonster = function(event, colIndex, rowIndex) {
+        if ($scope.currentMonster) {
+            $scope.gameData.track[rowIndex][colIndex] = { type: 'monster', content: $scope.currentMonster };
+            $scope.currentMonster = null;
         }
-        if (rowIndex < 0 || rowIndex >= 5 || colIndex < 0 || colIndex >= 9) {
-            alert('Invalid placement: Outside the grid.');
-            return;
-        }
-        $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
-        $scope.currentDefense = null;
     };
 }]);
