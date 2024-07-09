@@ -442,4 +442,12 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
 
         // Additional conditions can be added here for defenses winning or other end-game scenarios
     }
+
+    function initializeGrid() {
+        $scope.gameData.defenses = Array(5).fill().map(() => Array(9).fill(null));
+        $scope.gameData.monsters = Array(5).fill().map(() => Array(9).fill(null));
+    }
+
+    // Initialize the grid on game start
+    initializeGrid();
 }]);
