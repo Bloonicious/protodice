@@ -1,1 +1,1 @@
-angular.module('tdGameApp', []);
+angular.module('tdGameApp', ['dndLists']);
