@@ -94,25 +94,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }
 
         if (defense) {
-            const defenses = game.defenses;
-            let placed = false;
-
-            for (let i = 0; i < 5; i++) {
-                for (let j = 0; j < 9; j++) {
-                    if (!defenses[i][j] && j < 4) { // Ensure defenses are only placed in the first 4 columns
-                        defenses[i][j] = defense;
-                        placed = true;
-                        break;
-                    }
-                }
-                if (placed) break;
-            }
-
-            if (placed) {
-                alert(`You rolled a ${roll} and placed a ${defense.type} on the grid.`);
-            } else {
-                alert('No space to place a new defense.');
-            }
+            $scope.currentDefense = defense;
         } else {
             alert(`You rolled a ${roll}, but no defense was placed.`);
         }
@@ -380,4 +362,22 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
             }
         }
     }
+
+    // Handle dropping defense on the grid
+    $scope.dropDefense = function(event, rowIndex, colIndex) {
+        event.preventDefault();
+        if (!$scope.currentDefense) {
+            return;
+        }
+        if ($scope.gameData.defenses[rowIndex][colIndex]) {
+            alert('Invalid placement: There is already a defense here.');
+            return;
+        }
+        if (rowIndex < 0 || rowIndex >= 5 || colIndex < 0 || colIndex >= 9) {
+            alert('Invalid placement: Outside the grid.');
+            return;
+        }
+        $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
+        $scope.currentDefense = null;
+    };
 }]);
