@@ -174,8 +174,10 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
     }
 
     function spawnMonsters(game) {
-        const monsters = game.monsters;
+    const monsters = game.monsters;
 
+    if ($scope.numPlayers === 1 && game.players[game.currentPlayerIndex] === 'AI') {
+        // AI places monsters randomly
         for (let i = 0; i < 5; i++) {
             if (!monsters[i][8]) {
                 const roll = Math.floor(Math.random() * 6) + 1;
@@ -206,10 +208,17 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
 
                 if (monster) {
                     monsters[i][8] = monster;
+                    break;  // AI places only one monster per turn
                 }
             }
         }
     }
+
+    game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
+    if ($scope.numPlayers === 1 && game.players[game.currentPlayerIndex] === 'AI') {
+        spawnMonsters(game);  // AI takes its turn immediately
+    }
+}
 
     function rollPrototypeMonster(game) {
         const monsters = game.monsters;
