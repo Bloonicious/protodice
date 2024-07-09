@@ -45,6 +45,7 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
 }]);
 
 angular.module('tdGameApp').controller('GameController', ['$scope', function($scope) {
+    // Game data initialization
     $scope.gameData = {
         defenses: Array(5).fill().map(() => Array(9).fill(null)),
         monsters: Array(5).fill().map(() => Array(9).fill(null)),
@@ -54,6 +55,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         turnCount: 0
     };
 
+    // Roll Dice for Defenses
     $scope.rollDice = function() {
         const userId = 'player1'; // For demonstration, using player1 as current user
         const game = $scope.gameData;
@@ -125,6 +127,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }
     };
 
+    // Create a defense object
     function createDefense(type, range, damage, hp, additionalProperties = {}) {
         return Object.assign({
             id: `defense-${Date.now()}-${Math.random()}`,
@@ -134,8 +137,6 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
             hp
         }, additionalProperties);
     }
-
-    // ... other methods unchanged ...
 }]);
 
 function rollPrototypeDefense(game) {
