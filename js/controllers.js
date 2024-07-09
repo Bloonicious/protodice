@@ -54,13 +54,8 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
     };
 
     $scope.rollDice = function() {
-        const userId = 'player1';  // For demonstration, using player1 as current user
+        const userId = 'player1'; // For demonstration, using player1 as current user
         const game = $scope.gameData;
-
-        if (!game) {
-            alert('You are not in an active game.');
-            return;
-        }
 
         if (game.players[game.currentPlayerIndex] !== userId) {
             alert('It\'s not your turn.');
@@ -72,19 +67,45 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
 
         switch (roll) {
             case 1:
-                defense = { type: 'Cannon', range: 5, damage: 10, hp: 50 };
+                defense = {
+                    type: 'Cannon',
+                    range: 5,
+                    damage: 10,
+                    hp: 50
+                };
                 break;
             case 2:
-                defense = { type: 'Sniper Tower', range: 7, damage: 10, hp: 35 };
+                defense = {
+                    type: 'Sniper Tower',
+                    range: 7,
+                    damage: 10,
+                    hp: 35
+                };
                 break;
             case 3:
-                defense = { type: 'Machine Gun', range: 4, damage: Math.floor(Math.random() * 11) + 5, hp: 30 };
+                defense = {
+                    type: 'Machine Gun',
+                    range: 4,
+                    damage: Math.floor(Math.random() * 11) + 5,
+                    hp: 30
+                };
                 break;
             case 4:
-                defense = { type: 'Flamethrower', range: 2, damage: 15, hp: 50, burnDamage: 15 };
+                defense = {
+                    type: 'Flamethrower',
+                    range: 2,
+                    damage: 15,
+                    hp: 50,
+                    burnDamage: 15
+                };
                 break;
             case 5:
-                defense = { type: 'Rocket Launcher', range: 8, damage: 12, hp: 20 };
+                defense = {
+                    type: 'Rocket Launcher',
+                    range: 8,
+                    damage: 12,
+                    hp: 20
+                };
                 break;
             case 6:
                 rollPrototypeDefense(game);
@@ -98,8 +119,8 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
             let placed = false;
 
             for (let i = 0; i < 5; i++) {
-                for (let j = 0; j < 4; j++) {
-                    if (!defenses[i][j]) {
+                for (let j = 0; j < 9; j++) {
+                    if (!defenses[i][j] && j < 4) { // Ensure defenses are only placed in the first 4 columns
                         defenses[i][j] = defense;
                         placed = true;
                         break;
@@ -118,7 +139,13 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }
 
         game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
-        spawnMonsters(game);
+        game.turnCount++;
+        if (game.turnCount % 2 === 0) {
+            moveMonsters(game);
+            combat(game);
+            spawnMonsters(game);
+            checkWinConditions(game);
+        }
     };
 
     function rollPrototypeDefense(game) {
@@ -127,19 +154,48 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
 
         switch (roll) {
             case 1:
-                defense = { type: 'Boom Cannon', range: 6, damage: 25, hp: 60 };
+                defense = {
+                    type: 'Boom Cannon',
+                    range: 6,
+                    damage: 25,
+                    hp: 60
+                };
                 break;
             case 2:
-                defense = { type: 'Laser Beam', range: 7, damage: 10, hp: 60, penetrating: true };
+                defense = {
+                    type: 'Laser Beam',
+                    range: 7,
+                    damage: 10,
+                    hp: 60,
+                    penetrating: true
+                };
                 break;
             case 3:
-                defense = { type: 'Shock Blaster', range: 7, damage: 15, hp: 60, stun: true };
+                defense = {
+                    type: 'Shock Blaster',
+                    range: 7,
+                    damage: 15,
+                    hp: 60,
+                    stun: true
+                };
                 break;
             case 4:
-                defense = { type: 'Acid Shooter', range: 4, damage: 20, hp: 50, debuff: 30 };
+                defense = {
+                    type: 'Acid Shooter',
+                    range: 4,
+                    damage: 20,
+                    hp: 50,
+                    debuff: 30
+                };
                 break;
             case 5:
-                defense = { type: 'Microwav\'r', range: 3, damage: 20, hp: 80, areaDamage: true };
+                defense = {
+                    type: 'Microwav\'r',
+                    range: 3,
+                    damage: 20,
+                    hp: 80,
+                    areaDamage: true
+                };
                 break;
             default:
                 defense = null;
@@ -150,8 +206,8 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
             let placed = false;
 
             for (let i = 0; i < 5; i++) {
-                for (let j = 0; j < 4; j++) {
-                    if (!defenses[i][j]) {
+                for (let j = 0; j < 9; j++) {
+                    if (!defenses[i][j] && j < 4) { // Ensure defenses are only placed in the first 4 columns
                         defenses[i][j] = defense;
                         placed = true;
                         break;
@@ -170,14 +226,18 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }
 
         game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
-        spawnMonsters(game);
+        game.turnCount++;
+        if (game.turnCount % 2 === 0) {
+            moveMonsters(game);
+            combat(game);
+            spawnMonsters(game);
+            checkWinConditions(game);
+        }
     }
 
     function spawnMonsters(game) {
-    const monsters = game.monsters;
+        const monsters = game.monsters;
 
-    if ($scope.numPlayers === 1 && game.players[game.currentPlayerIndex] === 'AI') {
-        // AI places monsters randomly
         for (let i = 0; i < 5; i++) {
             if (!monsters[i][8]) {
                 const roll = Math.floor(Math.random() * 6) + 1;
@@ -185,19 +245,49 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
 
                 switch (roll) {
                     case 1:
-                        monster = { type: 'Goblin', range: 1, damage: 8, hp: 30, speed: 1 };
+                        monster = {
+                            type: 'Goblin',
+                            range: 1,
+                            damage: 8,
+                            hp: 30,
+                            speed: 1
+                        };
                         break;
                     case 2:
-                        monster = { type: 'Orc', range: 1, damage: 6, hp: 40, speed: 1 };
+                        monster = {
+                            type: 'Orc',
+                            range: 1,
+                            damage: 6,
+                            hp: 40,
+                            speed: 1
+                        };
                         break;
                     case 3:
-                        monster = { type: 'Barbarian', range: 1, damage: 12, hp: 20, speed: 1 };
+                        monster = {
+                            type: 'Barbarian',
+                            range: 1,
+                            damage: 12,
+                            hp: 20,
+                            speed: 1
+                        };
                         break;
                     case 4:
-                        monster = { type: 'Archer', range: 3, damage: 10, hp: 15, speed: 1 };
+                        monster = {
+                            type: 'Archer',
+                            range: 3,
+                            damage: 10,
+                            hp: 15,
+                            speed: 1
+                        };
                         break;
                     case 5:
-                        monster = { type: 'Bear', range: 1, damage: 10, hp: 50, speed: 0.5 };
+                        monster = {
+                            type: 'Bear',
+                            range: 1,
+                            damage: 10,
+                            hp: 50,
+                            speed: 0.5
+                        };
                         break;
                     case 6:
                         rollPrototypeMonster(game);
@@ -208,17 +298,11 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
 
                 if (monster) {
                     monsters[i][8] = monster;
-                    break;  // AI places only one monster per turn
+                    break; // Only one monster placed per turn
                 }
             }
         }
     }
-
-    game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
-    if ($scope.numPlayers === 1 && game.players[game.currentPlayerIndex] === 'AI') {
-        spawnMonsters(game);  // AI takes its turn immediately
-    }
-}
 
     function rollPrototypeMonster(game) {
         const monsters = game.monsters;
@@ -230,19 +314,49 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
 
                 switch (roll) {
                     case 1:
-                        monster = { type: 'Golem', range: 1, damage: 8, hp: 100, speed: 0.5 };
+                        monster = {
+                            type: 'Golem',
+                            range: 1,
+                            damage: 8,
+                            hp: 100,
+                            speed: 0.5
+                        };
                         break;
                     case 2:
-                        monster = { type: 'Dragon', range: 1, damage: 15, hp: 80, speed: 1 };
+                        monster = {
+                            type: 'Dragon',
+                            range: 1,
+                            damage: 15,
+                            hp: 80,
+                            speed: 1
+                        };
                         break;
                     case 3:
-                        monster = { type: 'Knight', range: 1, damage: 12, hp: 50, speed: 1 };
+                        monster = {
+                            type: 'Knight',
+                            range: 1,
+                            damage: 12,
+                            hp: 50,
+                            speed: 1
+                        };
                         break;
                     case 4:
-                        monster = { type: 'Crossbowman', range: 4, damage: 15, hp: 20, speed: 1 };
+                        monster = {
+                            type: 'Crossbowman',
+                            range: 4,
+                            damage: 15,
+                            hp: 20,
+                            speed: 1
+                        };
                         break;
                     case 5:
-                        monster = { type: 'Hydra', range: 2, damage: 13, hp: 80, speed: 0.5 };
+                        monster = {
+                            type: 'Hydra',
+                            range: 2,
+                            damage: 13,
+                            hp: 80,
+                            speed: 0.5
+                        };
                         break;
                     default:
                         monster = null;
@@ -253,5 +367,79 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 }
             }
         }
+    }
+
+    function moveMonsters(game) {
+        const monsters = game.monsters;
+
+        for (let i = 0; i < 5; i++) {
+            for (let j = 8; j >= 0; j--) {
+                if (monsters[i][j]) {
+                    const monster = monsters[i][j];
+                    const newCol = j - Math.ceil(monster.speed);
+
+                    if (newCol < 0) {
+                        // Monster reached the left end, handle game over condition if necessary
+                        monsters[i][j] = null;
+                    } else if (!monsters[i][newCol]) {
+                        monsters[i][newCol] = monster;
+                        monsters[i][j] = null;
+                    }
+                }
+            }
+        }
+    }
+
+    function combat(game) {
+        const defenses = game.defenses;
+        const monsters = game.monsters;
+
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 9; j++) {
+                const defense = defenses[i][j];
+                if (defense) {
+                    for (let k = 1; k <= defense.range; k++) {
+                        if (j + k < 9 && monsters[i][j + k]) {
+                            const monster = monsters[i][j + k];
+                            monster.hp -= defense.damage;
+
+                            if (defense.type === 'Flamethrower' && monster.hp > 0) {
+                                monster.burnDamage = (monster.burnDamage || 0) + defense.burnDamage;
+                            }
+
+                            if (defense.type === 'Shock Blaster' && monster.hp > 0) {
+                                monster.stunned = true;
+                            }
+
+                            if (defense.type === 'Acid Shooter' && monster.hp > 0) {
+                                monster.debuff = (monster.debuff || 0) + defense.debuff;
+                            }
+
+                            if (monster.hp <= 0) {
+                                monsters[i][j + k] = null;
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function checkWinConditions(game) {
+        const monsters = game.monsters;
+        const gridSize = 5; // Fixed grid size
+
+        for (let i = 0; i < gridSize; i++) {
+            if (monsters[i][0]) {
+                // Monsters have reached the leftmost column, monsters win
+                alert('Monsters have won the game!');
+                game.status = 'ended';
+                return;
+            }
+        }
+
+        // Additional conditions can be added here for defenses winning or other end-game scenarios
     }
 }]);
