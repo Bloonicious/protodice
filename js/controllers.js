@@ -46,11 +46,12 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
 
 angular.module('tdGameApp').controller('GameController', ['$scope', function($scope) {
     $scope.gameData = {
-        defenses: Array(5).fill().map(() => Array(4).fill([])),
-        monsters: Array(5).fill().map(() => Array(9).fill([])),
+        defenses: Array(5).fill().map(() => Array(9).fill(null)),
+        monsters: Array(5).fill().map(() => Array(9).fill(null)),
         currentPlayerIndex: 0,
         players: ['player1', 'player2'],
-        status: 'started'
+        status: 'started',
+        turnCount: 0
     };
 
     $scope.rollDice = function() {
@@ -68,6 +69,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         switch (roll) {
             case 1:
                 defense = {
+                    id: `defense-${Date.now()}-${Math.random()}`,
                     type: 'Cannon',
                     range: 5,
                     damage: 10,
@@ -76,6 +78,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 break;
             case 2:
                 defense = {
+                    id: `defense-${Date.now()}-${Math.random()}`,
                     type: 'Sniper Tower',
                     range: 7,
                     damage: 10,
@@ -84,6 +87,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 break;
             case 3:
                 defense = {
+                    id: `defense-${Date.now()}-${Math.random()}`,
                     type: 'Machine Gun',
                     range: 4,
                     damage: Math.floor(Math.random() * 11) + 5,
@@ -92,6 +96,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 break;
             case 4:
                 defense = {
+                    id: `defense-${Date.now()}-${Math.random()}`,
                     type: 'Flamethrower',
                     range: 2,
                     damage: 15,
@@ -101,6 +106,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 break;
             case 5:
                 defense = {
+                    id: `defense-${Date.now()}-${Math.random()}`,
                     type: 'Rocket Launcher',
                     range: 8,
                     damage: 12,
@@ -155,6 +161,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         switch (roll) {
             case 1:
                 defense = {
+                    id: `defense-${Date.now()}-${Math.random()}`,
                     type: 'Boom Cannon',
                     range: 6,
                     damage: 25,
@@ -163,6 +170,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 break;
             case 2:
                 defense = {
+                    id: `defense-${Date.now()}-${Math.random()}`,
                     type: 'Laser Beam',
                     range: 7,
                     damage: 10,
@@ -172,6 +180,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 break;
             case 3:
                 defense = {
+                    id: `defense-${Date.now()}-${Math.random()}`,
                     type: 'Shock Blaster',
                     range: 7,
                     damage: 15,
@@ -181,6 +190,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 break;
             case 4:
                 defense = {
+                    id: `defense-${Date.now()}-${Math.random()}`,
                     type: 'Acid Shooter',
                     range: 4,
                     damage: 20,
@@ -190,6 +200,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 break;
             case 5:
                 defense = {
+                    id: `defense-${Date.now()}-${Math.random()}`,
                     type: 'Microwav\'r',
                     range: 3,
                     damage: 20,
@@ -246,6 +257,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                 switch (roll) {
                     case 1:
                         monster = {
+                            id: `monster-${Date.now()}-${Math.random()}`,
                             type: 'Goblin',
                             range: 1,
                             damage: 8,
@@ -255,6 +267,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                         break;
                     case 2:
                         monster = {
+                            id: `monster-${Date.now()}-${Math.random()}`,
                             type: 'Orc',
                             range: 1,
                             damage: 6,
@@ -264,6 +277,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                         break;
                     case 3:
                         monster = {
+                            id: `monster-${Date.now()}-${Math.random()}`,
                             type: 'Barbarian',
                             range: 1,
                             damage: 12,
@@ -273,6 +287,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                         break;
                     case 4:
                         monster = {
+                            id: `monster-${Date.now()}-${Math.random()}`,
                             type: 'Archer',
                             range: 3,
                             damage: 10,
@@ -282,6 +297,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
                         break;
                     case 5:
                         monster = {
+                            id: `monster-${Date.now()}-${Math.random()}`,
                             type: 'Bear',
                             range: 1,
                             damage: 10,
@@ -305,67 +321,86 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
     }
 
     function rollPrototypeMonster(game) {
-        const monsters = game.monsters;
+        const roll = Math.floor(Math.random() * 5) + 1;
+        let monster;
 
-        for (let i = 0; i < 5; i++) {
-            if (!monsters[i][8]) {
-                const roll = Math.floor(Math.random() * 5) + 1;
-                let monster;
+        switch (roll) {
+            case 1:
+                monster = {
+                    id: `monster-${Date.now()}-${Math.random()}`,
+                    type: 'Golem',
+                    range: 1,
+                    damage: 20,
+                    hp: 100,
+                    speed: 0.25
+                };
+                break;
+            case 2:
+                monster = {
+                    id: `monster-${Date.now()}-${Math.random()}`,
+                    type: 'Harpy',
+                    range: 2,
+                    damage: 5,
+                    hp: 30,
+                    speed: 2
+                };
+                break;
+            case 3:
+                monster = {
+                    id: `monster-${Date.now()}-${Math.random()}`,
+                    type: 'Ice Lizard',
+                    range: 2,
+                    damage: 8,
+                    hp: 35,
+                    speed: 1,
+                    freezeChance: 0.1
+                };
+                break;
+            case 4:
+                monster = {
+                    id: `monster-${Date.now()}-${Math.random()}`,
+                    type: 'Fire Demon',
+                    range: 1,
+                    damage: 12,
+                    hp: 40,
+                    speed: 1,
+                    burnChance: 0.2
+                };
+                break;
+            case 5:
+                monster = {
+                    id: `monster-${Date.now()}-${Math.random()}`,
+                    type: 'Electro Mage',
+                    range: 3,
+                    damage: 15,
+                    hp: 20,
+                    speed: 1,
+                    chainLightningChance: 0.15
+                };
+                break;
+            default:
+                monster = null;
+        }
 
-                switch (roll) {
-                    case 1:
-                        monster = {
-                            type: 'Golem',
-                            range: 1,
-                            damage: 8,
-                            hp: 100,
-                            speed: 0.5
-                        };
-                        break;
-                    case 2:
-                        monster = {
-                            type: 'Dragon',
-                            range: 1,
-                            damage: 15,
-                            hp: 80,
-                            speed: 1
-                        };
-                        break;
-                    case 3:
-                        monster = {
-                            type: 'Knight',
-                            range: 1,
-                            damage: 12,
-                            hp: 50,
-                            speed: 1
-                        };
-                        break;
-                    case 4:
-                        monster = {
-                            type: 'Crossbowman',
-                            range: 4,
-                            damage: 15,
-                            hp: 20,
-                            speed: 1
-                        };
-                        break;
-                    case 5:
-                        monster = {
-                            type: 'Hydra',
-                            range: 2,
-                            damage: 13,
-                            hp: 80,
-                            speed: 0.5
-                        };
-                        break;
-                    default:
-                        monster = null;
-                }
+        if (monster) {
+            const monsters = game.monsters;
+            let placed = false;
 
-                if (monster) {
+            for (let i = 0; i < 5; i++) {
+                if (!monsters[i][8]) {
                     monsters[i][8] = monster;
+                    placed = true;
+                    break;
                 }
             }
+
+            if (placed) {
+                alert(`You rolled a special 6 and spawned a ${monster.type} on the grid.`);
+            } else {
+                alert('No space to spawn a new monster.');
+            }
+        } else {
+            alert(`You rolled a special 6, but no monster was spawned.`);
         }
     }
 
@@ -442,12 +477,4 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
 
         // Additional conditions can be added here for defenses winning or other end-game scenarios
     }
-
-    function initializeGrid() {
-        $scope.gameData.defenses = Array(5).fill().map(() => Array(9).fill(null));
-        $scope.gameData.monsters = Array(5).fill().map(() => Array(9).fill(null));
-    }
-
-    // Initialize the grid on game start
-    initializeGrid();
 }]);
