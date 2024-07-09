@@ -7,15 +7,20 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
     $scope.showRollDiceButton = false;
     $scope.showTurnIndicator = false;
 
-    $scope.showPlaySection = function() {
-        $scope.showPlaySectionFlag = true;
+    $scope.numPlayers = 1;
+    $scope.swapSides = false;
+    $scope.player1Name = '';
+    $scope.player2Name = '';
+
+    $scope.togglePlaySection = function() {
+        $scope.showPlaySectionFlag = !$scope.showPlaySectionFlag;
         $scope.showHelpSectionFlag = false;
         $scope.showBackButton = true;
         $scope.showStartButton = true;
     };
 
-    $scope.showHelpSection = function() {
-        $scope.showHelpSectionFlag = true;
+    $scope.toggleHelpSection = function() {
+        $scope.showHelpSectionFlag = !$scope.showHelpSectionFlag;
         $scope.showPlaySectionFlag = false;
         $scope.showBackButton = true;
     };
@@ -31,11 +36,11 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
     };
 
     $scope.startGame = function() {
-        // Add logic to initialize the game with players
         $scope.showGameArea = true;
         $scope.showRollDiceButton = true;
         $scope.showTurnIndicator = true;
         $scope.showStartButton = false;
+        $scope.currentPlayerName = $scope.player1Name;
     };
 }]);
 
