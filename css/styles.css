@@ -45,9 +45,9 @@ h1 {
 }
 
 .game-area td {
-    width: 50px;
-    height: 50px;
-    border: 1px solid #ddd;
+    width: 11%;
+    height: 100px;
+    border: 1px solid black;
     text-align: center;
     vertical-align: middle;
 }
@@ -56,8 +56,14 @@ h1 {
     display: block;
     width: 100%;
     height: 100%;
-    background-color: #ffdfba;
     line-height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    cursor: grab;
+}
+
+.defense {
+    background-color: #ffdfba;
 }
 
 .monster {
@@ -72,7 +78,7 @@ h1 {
     margin: 5px 0;
 }
 
-.defense, .monster {
+.draggable {
     width: 50px;
     height: 50px;
     border: 1px solid black;
@@ -83,38 +89,18 @@ h1 {
     cursor: grab;
 }
 
-#defenseHolder {
+#defenseHolder, #monsterHolder {
     margin-top: 20px;
 }
 
-.game-area td {
-    width: 11%;
-    height: 100px;
-    border: 1px solid black;
-    text-align: center;
-    vertical-align: middle;
-}
-
-.game-area td.drag-over {
-    background-color: lightblue;
-}
-
-.game-area td.invalid {
-    background-color: red;
-}
-
-.game-area table {
-    width: 100%;
-}
 .defense-zone {
     background-color: blue;
 }
+
 .monster-zone {
     background-color: red;
 }
+
 .bridge-zone {
     background-color: green;
-}
-.draggable {
-    position: absolute;
 }
