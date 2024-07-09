@@ -6,7 +6,6 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
     $scope.showStartButton = false;
     $scope.showRollDiceButton = false;
     $scope.showTurnIndicator = false;
-    $scope.showDefenseHolder = false;
 
     $scope.numPlayers = 1;
     $scope.swapSides = false;
