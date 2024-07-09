@@ -124,7 +124,7 @@ angular.module('tdGameApp').controller('GameController', ['$scope', function($sc
         }
     };
 
-    // Create a defence object
+    // Create a defense object
     function createDefense(type, range, damage, hp, additionalProperties = {}) {
         return Object.assign({
             id: `defense-${Date.now()}-${Math.random()}`,
