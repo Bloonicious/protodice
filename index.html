@@ -1,17 +1,65 @@
 <!DOCTYPE html>
-<html ng-app="gameApp">
+<html lang="en" ng-app="tdGameApp">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Protodice</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="game-container" ng-controller="MainController">
+        <h1>Protodice</h1>
+        <div class="controls">
+            <button ng-click="showPlaySection()">Play</button>
+            <button ng-click="showHelpSection()">Help</button>
+            <button ng-click="goBack()" ng-show="showBackButton">Back</button>
+            <button ng-click="startGame()" ng-show="showStartButton">Start Game</button>
+            <button ng-click="rollDice()" ng-show="showRollDiceButton">Roll Dice</button>
+        </div>
+        <div id="playSection" ng-show="showPlaySectionFlag">
+            <div class="options">
+                <div class="play-options">
+                    <div id="playerSelection">
+                        <label>Select number of players:</label><br>
+                        <input type="radio" id="numPlayers1" name="numPlayers" value="1" ng-model="numPlayers">
+                        <label for="numPlayers1">1</label><br>
+                        <input type="radio" id="numPlayers2" name="numPlayers" value="2" ng-model="numPlayers">
+                        <label for="numPlayers2">2</label><br>
+                    </div>
+                    <div id="playerNames">
+                        <label for="player1Name">Player 1 Name:</label>
+                        <input type="text" id="player1Name" ng-model="player1Name"><br>
+                        <label for="player2Name" ng-show="numPlayers > 1">Player 2 Name:</label>
+                        <input type="text" id="player2Name" ng-show="numPlayers > 1" ng-model="player2Name">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="helpSection" ng-show="showHelpSectionFlag">
+            <h2>Help</h2>
+            <p>Instructions on how to play the game.</p>
+        </div>
+        <div class="game-area" ng-show="showGameArea">
+            <table>
+                <tr ng-repeat="row in gameData.defenses">
+                    <td ng-repeat="cell in row">
+                        <div class="defense" ng-if="cell">{{cell.type}}</div>
+                    </td>
+                </tr>
+                <tr ng-repeat="row in gameData.monsters">
+                    <td ng-repeat="cell in row">
+                        <div class="monster" ng-if="cell">{{cell.type}}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="turnIndicator" ng-show="showTurnIndicator">
+            <h3>Current Turn: <span id="currentPlayerName">{{currentPlayerName}}</span></h3>
+            <h3>Dice Roll: <span id="diceRollResult">{{diceRollResult}}</span></h3>
+        </div>
+    </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/controllers.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/styles.css">
-</head>
-<body ng-controller="GameController">
-    <div>
-        <h1>Protodice</h1>
-        <button ng-click="rollDice()">Roll Dice</button>
-        <pre>{{ gameData | json }}</pre>
-    </div>
 </body>
 </html>
