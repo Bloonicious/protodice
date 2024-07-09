@@ -9,10 +9,10 @@
 </head>
 <body>
     <div class="game-container" ng-controller="MainController">
-        <h1>Protodice</h1>
+        <h1>Tower Defense Dice Game</h1>
         <div class="controls">
-            <button ng-click="showPlaySection()">Play</button>
-            <button ng-click="showHelpSection()">Help</button>
+            <button ng-click="togglePlaySection()" ng-show="!showPlaySectionFlag">Play</button>
+            <button ng-click="toggleHelpSection()" ng-show="!showHelpSectionFlag">Help</button>
             <button ng-click="goBack()" ng-show="showBackButton">Back</button>
             <button ng-click="startGame()" ng-show="showStartButton">Start Game</button>
             <button ng-click="rollDice()" ng-show="showRollDiceButton">Roll Dice</button>
@@ -32,6 +32,10 @@
                         <input type="text" id="player1Name" ng-model="player1Name"><br>
                         <label for="player2Name" ng-show="numPlayers > 1">Player 2 Name:</label>
                         <input type="text" id="player2Name" ng-show="numPlayers > 1" ng-model="player2Name">
+                    </div>
+                    <div id="swapSides">
+                        <label for="swapSides">Swap Sides (Play as Monsters):</label>
+                        <input type="checkbox" id="swapSides" ng-model="swapSides">
                     </div>
                 </div>
             </div>
