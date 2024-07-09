@@ -46,8 +46,8 @@ angular.module('tdGameApp').controller('MainController', ['$scope', function($sc
 
 angular.module('tdGameApp').controller('GameController', ['$scope', function($scope) {
     $scope.gameData = {
-        defenses: Array(5).fill().map(() => Array(4).fill(null)),
-        monsters: Array(5).fill().map(() => Array(9).fill(null)),
+        defenses: Array(5).fill().map(() => Array(4).fill([])),
+        monsters: Array(5).fill().map(() => Array(9).fill([])),
         currentPlayerIndex: 0,
         players: ['player1', 'player2'],
         status: 'started'
