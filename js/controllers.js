@@ -1,3 +1,44 @@
+angular.module('tdGameApp').controller('MainController', ['$scope', function($scope) {
+    $scope.showPlaySectionFlag = false;
+    $scope.showHelpSectionFlag = false;
+    $scope.showGameArea = false;
+    $scope.showBackButton = false;
+    $scope.showStartButton = false;
+    $scope.showRollDiceButton = false;
+    $scope.showTurnIndicator = false;
+
+    $scope.showPlaySection = function() {
+        $scope.showPlaySectionFlag = true;
+        $scope.showHelpSectionFlag = false;
+        $scope.showBackButton = true;
+        $scope.showStartButton = true;
+    };
+
+    $scope.showHelpSection = function() {
+        $scope.showHelpSectionFlag = true;
+        $scope.showPlaySectionFlag = false;
+        $scope.showBackButton = true;
+    };
+
+    $scope.goBack = function() {
+        $scope.showPlaySectionFlag = false;
+        $scope.showHelpSectionFlag = false;
+        $scope.showBackButton = false;
+        $scope.showStartButton = false;
+        $scope.showRollDiceButton = false;
+        $scope.showTurnIndicator = false;
+        $scope.showGameArea = false;
+    };
+
+    $scope.startGame = function() {
+        // Add logic to initialize the game with players
+        $scope.showGameArea = true;
+        $scope.showRollDiceButton = true;
+        $scope.showTurnIndicator = true;
+        $scope.showStartButton = false;
+    };
+}]);
+
 app.controller('GameController', ['$scope', '$http', function($scope, $http) {
     $scope.gameData = {
         defenses: Array(5).fill().map(() => Array(4).fill(null)),
