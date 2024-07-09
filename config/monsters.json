@@ -1,0 +1,12 @@
+[
+    { "type": "Goblin" },
+    { "type": "Orc" },
+    { "type": "Barbarian" },
+    { "type": "Archer" },
+    { "type": "Bear" },
+    { "type": "Golem" },
+    { "type": "Dragon" },
+    { "type": "Knight" },
+    { "type": "Crossbowman" },
+    { "type": "Hydra" }
+]
