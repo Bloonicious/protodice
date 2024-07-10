@@ -11,7 +11,7 @@ app.controller('MainController', ['$scope', function($scope) {
     $scope.numPlayers = 1; // Default to 1 player
     $scope.player1Name = '';
     $scope.player2Name = '';
-    
+
     $scope.togglePlaySection = function() {
         $scope.showPlaySectionFlag = true;
         $scope.showHelpSectionFlag = false;
@@ -79,7 +79,6 @@ app.controller('MainController', ['$scope', function($scope) {
 }]);
 
 app.controller('GameController', ['$scope', function($scope) {
-    // Initialize game data to avoid undefined errors
     $scope.gameData = {
         track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
         defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
@@ -126,7 +125,6 @@ app.controller('GameController', ['$scope', function($scope) {
         }
     };
 
-    // Creates defence objects
     function createDefense(type, range, damage, hp, additionalProperties = {}) {
         return Object.assign({
             id: `defense-${Date.now()}-${Math.random()}`,
@@ -137,7 +135,6 @@ app.controller('GameController', ['$scope', function($scope) {
         }, additionalProperties);
     }
 
-    // Spawns defence objects
     function spawnDefenses(roll) {
         let defense;
         switch (roll) {
@@ -168,7 +165,6 @@ app.controller('GameController', ['$scope', function($scope) {
         }
     }
 
-    // Creates prototype defence objects
     function rollPrototypeDefense(game) {
         const roll = Math.floor(Math.random() * 5) + 1;
         let defense;
@@ -195,13 +191,12 @@ app.controller('GameController', ['$scope', function($scope) {
 
         if (defense) {
             $scope.currentDefense = defense;
-            alert(`You rolled a special 6 and got a ${defense.type}. Place your defense.`);
+            $scope.showAlert(`You rolled a special 6 and got a ${defense.type}. Place your defense.`);
         } else {
-            alert(`You rolled a special 6, but no defense was placed.`);
+            $scope.showAlert(`You rolled a special 6, but no defense was placed.`);
         }
     }
 
-    // Creates monster objects
     function createMonster(type, range, damage, hp, speed, additionalProperties = {}) {
         return Object.assign({
             id: `monster-${Date.now()}-${Math.random()}`,
@@ -213,7 +208,6 @@ app.controller('GameController', ['$scope', function($scope) {
         }, additionalProperties);
     }
 
-    // Creates prototype monster objects
     function rollPrototypeMonster(game) {
         const roll = Math.floor(Math.random() * 5) + 1;
         let monster;
@@ -251,16 +245,15 @@ app.controller('GameController', ['$scope', function($scope) {
             }
 
             if (placed) {
-                alert(`You rolled a special 6 and spawned a ${monster.type} on the grid.`);
+                $scope.showAlert(`You rolled a special 6 and spawned a ${monster.type} on the grid.`);
             } else {
-                alert('No space to spawn a new monster.');
+                $scope.showAlert('No space to spawn a new monster.');
             }
         } else {
-            alert(`You rolled a special 6, but no monster was spawned.`);
+            $scope.showAlert(`You rolled a special 6, but no monster was spawned.`);
         }
     }
 
-    // Spawn regular monsters
     function spawnMonsters(game) {
         const monsters = game.monsters;
 
@@ -299,7 +292,6 @@ app.controller('GameController', ['$scope', function($scope) {
         }
     }
 
-    // Move monsters
     function moveMonsters(game) {
         const monsters = game.monsters;
 
@@ -313,7 +305,6 @@ app.controller('GameController', ['$scope', function($scope) {
         }
     }
 
-    // Handle combat between defenses and monsters
     function combat(game) {
         const defenses = game.defenses;
         const monsters = game.monsters;
@@ -347,20 +338,18 @@ app.controller('GameController', ['$scope', function($scope) {
         }
     }
 
-    // Check win conditions
     function checkWinConditions(game) {
         const monsters = game.monsters;
 
         for (let i = 0; i < 5; i++) {
             if (monsters[i][0]) {
-                alert('Monsters have won the game!');
+                $scope.showAlert('Monsters have won the game!');
                 game.status = 'ended';
                 return;
             }
         }
     }
 
-    // Handle dropping defenses and monsters on the grid
     $scope.onDropCell = function(event, colIndex, rowIndex) {
         if ($scope.currentDefense && colIndex < 4) {
             $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
@@ -369,7 +358,7 @@ app.controller('GameController', ['$scope', function($scope) {
             $scope.gameData.monsters[rowIndex][colIndex] = $scope.currentMonster;
             $scope.currentMonster = null;
         } else {
-            alert('Invalid placement.');
+            $scope.showAlert('Invalid placement.');
         }
     };
 }]);
