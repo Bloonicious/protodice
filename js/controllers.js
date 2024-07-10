@@ -6,6 +6,8 @@ app.controller('MainController', ['$scope', function($scope) {
     $scope.showRollDiceButton = false;
     $scope.showGameArea = false;
     $scope.showTurnIndicator = false;
+    $scope.showCustomAlert = false;
+    $scope.alertMessage = '';
 
     $scope.togglePlaySection = function() {
         $scope.showPlaySectionFlag = true;
@@ -31,11 +33,36 @@ app.controller('MainController', ['$scope', function($scope) {
     };
 
     $scope.startGame = function() {
+        if (!$scope.player1Name || ($scope.numPlayers > 1 && !$scope.player2Name)) {
+            $scope.showAlert('Please enter names for all players.');
+            return;
+        }
+        if ($scope.player1Name.length < 2 || ($scope.numPlayers > 1 && $scope.player2Name.length < 2)) {
+            $scope.showAlert('Player names must be at least 2 characters long.');
+            return;
+        }
+
         $scope.showPlaySectionFlag = false;
         $scope.showBackButton = true;
         $scope.showRollDiceButton = true;
         $scope.showGameArea = true;
         $scope.showTurnIndicator = true;
+        $scope.gameData.players = [$scope.player1Name];
+        if ($scope.numPlayers > 1) {
+            $scope.gameData.players.push($scope.player2Name);
+        }
+        $scope.currentPlayerName = $scope.gameData.players[0];
+        $scope.diceRollResult = '';
+    };
+
+    $scope.showAlert = function(message) {
+        $scope.alertMessage = message;
+        $scope.showCustomAlert = true;
+        setTimeout(function() {
+            $scope.$apply(function() {
+                $scope.showCustomAlert = false;
+            });
+        }, 3000);
     };
 }]);
 
@@ -55,29 +82,26 @@ app.controller('GameController', ['$scope', function($scope) {
     $scope.currentMonster = null;
 
     $scope.rollDice = function() {
-        const userId = 'player1'; // For demonstration, using player1 as current user
-        const game = $scope.gameData;
-
-        if (game.players[game.currentPlayerIndex] !== userId) {
-            alert('It\'s not your turn.');
-            return;
-        }
+        const currentPlayer = $scope.gameData.players[$scope.gameData.currentPlayerIndex];
+        $scope.currentPlayerName = currentPlayer;
 
         const roll = Math.floor(Math.random() * 6) + 1;
+        $scope.diceRollResult = roll;
+
         let defense;
 
-        if (roll === 6 && !game.rolledSix) {
-            game.rolledSix = true;
-            alert('You rolled a 6! Roll again for a prototype defense.');
+        if (roll === 6 && !$scope.gameData.rolledSix) {
+            $scope.gameData.rolledSix = true;
+            $scope.showAlert('You rolled a 6! Roll again for a prototype defense.');
             return;
-        } else if (roll === 6 && game.rolledSix) {
-            alert('You rolled a 6 and a special prototype defense!');
-            rollPrototypeDefense(game);
-            game.rolledSix = false;
-        } else if (game.rolledSix) {
-            alert('You\'ve already rolled your protodice! Place your prototype defense.');
-            rollPrototypeDefense(game);
-            game.rolledSix = false;
+        } else if (roll === 6 && $scope.gameData.rolledSix) {
+            $scope.showAlert('You rolled a 6 and a special prototype defense!');
+            rollPrototypeDefense($scope.gameData);
+            $scope.gameData.rolledSix = false;
+        } else if ($scope.gameData.rolledSix) {
+            $scope.showAlert('You\'ve already rolled your protodice! Place your prototype defense.');
+            rollPrototypeDefense($scope.gameData);
+            $scope.gameData.rolledSix = false;
         } else {
             switch (roll) {
                 case 1:
@@ -101,18 +125,18 @@ app.controller('GameController', ['$scope', function($scope) {
 
             if (defense) {
                 $scope.currentDefense = defense;
-                alert(`You rolled a ${roll} and got a ${defense.type}. Place your defense.`);
+                $scope.showAlert(`You rolled a ${roll} and got a ${defense.type}. Place your defense.`);
             } else {
-                alert(`You rolled a ${roll}, but no defense was placed.`);
+                $scope.showAlert(`You rolled a ${roll}, but no defense was placed.`);
             }
 
-            game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
-            game.turnCount++;
-            if (game.turnCount % 2 === 0) {
-                moveMonsters(game);
-                combat(game);
-                spawnMonsters(game);
-                checkWinConditions(game);
+            $scope.gameData.currentPlayerIndex = ($scope.gameData.currentPlayerIndex + 1) % $scope.gameData.players.length;
+            $scope.gameData.turnCount++;
+            if ($scope.gameData.turnCount % 2 === 0) {
+                moveMonsters($scope.gameData);
+                combat($scope.gameData);
+                spawnMonsters($scope.gameData);
+                checkWinConditions($scope.gameData);
             }
         }
     };
