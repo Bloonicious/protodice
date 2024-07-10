@@ -69,10 +69,11 @@
             </div>
         </div>
         <div id="turnIndicator" ng-show="showTurnIndicator">
-            <h3>Current Turn: <span id="currentPlayerName">{{currentPlayerName}}</span></h3>
-            <h3>Dice Roll: <span id="diceRollResult">{{diceRollResult}}</span></h3>
+            <h3>Current Turn: <span id="currentPlayerName" ng-bind="currentPlayerName"></span></h3>
+            <h3>Dice Roll: <span id="diceRollResult" ng-bind="diceRollResult"></span></h3>
         </div>
     </div>
+    <div id="customAlert" ng-show="showCustomAlert" ng-bind="alertMessage"></div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <script src="dist/angular-drag-and-drop-lists.min.js"></script>
     <script src="js/app.js"></script>
