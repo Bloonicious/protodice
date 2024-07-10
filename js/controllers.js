@@ -92,6 +92,9 @@ app.controller('GameController', ['$scope', function($scope) {
 
     $scope.currentDefense = null;
     $scope.currentMonster = null;
+    $scope.currentPlayerName = $scope.gameData.players[0];
+    $scope.diceRollResult = null;
+    $scope.showTurnIndicator = true;
 
     $scope.rollDice = function() {
         const currentPlayer = $scope.gameData.players[$scope.gameData.currentPlayerIndex];
