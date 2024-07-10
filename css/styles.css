@@ -105,8 +105,7 @@ h1 {
     background-color: green;
 }
 
-/* styles.css */
-.custom-alert {
+#customAlert {
     position: fixed;
     top: 0;
     left: 50%;
@@ -121,4 +120,9 @@ h1 {
     font-size: 16px;
     border-radius: 4px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none; /* Initially hidden */
+}
+
+#customAlert.ng-show {
+    display: flex; /* Show alert when ng-show is true */
 }
