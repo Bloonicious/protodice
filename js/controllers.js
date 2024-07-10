@@ -8,7 +8,10 @@ app.controller('MainController', ['$scope', function($scope) {
     $scope.showTurnIndicator = false;
     $scope.showCustomAlert = false;
     $scope.alertMessage = '';
-
+    $scope.numPlayers = 1; // Default to 1 player
+    $scope.player1Name = '';
+    $scope.player2Name = '';
+    
     $scope.togglePlaySection = function() {
         $scope.showPlaySectionFlag = true;
         $scope.showHelpSectionFlag = false;
@@ -47,7 +50,16 @@ app.controller('MainController', ['$scope', function($scope) {
         $scope.showRollDiceButton = true;
         $scope.showGameArea = true;
         $scope.showTurnIndicator = true;
-        $scope.gameData.players = [$scope.player1Name];
+        $scope.gameData = {
+            players: [$scope.player1Name],
+            track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
+            defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
+            monsters: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
+            currentPlayerIndex: 0,
+            status: 'started',
+            turnCount: 0,
+            rolledSix: false
+        };
         if ($scope.numPlayers > 1) {
             $scope.gameData.players.push($scope.player2Name);
         }
@@ -67,6 +79,7 @@ app.controller('MainController', ['$scope', function($scope) {
 }]);
 
 app.controller('GameController', ['$scope', function($scope) {
+    // Initialize game data to avoid undefined errors
     $scope.gameData = {
         track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
         defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
@@ -88,8 +101,6 @@ app.controller('GameController', ['$scope', function($scope) {
         const roll = Math.floor(Math.random() * 6) + 1;
         $scope.diceRollResult = roll;
 
-        let defense;
-
         if (roll === 6 && !$scope.gameData.rolledSix) {
             $scope.gameData.rolledSix = true;
             $scope.showAlert('You rolled a 6! Roll again for a prototype defense.');
@@ -103,33 +114,7 @@ app.controller('GameController', ['$scope', function($scope) {
             rollPrototypeDefense($scope.gameData);
             $scope.gameData.rolledSix = false;
         } else {
-            switch (roll) {
-                case 1:
-                    defense = createDefense('Cannon', 5, 10, 50);
-                    break;
-                case 2:
-                    defense = createDefense('Sniper Tower', 7, 10, 35);
-                    break;
-                case 3:
-                    defense = createDefense('Machine Gun', 4, Math.floor(Math.random() * 11) + 5, 30);
-                    break;
-                case 4:
-                    defense = createDefense('Flamethrower', 2, 15, 50, { burnDamage: 15 });
-                    break;
-                case 5:
-                    defense = createDefense('Rocket Launcher', 8, 12, 20);
-                    break;
-                default:
-                    defense = null;
-            }
-
-            if (defense) {
-                $scope.currentDefense = defense;
-                $scope.showAlert(`You rolled a ${roll} and got a ${defense.type}. Place your defense.`);
-            } else {
-                $scope.showAlert(`You rolled a ${roll}, but no defense was placed.`);
-            }
-
+            spawnDefenses(roll);
             $scope.gameData.currentPlayerIndex = ($scope.gameData.currentPlayerIndex + 1) % $scope.gameData.players.length;
             $scope.gameData.turnCount++;
             if ($scope.gameData.turnCount % 2 === 0) {
@@ -150,6 +135,37 @@ app.controller('GameController', ['$scope', function($scope) {
             damage,
             hp
         }, additionalProperties);
+    }
+
+    // Spawns defence objects
+    function spawnDefenses(roll) {
+        let defense;
+        switch (roll) {
+            case 1:
+                defense = createDefense('Cannon', 5, 10, 50);
+                break;
+            case 2:
+                defense = createDefense('Sniper Tower', 7, 10, 35);
+                break;
+            case 3:
+                defense = createDefense('Machine Gun', 4, Math.floor(Math.random() * 11) + 5, 30);
+                break;
+            case 4:
+                defense = createDefense('Flamethrower', 2, 15, 50, { burnDamage: 15 });
+                break;
+            case 5:
+                defense = createDefense('Rocket Launcher', 8, 12, 20);
+                break;
+            default:
+                defense = null;
+        }
+
+        if (defense) {
+            $scope.currentDefense = defense;
+            $scope.showAlert(`You rolled a ${roll} and got a ${defense.type}. Place your defense.`);
+        } else {
+            $scope.showAlert(`You rolled a ${roll}, but no defense was placed.`);
+        }
     }
 
     // Creates prototype defence objects
