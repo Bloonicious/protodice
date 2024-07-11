@@ -54,18 +54,19 @@
                                 'bridge-zone': $index === 4,
                                 'monster-zone': $index > 4
                             }"
-                            ng-drop="true" ng-drop-success="onDropCell($event, $index, $parent.$index)">
-                            <div class="defense" ng-if="cell && cell.type === 'defense'">{{cell.content.type}}</div>
-                            <div class="monster" ng-if="cell && cell.type === 'monster'">{{cell.content.type}}</div>
+                            dnd-list="row"
+                            dnd-drop="true" dnd-drop-success="onDropCell($event, $index, $parent.$index)">
+                            <div class="defense" ng-if="cell && cell.type === 'defense'" dnd-draggable="cell" dnd-type="'defense'">{{cell.content.type}}</div>
+                            <div class="monster" ng-if="cell && cell.type === 'monster'" dnd-draggable="cell" dnd-type="'monster'">{{cell.content.type}}</div>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <div id="defenseHolder" ng-show="currentDefense">
-                <div class="defense draggable" draggable="true" ondragstart="drag(event)">{{currentDefense.type}}</div>
+                <div class="defense draggable" dnd-draggable="currentDefense" dnd-type="'defense'">{{currentDefense.type}}</div>
             </div>
             <div id="monsterHolder" ng-show="currentMonster">
-                <div class="monster draggable" draggable="true" ondragstart="drag(event)">{{currentMonster.type}}</div>
+                <div class="monster draggable" dnd-draggable="currentMonster" dnd-type="'monster'">{{currentMonster.type}}</div>
             </div>
         </div>
         <div id="turnIndicator" ng-show="showTurnIndicator">
