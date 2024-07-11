@@ -11,6 +11,8 @@ app.controller('MainController', ['$scope', function($scope) {
     $scope.numPlayers = 1; // Default to 1 player
     $scope.player1Name = '';
     $scope.player2Name = '';
+    $scope.waveOptions = [10, 15, 20, 25, '∞'];
+    $scope.selectedMaxWaves = $scope.waveOptions[0];
 
     $scope.togglePlaySection = function() {
         $scope.showPlaySectionFlag = true;
@@ -58,7 +60,9 @@ app.controller('MainController', ['$scope', function($scope) {
             currentPlayerIndex: 0,
             status: 'started',
             turnCount: 0,
-            rolledSix: false
+            rolledSix: false,
+            waveCount: 0,
+            maxWaves: $scope.selectedMaxWaves === '∞' ? 9999 : $scope.selectedMaxWaves
         };
         if ($scope.numPlayers > 1) {
             $scope.gameData.players.push($scope.player2Name);
