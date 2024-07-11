@@ -90,6 +90,14 @@ app.controller('GameController', ['$scope', function($scope) {
         rolledSix: false
     };
 
+    ConfigService.loadDefenses().then(function(data) {
+        $scope.defensesConfig = data;
+    });
+
+    ConfigService.loadMonsters().then(function(data) {
+        $scope.monstersConfig = data;
+    });
+
     $scope.currentDefense = null;
     $scope.currentMonster = null;
     $scope.currentPlayerName = $scope.gameData.players[0];
@@ -97,6 +105,11 @@ app.controller('GameController', ['$scope', function($scope) {
     $scope.showTurnIndicator = true;
 
     $scope.rollDice = function() {
+        if (!$scope.defensesConfig || !$scope.monstersConfig) {
+            $scope.showAlert('Configurations not loaded. Please try again.');
+            return;
+        }
+
         const currentPlayer = $scope.gameData.players[$scope.gameData.currentPlayerIndex];
         $scope.currentPlayerName = currentPlayer;
 
@@ -128,36 +141,17 @@ app.controller('GameController', ['$scope', function($scope) {
         }
     };
 
-    function createDefense(type, range, damage, hp, additionalProperties = {}) {
+    function createDefense(config) {
         return Object.assign({
-            id: `defense-${Date.now()}-${Math.random()}`,
-            type,
-            range,
-            damage,
-            hp
-        }, additionalProperties);
+            id: `defense-${Date.now()}-${Math.random()}`
+        }, config);
     }
 
     function spawnDefenses(roll) {
         let defense;
-        switch (roll) {
-            case 1:
-                defense = createDefense('Cannon', 5, 10, 50);
-                break;
-            case 2:
-                defense = createDefense('Sniper Tower', 7, 10, 35);
-                break;
-            case 3:
-                defense = createDefense('Machine Gun', 4, Math.floor(Math.random() * 11) + 5, 30);
-                break;
-            case 4:
-                defense = createDefense('Flamethrower', 2, 15, 50, { burnDamage: 15 });
-                break;
-            case 5:
-                defense = createDefense('Rocket Launcher', 8, 12, 20);
-                break;
-            default:
-                defense = null;
+        if (roll in $scope.defensesConfig) {
+            const config = $scope.defensesConfig[roll];
+            defense = createDefense(config);
         }
 
         if (defense) {
@@ -171,25 +165,9 @@ app.controller('GameController', ['$scope', function($scope) {
     function rollPrototypeDefense(game) {
         const roll = Math.floor(Math.random() * 5) + 1;
         let defense;
-
-        switch (roll) {
-            case 1:
-                defense = createDefense('Boom Cannon', 6, 25, 60);
-                break;
-            case 2:
-                defense = createDefense('Laser Beam', 7, 10, 60, { penetrating: true });
-                break;
-            case 3:
-                defense = createDefense('Shock Blaster', 7, 15, 60, { stun: true });
-                break;
-            case 4:
-                defense = createDefense('Acid Shooter', 4, 20, 50, { debuff: 30 });
-                break;
-            case 5:
-                defense = createDefense('Microwav\'r', 3, 20, 80, { areaDamage: true });
-                break;
-            default:
-                defense = null;
+        if (6 in $scope.defensesConfig) {
+            const subConfig = $scope.defensesConfig[6].subTypes[roll];
+            defense = createDefense(subConfig);
         }
 
         if (defense) {
@@ -200,98 +178,41 @@ app.controller('GameController', ['$scope', function($scope) {
         }
     }
 
-    function createMonster(type, range, damage, hp, speed, additionalProperties = {}) {
+    function createMonster(config) {
         return Object.assign({
-            id: `monster-${Date.now()}-${Math.random()}`,
-            type,
-            range,
-            damage,
-            hp,
-            speed
-        }, additionalProperties);
+            id: `monster-${Date.now()}-${Math.random()}`
+        }, config);
     }
 
     function rollPrototypeMonster(game) {
         const roll = Math.floor(Math.random() * 5) + 1;
         let monster;
-
-        switch (roll) {
-            case 1:
-                monster = createMonster('Golem', 1, 20, 100, 0.25);
-                break;
-            case 2:
-                monster = createMonster('Harpy', 2, 5, 30, 2);
-                break;
-            case 3:
-                monster = createMonster('Ice Lizard', 2, 8, 35, 1, { freezeChance: 0.1 });
-                break;
-            case 4:
-                monster = createMonster('Fire Demon', 1, 12, 40, 1, { burnChance: 0.2 });
-                break;
-            case 5:
-                monster = createMonster('Electro Mage', 3, 15, 20, 1, { chainLightningChance: 0.15 });
-                break;
-            default:
-                monster = null;
+        if (6 in $scope.monstersConfig) {
+            const subConfig = $scope.monstersConfig[6].subTypes[roll];
+            monster = createMonster(subConfig);
         }
 
         if (monster) {
-            const monsters = game.monsters;
-            let placed = false;
-
-            for (let i = 0; i < 5; i++) {
-                if (!monsters[i][4]) {
-                    monsters[i][4] = monster;
-                    placed = true;
-                    break;
-                }
-            }
-
-            if (placed) {
-                $scope.showAlert(`You rolled a special 6 and spawned a ${monster.type} on the grid.`);
-            } else {
-                $scope.showAlert('No space to spawn a new monster.');
-            }
+            $scope.currentMonsters = monster;
+            $scope.showAlert(`You rolled a special 6 and got a ${monster.type}. Place your monster.`);
         } else {
-            $scope.showAlert(`You rolled a special 6, but no monster was spawned.`);
+            $scope.showAlert(`You rolled a special 6, but no monster was placed.`);
         }
     }
 
     function spawnMonsters(game) {
-        const monsters = game.monsters;
+        const roll = Math.floor(Math.random() * 6) + 1;
+        let monster;
+        if (roll in $scope.monstersConfig) {
+            const config = $scope.monstersConfig[roll];
+            monster = createMonster(config);
+        }
 
-        for (let i = 0; i < 5; i++) {
-            if (!monsters[i][4]) {
-                const roll = Math.floor(Math.random() * 6) + 1;
-                let monster;
-
-                switch (roll) {
-                    case 1:
-                        monster = createMonster('Goblin', 1, 8, 30, 1);
-                        break;
-                    case 2:
-                        monster = createMonster('Orc', 1, 6, 40, 1);
-                        break;
-                    case 3:
-                        monster = createMonster('Troll', 1, 10, 50, 0.5);
-                        break;
-                    case 4:
-                        monster = createMonster('Vampire Bat', 2, 5, 20, 2);
-                        break;
-                    case 5:
-                        monster = createMonster('Fire Imp', 1, 12, 30, 1);
-                        break;
-                    case 6:
-                        monster = createMonster('Ghost', 2, 8, 25, 1.5);
-                        break;
-                    default:
-                        monster = null;
-                }
-
-                if (monster) {
-                    monsters[i][4] = monster;
-                }
-            }
+        if (monster) {
+            game.currentMonsters.push(monster);
+            $scope.showAlert(`A ${monster.type} has spawned!`);
+        } else {
+            $scope.showAlert('No monster was spawned.');
         }
     }
 
