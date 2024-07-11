@@ -69,21 +69,35 @@ h1 {
     vertical-align: middle;
 }
 
+#defenseHolder {
+    position: absolute;
+    left: 20px; /* Adjust as needed */
+    top: 20px; /* Adjust as needed */
+    width: 100px;
+    height: 100px;
+    background-color: lightblue;
+    border: 1px solid black;
+    z-index: 100;
+}
+
+#monsterHolder {
+    position: absolute;
+    right: 20px; /* Adjust as needed */
+    top: 20px; /* Adjust as needed */
+    width: 100px;
+    height: 100px;
+    background-color: lightgreen;
+    border: 1px solid black;
+    z-index: 100;
+}
+
 .defense, .monster {
-    width: 50px;
-    height: 50px;
+    width: 50px; /* Adjust size as needed */
+    height: 50px; /* Adjust size as needed */
     border: 1px solid black;
     text-align: center;
     line-height: 50px;
     cursor: grab;
-}
-
-#defenseHolder, #monsterHolder {
-    width: 60px;
-    height: 60px;
-    border: 1px solid black;
-    margin-top: 10px;
-    padding: 5px;
 }
 
 .defense {
