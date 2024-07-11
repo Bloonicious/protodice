@@ -96,8 +96,6 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         maxWaves: 10 // default value, can be changed by selection
     };
 
-    $scope.waveOptions = [10, 15, 20, 25, '∞'];
-
     ConfigService.loadDefenses().then(function(data) {
         $scope.defensesConfig = data;
     });
