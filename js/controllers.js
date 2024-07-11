@@ -78,7 +78,7 @@ app.controller('MainController', ['$scope', function($scope) {
     };
 }]);
 
-app.controller('GameController', ['$scope', function($scope) {
+app.controller('GameController', ['$scope', 'ConfigService', function($scope, ConfigService) {
     $scope.gameData = {
         track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
         defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
@@ -182,22 +182,6 @@ app.controller('GameController', ['$scope', function($scope) {
         return Object.assign({
             id: `monster-${Date.now()}-${Math.random()}`
         }, config);
-    }
-
-    function rollPrototypeMonster(game) {
-        const roll = Math.floor(Math.random() * 5) + 1;
-        let monster;
-        if (6 in $scope.monstersConfig) {
-            const subConfig = $scope.monstersConfig[6].subTypes[roll];
-            monster = createMonster(subConfig);
-        }
-
-        if (monster) {
-            $scope.currentMonsters = monster;
-            $scope.showAlert(`You rolled a special 6 and got a ${monster.type}. Place your monster.`);
-        } else {
-            $scope.showAlert(`You rolled a special 6, but no monster was placed.`);
-        }
     }
 
     function spawnMonsters(game) {
