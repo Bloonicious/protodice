@@ -1,12 +1,72 @@
-[
-    { "type": "Cannon" },
-    { "type": "Sniper Tower" },
-    { "type": "Machine Gun" },
-    { "type": "Flamethrower" },
-    { "type": "Rocket Launcher" },
-    { "type": "Boom Cannon" },
-    { "type": "Laser Beam" },
-    { "type": "Shock Blaster" },
-    { "type": "Acid Shooter" },
-    { "type": "Microwav'r" }
-]
+{
+    "1": {
+        "type": "Cannon",
+        "range": 5,
+        "damage": 10,
+        "hp": 50
+    },
+    "2": {
+        "type": "Sniper Tower",
+        "range": 7,
+        "damage": 10,
+        "hp": 35
+    },
+    "3": {
+        "type": "Machine Gun",
+        "range": 4,
+        "damage": [5, 15],
+        "hp": 30
+    },
+    "4": {
+        "type": "Flamethrower",
+        "range": 2,
+        "damage": 15,
+        "hp": 50,
+        "burnDamage": 15
+    },
+    "5": {
+        "type": "Rocket Launcher",
+        "range": 8,
+        "damage": 12,
+        "hp": 20
+    },
+    "6": {
+        "type": "Prototype",
+        "subTypes": {
+            "1": {
+                "type": "Boom Cannon",
+                "range": 6,
+                "damage": 25,
+                "hp": 60
+            },
+            "2": {
+                "type": "Laser Beam",
+                "range": 7,
+                "damage": 10,
+                "hp": 60,
+                "penetrating": true
+            },
+            "3": {
+                "type": "Shock Blaster",
+                "range": 7,
+                "damage": 15,
+                "hp": 60,
+                "stun": true
+            },
+            "4": {
+                "type": "Acid Shooter",
+                "range": 4,
+                "damage": 20,
+                "hp": 50,
+                "debuff": 30
+            },
+            "5": {
+                "type": "Microwav'r",
+                "range": 3,
+                "damage": 20,
+                "hp": 80,
+                "areaDamage": true
+            }
+        }
+    }
+}
