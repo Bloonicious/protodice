@@ -9,7 +9,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
     $scope.showTurnIndicator = false;
     $scope.showCustomAlert = false;
     $scope.alertMessage = '';
-    
+
     // Game setup defaults
     $scope.numPlayers = 1; // Default to 1 player
     $scope.player1Name = '';
@@ -84,19 +84,16 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
             $scope.gameData.players.push($scope.player2Name);
         }
 
-        // Clear any existing defenses and monsters
-        $scope.gameData.defenses = Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null));
-        $scope.gameData.monsters = Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null));
-
-        // Show relevant UI elements
+        // Update UI flags
         $scope.showGameArea = true;
+        $scope.showPlaySectionFlag = false;
+        $scope.showStartButton = false;
+        $scope.showRollDiceButton = true;
         $scope.showTurnIndicator = true;
+        $scope.showBackButton = false;
 
-        // Initialize the first player's turn
-        $scope.currentPlayerName = $scope.gameData.players[0];
-        $scope.diceRollResult = '';
-
-        // Optional: Spawn initial defenses or perform other setup actions
+        // Initial message
+        $scope.showAlert(`Game started! Good luck, ${$scope.gameData.players.join(' and ')}!`);
     };
 
     // Function to show custom alert
