@@ -87,8 +87,12 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         players: ['player1', 'player2'],
         status: 'started',
         turnCount: 0,
-        rolledSix: false
+        rolledSix: false,
+        waveCount: 0,
+        maxWaves: 10 // default value, can be changed by selection
     };
+
+    $scope.waveOptions = [10, 15, 20, 25, '∞'];
 
     ConfigService.loadDefenses().then(function(data) {
         $scope.defensesConfig = data;
@@ -136,6 +140,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
                 moveMonsters($scope.gameData);
                 combat($scope.gameData);
                 spawnMonsters($scope.gameData);
+                checkWaveProgress($scope.gameData);
                 checkWinConditions($scope.gameData);
             }
         }
@@ -193,7 +198,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
 
         if (monster) {
-            game.currentMonsters.push(monster);
+            game.monsters.push(monster);
             $scope.showAlert(`A ${monster.type} has spawned!`);
         } else {
             $scope.showAlert('No monster was spawned.');
@@ -246,6 +251,21 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
+    function checkWaveProgress(game) {
+        if (game.waveCount < game.maxWaves || game.maxWaves === '∞') {
+            game.waveCount++;
+            if (game.waveCount > 25) {
+                $scope.monstersConfig.forEach(monster => {
+                    monster.hp += monster.hp * 0.1 * (game.waveCount - 25);
+                    monster.damage += monster.damage * 0.1 * (game.waveCount - 25);
+                });
+            }
+            $scope.showAlert(`Wave ${game.waveCount} has started!`);
+        } else {
+            checkWinConditions(game);
+        }
+    }
+
     function checkWinConditions(game) {
         const monsters = game.monsters;
 
@@ -255,6 +275,11 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
                 game.status = 'ended';
                 return;
             }
+        }
+
+        if (game.waveCount === game.maxWaves) {
+            $scope.showAlert('Defenders have won the game by surviving all waves!');
+            game.status = 'ended';
         }
     }
 
@@ -268,5 +293,14 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         } else {
             $scope.showAlert('Invalid placement.');
         }
+    };
+
+    $scope.setMaxWaves = function(maxWaves) {
+        if (maxWaves === '∞') {
+            $scope.gameData.maxWaves = 9999;
+        } else {
+            $scope.gameData.maxWaves = maxWaves;
+        }
+        $scope.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`);
     };
 }]);
