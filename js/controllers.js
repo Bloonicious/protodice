@@ -313,7 +313,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
-    function(event, colIndex, rowIndex) {
+    $scope.onDropCell = function(event, colIndex, rowIndex) {
         if ($scope.currentDefense && colIndex < 4) {
             $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
             $scope.currentDefense = null;
