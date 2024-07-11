@@ -36,16 +36,6 @@ app.controller('MainController', ['$scope', function($scope) {
         $scope.showGameArea = false;
         $scope.showTurnIndicator = false;
     };
-
-    $scope.showAlert = function(message) {
-        $scope.alertMessage = message;
-        $scope.showCustomAlert = true;
-        setTimeout(function() {
-            $scope.$apply(function() {
-                $scope.showCustomAlert = false;
-            });
-        }, 3000);
-    };
 }]);
 
 app.controller('GameController', ['$scope', 'ConfigService', function($scope, ConfigService) {
@@ -64,7 +54,11 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
 
     // Function to start the game
     $scope.startGame = function() {
-        // Your existing validation logic goes here
+        // Reset custom alert
+        $scope.showCustomAlert = false;
+        $scope.alertMessage = '';
+
+        // Validation
         if (!$scope.player1Name || ($scope.numPlayers > 1 && !$scope.player2Name)) {
             $scope.showAlert('Please enter names for all players.');
             return;
@@ -102,6 +96,18 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         $scope.diceRollResult = '';
 
         // Optional: Spawn initial defenses or perform other setup actions
+    };
+
+    // Function to show custom alert
+    $scope.showAlert = function(message) {
+        $scope.alertMessage = message;
+        $scope.showCustomAlert = true;
+    };
+
+    // Function to hide custom alert
+    $scope.hideAlert = function() {
+        $scope.showCustomAlert = false;
+        $scope.alertMessage = '';
     };
 
     ConfigService.loadDefenses().then(function(data) {
