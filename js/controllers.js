@@ -126,6 +126,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
     $scope.currentPlayerName = $scope.gameData.players[0];
     $scope.diceRollResult = null;
 
+    // Function to roll dice
     $scope.rollDice = function() {
         if (!$scope.defensesConfig || !$scope.monstersConfig) {
             $scope.showAlert('Configurations not loaded. Please try again.');
@@ -164,12 +165,14 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     };
 
+    // Create a defense based on configuration
     function createDefense(config) {
         return Object.assign({
             id: `defense-${Date.now()}-${Math.random()}`
         }, config);
     }
 
+    // Spawn defenses based on dice roll
     function spawnDefenses(roll) {
         let defense;
         if (roll in $scope.defensesConfig) {
@@ -185,6 +188,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
+    // Roll prototype defense
     function rollPrototypeDefense(game) {
         const roll = Math.floor(Math.random() * 5) + 1;
         let defense;
@@ -201,12 +205,14 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
+    // Create a monster based on configuration
     function createMonster(config) {
         return Object.assign({
             id: `monster-${Date.now()}-${Math.random()}`
         }, config);
     }
 
+    // Spawn monsters based on dice roll
     function spawnMonsters(game) {
         const roll = Math.floor(Math.random() * 6) + 1;
         let monster;
@@ -223,6 +229,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
+    // Move monsters on the track
     function moveMonsters(game) {
         const monsters = game.monsters;
 
@@ -236,6 +243,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
+    // Combat between defenses and monsters
     function combat(game) {
         const defenses = game.defenses;
         const monsters = game.monsters;
@@ -284,6 +292,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
+    // Apply area damage to monsters
     function applyAreaDamage(monsters, rowIndex, colIndex, damage) {
         for (let i = rowIndex - 1; i <= rowIndex + 1; i++) {
             for (let j = colIndex - 1; j <= colIndex + 1; j++) {
@@ -297,6 +306,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
+    // Check wave progress and adjust game state
     function checkWaveProgress(game) {
         if (game.waveCount < game.maxWaves || game.maxWaves === 9999) {
             game.waveCount++;
@@ -312,6 +322,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
+    // Check win conditions
     function checkWinConditions(game) {
         const monsters = game.monsters;
 
@@ -329,6 +340,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
+    // Handle drop event
     $scope.onDropCell = function(event, colIndex, rowIndex) {
         if ($scope.currentDefense && colIndex < 4) {
             $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
@@ -341,6 +353,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     };
 
+    // Set maximum waves
     $scope.setMaxWaves = function(maxWaves) {
         if (maxWaves === '∞') {
             $scope.gameData.maxWaves = 9999;
