@@ -1,12 +1,84 @@
-[
-    { "type": "Goblin" },
-    { "type": "Orc" },
-    { "type": "Barbarian" },
-    { "type": "Archer" },
-    { "type": "Bear" },
-    { "type": "Golem" },
-    { "type": "Dragon" },
-    { "type": "Knight" },
-    { "type": "Crossbowman" },
-    { "type": "Hydra" }
-]
+{
+    "1": {
+        "type": "Goblin",
+        "range": 1,
+        "damage": 8,
+        "hp": 30,
+        "speed": 1
+    },
+    "2": {
+        "type": "Orc",
+        "range": 1,
+        "damage": 6,
+        "hp": 40,
+        "speed": 1
+    },
+    "3": {
+        "type": "Troll",
+        "range": 1,
+        "damage": 10,
+        "hp": 50,
+        "speed": 0.5
+    },
+    "4": {
+        "type": "Vampire Bat",
+        "range": 2,
+        "damage": 5,
+        "hp": 20,
+        "speed": 2
+    },
+    "5": {
+        "type": "Fire Imp",
+        "range": 1,
+        "damage": 12,
+        "hp": 30,
+        "speed": 1
+    },
+    "6": {
+        "type": "Ghost",
+        "range": 2,
+        "damage": 8,
+        "hp": 25,
+        "speed": 1.5
+    },
+    "prototype": {
+        "1": {
+            "type": "Golem",
+            "range": 1,
+            "damage": 20,
+            "hp": 100,
+            "speed": 0.25
+        },
+        "2": {
+            "type": "Harpy",
+            "range": 2,
+            "damage": 5,
+            "hp": 30,
+            "speed": 2
+        },
+        "3": {
+            "type": "Ice Lizard",
+            "range": 2,
+            "damage": 8,
+            "hp": 35,
+            "speed": 1,
+            "freezeChance": 0.1
+        },
+        "4": {
+            "type": "Fire Demon",
+            "range": 1,
+            "damage": 12,
+            "hp": 40,
+            "speed": 1,
+            "burnChance": 0.2
+        },
+        "5": {
+            "type": "Electro Mage",
+            "range": 3,
+            "damage": 15,
+            "hp": 20,
+            "speed": 1,
+            "chainLightningChance": 0.15
+        }
+    }
+}
