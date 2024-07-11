@@ -37,40 +37,6 @@ app.controller('MainController', ['$scope', function($scope) {
         $scope.showTurnIndicator = false;
     };
 
-    $scope.startGame = function() {
-        if (!$scope.player1Name || ($scope.numPlayers > 1 && !$scope.player2Name)) {
-            $scope.showAlert('Please enter names for all players.');
-            return;
-        }
-        if ($scope.player1Name.length < 2 || ($scope.numPlayers > 1 && $scope.player2Name.length < 2)) {
-            $scope.showAlert('Player names must be at least 2 characters long.');
-            return;
-        }
-
-        $scope.showPlaySectionFlag = false;
-        $scope.showBackButton = true;
-        $scope.showRollDiceButton = true;
-        $scope.showGameArea = true;
-        $scope.showTurnIndicator = true;
-        $scope.gameData = {
-            players: [$scope.player1Name],
-            track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
-            defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
-            monsters: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
-            currentPlayerIndex: 0,
-            status: 'started',
-            turnCount: 0,
-            rolledSix: false,
-            waveCount: 0,
-            maxWaves: $scope.selectedMaxWaves === '∞' ? 9999 : $scope.selectedMaxWaves
-        };
-        if ($scope.numPlayers > 1) {
-            $scope.gameData.players.push($scope.player2Name);
-        }
-        $scope.currentPlayerName = $scope.gameData.players[0];
-        $scope.diceRollResult = '';
-    };
-
     $scope.showAlert = function(message) {
         $scope.alertMessage = message;
         $scope.showCustomAlert = true;
@@ -94,6 +60,48 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         rolledSix: false,
         waveCount: 0,
         maxWaves: 10 // default value, can be changed by selection
+    };
+
+    // Function to start the game
+    $scope.startGame = function() {
+        // Your existing validation logic goes here
+        if (!$scope.player1Name || ($scope.numPlayers > 1 && !$scope.player2Name)) {
+            $scope.showAlert('Please enter names for all players.');
+            return;
+        }
+        if ($scope.player1Name.length < 2 || ($scope.numPlayers > 1 && $scope.player2Name.length < 2)) {
+            $scope.showAlert('Player names must be at least 2 characters long.');
+            return;
+        }
+
+        // Set up initial game state
+        $scope.gameData.players = [$scope.player1Name];
+        $scope.gameData.currentPlayerIndex = 0;
+        $scope.gameData.status = 'started';
+        $scope.gameData.turnCount = 0;
+        $scope.gameData.rolledSix = false;
+        $scope.gameData.waveCount = 0;
+        $scope.gameData.maxWaves = $scope.selectedMaxWaves === '∞' ? 9999 : parseInt($scope.selectedMaxWaves);
+
+        if ($scope.numPlayers > 1) {
+            $scope.gameData.players.push($scope.player2Name);
+        }
+
+        // Clear any existing defenses and monsters
+        $scope.gameData.defenses = Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null));
+        $scope.gameData.monsters = Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null));
+
+        // Additional initialization logic can be added here as needed
+
+        // Show relevant UI elements
+        $scope.showGameArea = true;
+        $scope.showTurnIndicator = true;
+
+        // Initialize the first player's turn
+        $scope.currentPlayerName = $scope.gameData.players[0];
+        $scope.diceRollResult = '';
+
+        // Optional: Spawn initial defenses or perform other setup actions
     };
 
     ConfigService.loadDefenses().then(function(data) {
