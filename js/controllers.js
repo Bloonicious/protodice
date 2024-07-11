@@ -1,4 +1,5 @@
 app.controller('GameController', ['$scope', 'ConfigService', function($scope, ConfigService) {
+    // UI flags
     $scope.showPlaySectionFlag = false;
     $scope.showHelpSectionFlag = false;
     $scope.showBackButton = false;
@@ -8,35 +9,39 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
     $scope.showTurnIndicator = false;
     $scope.showCustomAlert = false;
     $scope.alertMessage = '';
+    
+    // Game setup defaults
     $scope.numPlayers = 1; // Default to 1 player
     $scope.player1Name = '';
     $scope.player2Name = '';
     $scope.waveOptions = [10, 15, 20, 25, '∞'];
     $scope.selectedMaxWaves = $scope.waveOptions[0];
 
+    // Toggle Play section
     $scope.togglePlaySection = function() {
-        $scope.showPlaySectionFlag = true;
+        $scope.showPlaySectionFlag = !$scope.showPlaySectionFlag;
         $scope.showHelpSectionFlag = false;
-        $scope.showBackButton = true;
-        $scope.showStartButton = true;
+        $scope.showStartButton = $scope.showPlaySectionFlag;
+        $scope.showBackButton = $scope.showPlaySectionFlag;
     };
 
+    // Toggle Help section
     $scope.toggleHelpSection = function() {
-        $scope.showHelpSectionFlag = true;
+        $scope.showHelpSectionFlag = !$scope.showHelpSectionFlag;
         $scope.showPlaySectionFlag = false;
-        $scope.showBackButton = true;
     };
 
+    // Go back to the initial state
     $scope.goBack = function() {
         $scope.showPlaySectionFlag = false;
         $scope.showHelpSectionFlag = false;
-        $scope.showBackButton = false;
         $scope.showStartButton = false;
         $scope.showRollDiceButton = false;
+        $scope.showBackButton = false;
         $scope.showGameArea = false;
-        $scope.showTurnIndicator = false;
     };
-    
+
+    // Initialize game data
     $scope.gameData = {
         track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
         defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
@@ -83,8 +88,6 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         $scope.gameData.defenses = Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null));
         $scope.gameData.monsters = Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null));
 
-        // Additional initialization logic can be added here as needed
-
         // Show relevant UI elements
         $scope.showGameArea = true;
         $scope.showTurnIndicator = true;
@@ -108,6 +111,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         $scope.alertMessage = '';
     };
 
+    // Load configurations
     ConfigService.loadDefenses().then(function(data) {
         $scope.defensesConfig = data;
     });
@@ -116,11 +120,11 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         $scope.monstersConfig = data;
     });
 
+    // Initialize current elements
     $scope.currentDefense = null;
     $scope.currentMonster = null;
     $scope.currentPlayerName = $scope.gameData.players[0];
     $scope.diceRollResult = null;
-    $scope.showTurnIndicator = true;
 
     $scope.rollDice = function() {
         if (!$scope.defensesConfig || !$scope.monstersConfig) {
