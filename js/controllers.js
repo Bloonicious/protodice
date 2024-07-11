@@ -231,7 +231,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
                     for (let k = 1; k <= defense.range; k++) {
                         if (j + k < 4 && monsters[i][j + k]) {
                             const monster = monsters[i][j + k];
-                            monster.hp -= defense.damage;
+                            monster.hp -= Array.isArray(defense.damage) ? Math.floor(Math.random() * (defense.damage[1] - defense.damage[0] + 1)) + defense.damage[0] : defense.damage;
 
                             if (defense.type === 'Shock Blaster' && monster.hp > 0) {
                                 monster.stunned = true;
@@ -239,6 +239,21 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
 
                             if (defense.type === 'Acid Shooter' && monster.hp > 0) {
                                 monster.debuff = (monster.debuff || 0) + defense.debuff;
+                            }
+
+                            if (defense.type === 'Microwav\'r' && monster.hp > 0) {
+                                applyAreaDamage(monsters, i, j + k, defense.damage);
+                            }
+
+                            if (defense.type === 'Laser Beam') {
+                                for (let p = j + k; p < 4; p++) {
+                                    if (monsters[i][p]) {
+                                        monsters[i][p].hp -= defense.damage;
+                                        if (monsters[i][p].hp <= 0) {
+                                            monsters[i][p] = null;
+                                        }
+                                    }
+                                }
                             }
 
                             if (monster.hp <= 0) {
@@ -253,8 +268,21 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
+    function applyAreaDamage(monsters, rowIndex, colIndex, damage) {
+        for (let i = rowIndex - 1; i <= rowIndex + 1; i++) {
+            for (let j = colIndex - 1; j <= colIndex + 1; j++) {
+                if (i >= 0 && i < 5 && j >= 0 && j < 4 && monsters[i][j]) {
+                    monsters[i][j].hp -= damage;
+                    if (monsters[i][j].hp <= 0) {
+                        monsters[i][j] = null;
+                    }
+                }
+            }
+        }
+    }
+
     function checkWaveProgress(game) {
-        if (game.waveCount < game.maxWaves || game.maxWaves === '∞') {
+        if (game.waveCount < game.maxWaves || game.maxWaves === 9999) {
             game.waveCount++;
             if (game.waveCount > 25) {
                 $scope.monstersConfig.forEach(monster => {
