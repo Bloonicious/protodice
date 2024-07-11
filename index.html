@@ -8,11 +8,11 @@
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="game-container" ng-controller="MainController">
+    <div class="game-container" ng-controller="GameController">
         <h1>Tower Defense Dice Game</h1>
         <div class="controls">
-            <button ng-click="togglePlaySection()" ng-show="!showPlaySectionFlag">Play</button>
-            <button ng-click="toggleHelpSection()" ng-show="!showHelpSectionFlag">Help</button>
+            <button ng-click="togglePlaySection()">Play</button>
+            <button ng-click="toggleHelpSection()">Help</button>
             <button ng-click="goBack()" ng-show="showBackButton">Back</button>
             <button ng-click="startGame()" ng-show="showStartButton">Start Game</button>
             <button ng-click="rollDice()" ng-show="showRollDiceButton">Roll Dice</button>
@@ -49,7 +49,7 @@
             <h2>Help</h2>
             <p>Instructions on how to play the game.</p>
         </div>
-        <div class="game-area" ng-controller="GameController" ng-show="showGameArea">
+        <div class="game-area">
             <table>
                 <tbody>
                     <tr ng-repeat="row in gameData.track">
