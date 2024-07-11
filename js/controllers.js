@@ -313,12 +313,12 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
-    $scope.onDropCell = function(event, colIndex, rowIndex) {
+    function(event, colIndex, rowIndex) {
         if ($scope.currentDefense && colIndex < 4) {
             $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
             $scope.currentDefense = null;
         } else if ($scope.currentMonster && colIndex > 4) {
-            $scope.gameData.monsters[rowIndex][colIndex] = $scope.currentMonster;
+            $scope.gameData.monsters[rowIndex][colIndex - 5] = $scope.currentMonster;
             $scope.currentMonster = null;
         } else {
             $scope.showAlert('Invalid placement.');
@@ -329,7 +329,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         if (maxWaves === '∞') {
             $scope.gameData.maxWaves = 9999;
         } else {
-            $scope.gameData.maxWaves = maxWaves;
+            $scope.gameData.maxWaves = parseInt(maxWaves);
         }
         $scope.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`);
     };
