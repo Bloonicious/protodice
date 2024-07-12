@@ -8,51 +8,51 @@
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
 </head>
 <body ng-controller="MainController as mainCtrl">
-    <div class="game-container" ng-controller="GameController">
+    <div class="game-container">
         <h1>Tower Defense Dice Game</h1>
         <div class="controls">
-            <button ng-click="togglePlaySection()">Play</button>
-            <button ng-click="toggleHelpSection()">Help</button>
-            <button ng-click="goBack()" ng-show="showBackButton">Back</button>
-            <button ng-click="startGame()" ng-show="showStartButton">Start Game</button>
-            <button ng-click="rollDice()" ng-show="showRollDiceButton">Roll Dice</button>
+            <button ng-click="mainCtrl.togglePlaySection()">Play</button>
+            <button ng-click="mainCtrl.toggleHelpSection()">Help</button>
+            <button ng-click="mainCtrl.goBack()" ng-show="mainCtrl.showBackButton">Back</button>
+            <button ng-click="mainCtrl.startGame()" ng-show="mainCtrl.showStartButton">Start Game</button>
+            <button ng-click="mainCtrl.rollDice()" ng-show="mainCtrl.showRollDiceButton">Roll Dice</button>
         </div>
-        <div id="playSection" ng-show="showPlaySectionFlag">
+        <div id="playSection" ng-show="mainCtrl.showPlaySectionFlag">
             <div class="options">
                 <div class="play-options">
                     <div id="playerSelection">
                         <label>Select number of players:</label><br>
-                        <input type="radio" id="numPlayers1" name="numPlayers" value="1" ng-model="numPlayers">
+                        <input type="radio" id="numPlayers1" name="numPlayers" value="1" ng-model="mainCtrl.numPlayers">
                         <label for="numPlayers1">1</label><br>
-                        <input type="radio" id="numPlayers2" name="numPlayers" value="2" ng-model="numPlayers">
+                        <input type="radio" id="numPlayers2" name="numPlayers" value="2" ng-model="mainCtrl.numPlayers">
                         <label for="numPlayers2">2</label><br>
                     </div>
                     <div id="playerNames">
                         <label for="player1Name">Player 1 Name:</label>
-                        <input type="text" id="player1Name" ng-model="player1Name"><br>
-                        <label for="player2Name" ng-show="numPlayers > 1">Player 2 Name:</label>
-                        <input type="text" id="player2Name" ng-show="numPlayers > 1" ng-model="player2Name">
+                        <input type="text" id="player1Name" ng-model="mainCtrl.player1Name"><br>
+                        <label for="player2Name" ng-show="mainCtrl.numPlayers > 1">Player 2 Name:</label>
+                        <input type="text" id="player2Name" ng-show="mainCtrl.numPlayers > 1" ng-model="mainCtrl.player2Name">
                     </div>
                     <div id="swapSides">
                         <label for="swapSides">Swap Sides (Play as Monsters):</label>
-                        <input type="checkbox" id="swapSides" ng-model="swapSides">
+                        <input type="checkbox" id="swapSides" ng-model="mainCtrl.swapSides">
                     </div>
                     <div id="waveSelection">
                         <label for="waveSelect">Select Max Waves:</label>
-                        <select id="waveSelect" ng-model="selectedMaxWaves" ng-options="option for option in waveOptions">
+                        <select id="waveSelect" ng-model="mainCtrl.selectedMaxWaves" ng-options="option for option in mainCtrl.waveOptions">
                         </select>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="helpSection" ng-show="showHelpSectionFlag">
+        <div id="helpSection" ng-show="mainCtrl.showHelpSectionFlag">
             <h2>Help</h2>
             <p>Instructions on how to play the game.</p>
         </div>
-        <div class="game-area" ng-show="showGameArea">
+        <div class="game-area" ng-show="mainCtrl.showGameArea">
             <table>
                 <tbody>
-                    <tr ng-repeat="row in gameData.track">
+                    <tr ng-repeat="row in mainCtrl.gameData.track">
                         <td ng-repeat="cell in row track by $index"
                             ng-class="{
                                 'defense-zone': $index < 4,
@@ -61,8 +61,8 @@
                             }"
                             dnd-list="row"
                             dnd-drop="true" 
-                            ng-drop-success="onDropDefense($event, $index, $parent.$index)"
-                            ng-drop-success="onDropMonster($event, $index, $parent.$index)">
+                            ng-drop-success="mainCtrl.onDropDefense($event, $index, $parent.$index)"
+                            ng-drop-success="mainCtrl.onDropMonster($event, $index, $parent.$index)">
                             <!-- Game cell content -->
                             <div class="defense" ng-if="cell && cell.type === 'defense'" dnd-draggable="cell" dnd-type="'defense'">
                                 <img ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
@@ -80,26 +80,26 @@
                     </tr>
                 </tbody>
             </table>
-            <div id="defenseHolder" ng-show="currentDefense">
-                <div class="defense draggable" dnd-draggable="currentDefense" dnd-type="'defense'">
-                    <img ng-src="assets/images/{{currentDefense.type | lowercase}}.png" alt="{{currentDefense.type}}">
+            <div id="defenseHolder" ng-show="mainCtrl.currentDefense">
+                <div class="defense draggable" dnd-draggable="mainCtrl.currentDefense" dnd-type="'defense'">
+                    <img ng-src="assets/images/{{mainCtrl.currentDefense.type | lowercase}}.png" alt="{{mainCtrl.currentDefense.type}}">
                     <div class="hp-bar">
-                        <div class="hp" ng-style="{'width': (currentDefense.hp / currentDefense.maxHp) * 100 + '%'}"></div>
+                        <div class="hp" ng-style="{'width': (mainCtrl.currentDefense.hp / mainCtrl.currentDefense.maxHp) * 100 + '%'}"></div>
                     </div>
                 </div>
             </div>
-            <div id="monsterHolder" ng-show="currentMonster">
-                <div class="monster draggable" dnd-draggable="currentMonster" dnd-type="'monster'">
-                    <img ng-src="assets/images/{{currentMonster.type | lowercase}}.png" alt="{{currentMonster.type}}">
+            <div id="monsterHolder" ng-show="mainCtrl.currentMonster">
+                <div class="monster draggable" dnd-draggable="mainCtrl.currentMonster" dnd-type="'monster'">
+                    <img ng-src="assets/images/{{mainCtrl.currentMonster.type | lowercase}}.png" alt="{{mainCtrl.currentMonster.type}}">
                     <div class="hp-bar">
-                        <div class="hp" ng-style="{'width': (currentMonster.hp / currentMonster.maxHp) * 100 + '%'}"></div>
+                        <div class="hp" ng-style="{'width': (mainCtrl.currentMonster.hp / mainCtrl.currentMonster.maxHp) * 100 + '%'}"></div>
                     </div>
                 </div>
             </div>
-            <div id="turnIndicator" ng-show="showTurnIndicator">
-                <h3>Current Turn: <span id="currentPlayerName" ng-bind="currentPlayerName"></span></h3>
-                <h3>Dice Roll: <span id="diceRollResult" ng-bind="diceRollResult"></span></h3>
-                <h3>Wave: <span id="currentWave">{{ gameData.waveCount }} / {{ gameData.maxWaves === 9999 ? '∞' : gameData.maxWaves }}</span></h3>
+            <div id="turnIndicator" ng-show="mainCtrl.showTurnIndicator">
+                <h3>Current Turn: <span id="currentPlayerName" ng-bind="mainCtrl.currentPlayerName"></span></h3>
+                <h3>Dice Roll: <span id="diceRollResult" ng-bind="mainCtrl.diceRollResult"></span></h3>
+                <h3>Wave: <span id="currentWave">{{ mainCtrl.gameData.waveCount }} / {{ mainCtrl.gameData.maxWaves === 9999 ? '∞' : mainCtrl.gameData.maxWaves }}</span></h3>
             </div>
         </div>
     </div>
