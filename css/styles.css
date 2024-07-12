@@ -134,7 +134,7 @@ h1 {
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: #ffffff;
-    border: 1px solid #cccccc;
+    border: 1px solid transparent; /* Initially transparent border */
     padding: 15px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -144,26 +144,22 @@ h1 {
 }
 
 #customAlert.info {
-    background-color: #ffffff;
-    border-color: #007bff;
+    border-color: #007bff; /* Border color for info */
     color: #007bff;
 }
 
 #customAlert.success {
-    background-color: #dff0d8;
-    border-color: #d0e9c6;
+    border-color: #d0e9c6; /* Border color for success */
     color: #3c763d;
 }
 
 #customAlert.warning {
-    background-color: #fff3cd;
-    border-color: #ffeeba;
+    border-color: #ffeeba; /* Border color for warning */
     color: #856404;
 }
 
 #customAlert.error {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
+    border-color: #f5c6cb; /* Border color for error */
     color: #721c24;
 }
 
@@ -179,6 +175,7 @@ h1 {
     color: #fff;
     border: none;
     cursor: pointer;
+    margin-top: 10px; /* Provide some spacing between content and button */
 }
 
 #customAlert button:hover {
