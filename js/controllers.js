@@ -41,6 +41,18 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         $scope.showGameArea = false;
     };
 
+    // Show custom alert
+    $scope.showAlert = function(message) {
+        $scope.alertMessage = message;
+        $scope.showCustomAlert = true;
+    };
+
+    // Hide custom alert
+    $scope.hideAlert = function() {
+        $scope.showCustomAlert = false;
+        $scope.alertMessage = '';
+    };
+
     // Initialize game data
     $scope.gameData = {
         track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
@@ -94,18 +106,6 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
 
         // Initial message
         $scope.showAlert(`Game started! Good luck, ${$scope.gameData.players.join(' and ')}!`);
-    };
-
-    // Function to show custom alert
-    $scope.showAlert = function(message) {
-        $scope.alertMessage = message;
-        $scope.showCustomAlert = true;
-    };
-
-    // Function to hide custom alert
-    $scope.hideAlert = function() {
-        $scope.showCustomAlert = false;
-        $scope.alertMessage = '';
     };
 
     // Load configurations
