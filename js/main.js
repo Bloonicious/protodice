@@ -385,92 +385,60 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
 
     // AI place monster function
     proto.aiPlaceMonster = function() {
-        const game = proto.gameData;
-        const monsters = game.monsters;
-
-        for (let i = 0; i < 5; i++) {
-            for (let j = 4; j < 8; j++) { // Monsters can only be placed in columns 5, 6, 7 (0-indexed)
-                if (!monsters[i][j]) {
-                    const roll = Math.floor(Math.random() * 6) + 1;
-                    if (roll in proto.monstersConfig) {
-                        const config = proto.monstersConfig[roll];
-                        monsters[i][j] = proto.createMonster(config);
-                        AlertService.showAlert(`AI placed a ${monsters[i][j].type} at (${i}, ${j + 1}).`, 'info');
-                        return; // AI places only one monster per turn
-                    }
-                }
-            }
+        const emptyCell = findEmptyCell(proto.gameData.monsters);
+        if (emptyCell) {
+            const [row, col] = emptyCell;
+            proto.gameData.monsters[row][col] = proto.currentMonster;
+            proto.currentMonster = null;
+            AlertService.showAlert('AI placed a monster.', 'info');
+        } else {
+            AlertService.showAlert('AI could not place a monster due to no empty cells.', 'warning');
         }
     };
 
     // Function to handle dropping a defense on the game grid
-    $scope.onDropDefense = function(event, index) {
-        event.preventDefault();
-        const data = JSON.parse(event.dataTransfer.getData('text'));
-        const defenseType = data.type;
-
-        if (index < 0 || index >= 4) {
-            AlertService.showAlert('Defense can only be placed in the left half of the track.', 'warning');
+    proto.dropDefense = function(event, index, outerIndex) {
+        if (!proto.currentDefense) {
+            AlertService.showAlert('No defense to place.', 'warning');
             return;
         }
 
-        if (proto.currentDefense && proto.currentDefense.type === defenseType) {
-            proto.gameData.defenses[index] = proto.currentDefense;
-            proto.currentDefense = null;
-            AlertService.showAlert(`Placed a ${defenseType} on position ${index + 1}.`, 'success');
-
-            // Check if all defenses are placed
-            let allPlaced = true;
-            for (let i = 0; i < proto.gameData.defenses.length; i++) {
-                if (!proto.gameData.defenses[i]) {
-                    allPlaced = false;
-                    break;
-                }
-            }
-
-            if (allPlaced) {
-                proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-                proto.gameData.turnCount++;
-                if (proto.gameData.turnCount % 2 === 0) {
-                    proto.moveMonsters(proto.gameData);
-                    proto.combat(proto.gameData);
-                    proto.spawnMonsters(proto.gameData);
-                    proto.checkWaveProgress(proto.gameData);
-                    proto.checkWinConditions(proto.gameData);
-                }
-            }
-        } else {
-            AlertService.showAlert(`Cannot place ${defenseType} here.`, 'error');
+        if (proto.gameData.defenses[outerIndex][index]) {
+            AlertService.showAlert('There is already a defense here.', 'warning');
+            return;
         }
+
+        proto.gameData.defenses[outerIndex][index] = proto.currentDefense;
+        proto.currentDefense = null;
+        AlertService.showAlert('Defense placed!', 'success');
     };
 
     // Function to handle dropping a monster on the game grid
-    $scope.onDropMonster = function(event, index) {
-        event.preventDefault();
-        const data = JSON.parse(event.dataTransfer.getData('text'));
-        const monsterType = data.type;
-
-        if (index < 4 || index >= 8) {
-            AlertService.showAlert('Monster can only be placed in the right half of the track.', 'warning');
+    proto.dropMonster = function(event, index, outerIndex) {
+        if (!proto.currentMonster) {
+            AlertService.showAlert('No monster to place.', 'warning');
             return;
         }
 
-        if (proto.currentMonster && proto.currentMonster.type === monsterType) {
-            proto.gameData.monsters[index - 4] = proto.currentMonster;
-            proto.currentMonster = null;
-            AlertService.showAlert(`Placed a ${monsterType} on position ${index - 3}.`, 'success');
-            proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-            proto.gameData.turnCount++;
-            if (proto.gameData.turnCount % 2 === 0) {
-                proto.moveMonsters(proto.gameData);
-                proto.combat(proto.gameData);
-                proto.spawnMonsters(proto.gameData);
-                proto.checkWaveProgress(proto.gameData);
-                proto.checkWinConditions(proto.gameData);
-            }
-        } else {
-            AlertService.showAlert(`Cannot place ${monsterType} here.`, 'error');
+        if (proto.gameData.monsters[outerIndex][index]) {
+            AlertService.showAlert('There is already a monster here.', 'warning');
+            return;
         }
+
+        proto.gameData.monsters[outerIndex][index] = proto.currentMonster;
+        proto.currentMonster = null;
+        AlertService.showAlert('Monster placed!', 'success');
+    };
+
+    function findEmptyCell(array) {
+        for (let i = 0; i < array.length; i++) {
+            for (let j = 0; j < array[i].length; j++) {
+                if (array[i][j] === null) {
+                    return [i, j];
+                }
+            }
+        }
+        return null;
     };
 
     // Function to handle drag over event
@@ -487,5 +455,43 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
             proto.gameData.maxWaves = parseInt(maxWaves);
         }
         AlertService.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`, 'info');
+    };
+}]);
+
+app.directive('droppableDefense', ['MainController', function(MainController) {
+    return {
+        restrict: 'A',
+        link: function(scope, element) {
+            element.on('dragover', function(event) {
+                event.preventDefault();
+            });
+
+            element.on('drop', function(event) {
+                event.preventDefault();
+                const index = scope.$index;
+                const outerIndex = scope.$parent.$index;
+                MainController.dropDefense(event, index, outerIndex);
+                scope.$apply();
+            });
+        }
+    };
+}]);
+
+app.directive('droppableMonster', ['MainController', function(MainController) {
+    return {
+        restrict: 'A',
+        link: function(scope, element) {
+            element.on('dragover', function(event) {
+                event.preventDefault();
+            });
+
+            element.on('drop', function(event) {
+                event.preventDefault();
+                const index = scope.$index;
+                const outerIndex = scope.$parent.$index;
+                MainController.dropMonster(event, index, outerIndex);
+                scope.$apply();
+            });
+        }
     };
 }]);
