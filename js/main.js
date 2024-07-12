@@ -403,56 +403,79 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
         }
     };
 
-    // Place current defense
-    proto.placeCurrentDefense = function(row, col) {
-        if (proto.currentDefense) {
-            proto.gameData.defenses[row][col] = proto.currentDefense;
+    // Function to handle dropping a defense on the game grid
+    $scope.onDropDefense = function(event, index) {
+        event.preventDefault();
+        const data = JSON.parse(event.dataTransfer.getData('text'));
+        const defenseType = data.type;
+
+        if (index < 0 || index >= 4) {
+            AlertService.showAlert('Defense can only be placed in the left half of the track.', 'warning');
+            return;
+        }
+
+        if (proto.currentDefense && proto.currentDefense.type === defenseType) {
+            proto.gameData.defenses[index] = proto.currentDefense;
             proto.currentDefense = null;
-            AlertService.showAlert('Defense placed successfully.', 'success');
+            AlertService.showAlert(`Placed a ${defenseType} on position ${index + 1}.`, 'success');
+
+            // Check if all defenses are placed
+            let allPlaced = true;
+            for (let i = 0; i < proto.gameData.defenses.length; i++) {
+                if (!proto.gameData.defenses[i]) {
+                    allPlaced = false;
+                    break;
+                }
+            }
+
+            if (allPlaced) {
+                proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+                proto.gameData.turnCount++;
+                if (proto.gameData.turnCount % 2 === 0) {
+                    proto.moveMonsters(proto.gameData);
+                    proto.combat(proto.gameData);
+                    proto.spawnMonsters(proto.gameData);
+                    proto.checkWaveProgress(proto.gameData);
+                    proto.checkWinConditions(proto.gameData);
+                }
+            }
+        } else {
+            AlertService.showAlert(`Cannot place ${defenseType} here.`, 'error');
         }
     };
 
-    // Place current monster
-    proto.placeCurrentMonster = function(row, col) {
-        if (proto.currentMonster) {
-            proto.gameData.monsters[row][col] = proto.currentMonster;
+    // Function to handle dropping a monster on the game grid
+    $scope.onDropMonster = function(event, index) {
+        event.preventDefault();
+        const data = JSON.parse(event.dataTransfer.getData('text'));
+        const monsterType = data.type;
+
+        if (index < 4 || index >= 8) {
+            AlertService.showAlert('Monster can only be placed in the right half of the track.', 'warning');
+            return;
+        }
+
+        if (proto.currentMonster && proto.currentMonster.type === monsterType) {
+            proto.gameData.monsters[index - 4] = proto.currentMonster;
             proto.currentMonster = null;
-            AlertService.showAlert('Monster placed successfully.', 'success');
+            AlertService.showAlert(`Placed a ${monsterType} on position ${index - 3}.`, 'success');
+            proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+            proto.gameData.turnCount++;
+            if (proto.gameData.turnCount % 2 === 0) {
+                proto.moveMonsters(proto.gameData);
+                proto.combat(proto.gameData);
+                proto.spawnMonsters(proto.gameData);
+                proto.checkWaveProgress(proto.gameData);
+                proto.checkWinConditions(proto.gameData);
+            }
+        } else {
+            AlertService.showAlert(`Cannot place ${monsterType} here.`, 'error');
         }
     };
 
-    // Function to handle dropping a defense onto a cell
-    proto.onDropDefense = function(event, index, row) {
-        if (proto.currentDefense) {
-            if (!proto.gameData.track[row][index]) {
-                let defense = angular.copy(proto.currentDefense);
-                defense.hp = defense.maxHp; // Initialize the defense's HP
-                proto.gameData.track[row][index] = { type: 'defense', content: defense };
-                proto.currentDefense = null;
-                AlertService.showAlert('Defense placed successfully.', 'success');
-            } else {
-                AlertService.showAlert('A defense is already placed here.', 'info');
-            }
-        } else {
-            AlertService.showAlert('No defense to place.', 'warning');
-        }
-    };
-
-    // Function to handle dropping a monster onto a cell
-    proto.onDropMonster = function(event, index, row) {
-        if (proto.currentMonster) {
-            if (!proto.gameData.track[row][index]) {
-                let monster = angular.copy(proto.currentMonster);
-                monster.hp = monster.maxHp; // Initialize the monster's HP
-                proto.gameData.track[row][index] = { type: 'monster', content: monster };
-                proto.currentMonster = null;
-                AlertService.showAlert('Monster placed successfully.', 'success');
-            } else {
-                AlertService.showAlert('A monster is already placed here.', 'info');
-            }
-        } else {
-            AlertService.showAlert('No monster to place.', 'warning');
-        }
+    // Function to handle drag over event
+    $scope.onDragOver = function(event) {
+        event.preventDefault();
     };
 
 
