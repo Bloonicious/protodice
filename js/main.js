@@ -490,6 +490,7 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
     };
 }]);
 
+// Draggable directive
 app.directive('draggable', function() {
     return {
         restrict: 'A',
@@ -503,6 +504,7 @@ app.directive('draggable', function() {
     };
 });
 
+// Droppable directive
 app.directive('droppable', function() {
     return {
         restrict: 'A',
@@ -518,18 +520,20 @@ app.directive('droppable', function() {
 
                 if (draggedElement) {
                     var targetId = attrs.id;
+                    var [_, row, col] = targetId.split('-').map(Number);
+
                     scope.$apply(function() {
-                        var target = scope.gameData.track[targetId.row][targetId.col];
+                        var target = scope.mainCtrl.gameData.track[row][col];
                         if (draggedElement.classList.contains('defense') && !target) {
-                            scope.gameData.track[targetId.row][targetId.col] = scope.currentDefense;
-                            scope.currentDefense = null;
-                            scope.AlertService.showAlert('Defense placed!', 'success');
+                            scope.mainCtrl.gameData.track[row][col] = scope.mainCtrl.currentDefense;
+                            scope.mainCtrl.currentDefense = null;
+                            scope.alertService.showAlert('Defense placed!', 'success');
                         } else if (draggedElement.classList.contains('monster') && !target) {
-                            scope.gameData.track[targetId.row][targetId.col] = scope.currentMonster;
-                            scope.currentMonster = null;
-                            scope.AlertService.showAlert('Monster placed!', 'success');
+                            scope.mainCtrl.gameData.track[row][col] = scope.mainCtrl.currentMonster;
+                            scope.mainCtrl.currentMonster = null;
+                            scope.alertService.showAlert('Monster placed!', 'success');
                         } else {
-                            scope.AlertService.showAlert('Invalid placement.', 'error');
+                            scope.alertService.showAlert('Invalid placement.', 'error');
                         }
                     });
                 }
