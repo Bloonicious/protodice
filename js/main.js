@@ -458,6 +458,19 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
     };
 }]);
 
+app.directive('draggable', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, element) {
+            element.attr('draggable', true);
+
+            element.on('dragstart', function(event) {
+                event.dataTransfer.setData('text', element.attr('id'));
+            });
+        }
+    };
+});
+
 app.directive('droppableDefense', ['MainController', function(MainController) {
     return {
         restrict: 'A',
