@@ -103,7 +103,7 @@
             </div>
         </div>
     </div>
-    <div id="customAlert" ng-show="AlertService.showCustomAlert" ng-class="AlertService.alertType">
+    <div ng-show="AlertService.showCustomAlert" class="alert" ng-class="{'alert-info': AlertService.alertType === 'info', 'alert-success': AlertService.alertType === 'success', 'alert-warning': AlertService.alertType === 'warning', 'alert-danger': AlertService.alertType === 'error'}">
     {{ AlertService.alertMessage }}
 </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
