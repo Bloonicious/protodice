@@ -103,10 +103,11 @@
             </div>
         </div>
     </div>
-    <div id="customAlert" ng-show="showCustomAlert">
+    <!-- Custom Alert -->
+    <div id="customAlert" ng-show="AlertService.showCustomAlert">
         <div class="alert-content">
-            <span>{{ alertMessage }}</span>
-            <button ng-click="hideAlert()">Close</button>
+            <span>{{ AlertService.alertMessage }}</span>
+            <button ng-click="AlertService.hideAlert()">Close</button>
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
