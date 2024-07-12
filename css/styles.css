@@ -128,20 +128,11 @@ h1 {
     background-color: #00ff00; /* Use the green hex color */
 }
 
-.alert-box {
-    background-color: #fff;
-    color: #000;
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 10px 0;
-}
-
-/* CSS for custom alert */
 #customAlert {
     position: fixed;
-    top: 50%;
+    top: 20px; /* Adjust as needed */
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     background-color: #ffffff;
     border: 1px solid #cccccc;
     padding: 15px;
@@ -149,6 +140,31 @@ h1 {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     z-index: 1000; /* Ensure it's above other elements */
     width: 300px; /* Adjust width as needed */
+    text-align: center;
+}
+
+#customAlert.info {
+    background-color: #ffffff;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+#customAlert.success {
+    background-color: #dff0d8;
+    border-color: #d0e9c6;
+    color: #3c763d;
+}
+
+#customAlert.warning {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+#customAlert.error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
 }
 
 #customAlert .alert-content {
