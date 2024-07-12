@@ -103,16 +103,16 @@
             </div>
         </div>
     </div>
-    <!-- Custom alert overlay -->
-    <div id="customAlertOverlay" ng-show="alertService.showCustomAlert" class="overlay"></div>
+    <<!-- Custom alert overlay -->
+<div id="customAlertOverlay" ng-show="alertService.showCustomAlert" class="overlay"></div>
 
-    <!-- Custom alert box -->
-    <div id="customAlert" ng-class="{'active': alertService.showCustomAlert, 'info': alertService.alertType === 'info', 'success': alertService.alertType === 'success', 'warning': alertService.alertType === 'warning', 'error': alertService.alertType === 'error'}">
-        <div class="alert-content">
-            <span ng-bind="alertService.alertMessage"></span>
-        </div>
-        <button ng-click="alertService.hideAlert()">OK</button>
+<!-- Custom alert box -->
+<div id="customAlert" ng-class="{'active': alertService.showCustomAlert, 'info': alertService.alertType === 'info', 'success': alertService.alertType === 'success', 'warning': alertService.alertType === 'warning', 'error': alertService.alertType === 'error'}">
+    <div class="alert-content">
+        <span ng-bind="alertService.alertMessage"></span>
     </div>
+    <button ng-click="alertService.hideAlert()">OK</button>
+</div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <script src="dist/angular-drag-and-drop-lists.min.js"></script>
     <script src="js/main.js"></script>
