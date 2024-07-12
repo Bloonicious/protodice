@@ -20,8 +20,10 @@ app.service('AlertService', function() {
     this.alertMessage = '';
 
     this.showAlert = function(message) {
-        this.alertMessage = message;
-        this.showCustomAlert = true;
+        if (!this.showCustomAlert) {
+            this.alertMessage = message;
+            this.showCustomAlert = true;
+        }
     };
 
     this.hideAlert = function() {
