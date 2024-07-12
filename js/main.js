@@ -193,7 +193,8 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
     // Create a defense based on configuration
     function createDefense(config) {
         return Object.assign({
-            id: `defense-${Date.now()}-${Math.random()}`
+            id: `defense-${Date.now()}-${Math.random()}`,
+            maxHp: config.hp
         }, config);
     }
 
@@ -233,7 +234,8 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
     // Create a monster based on configuration
     function createMonster(config) {
         return Object.assign({
-            id: `monster-${Date.now()}-${Math.random()}`
+            id: `monster-${Date.now()}-${Math.random()}`,
+            maxHp: config.hp
         }, config);
     }
 
@@ -386,24 +388,35 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
     }
 }
 
-    // Handle drop event
-$scope.onDropCell = function(event, colIndex, rowIndex) {
-    if ($scope.currentDefense && colIndex < 4) {
-        $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
-        $scope.currentDefense = null;
-        $scope.showRollDiceButton = false; // Prevent rolling dice after placing defense
-        $scope.showAlert(`Placed defense at (${rowIndex}, ${colIndex}). AI's turn to place monsters.`);
-        if ($scope.numPlayers === 1 && $scope.gameData.players[$scope.gameData.currentPlayerIndex] === 'AI') {
-            aiPlaceMonster();
+   // Place a defense
+    $scope.placeDefense = function(row, col) {
+        if ($scope.currentDefense) {
+            if (!$scope.gameData.defenses[row][col]) {
+                $scope.gameData.defenses[row][col] = angular.copy($scope.currentDefense);
+                $scope.currentDefense = null;
+                $scope.showAlert('Defense placed successfully.');
+            } else {
+                $scope.showAlert('A defense is already placed here.');
+            }
+        } else {
+            $scope.showAlert('No defense to place.');
         }
-    } else if ($scope.currentMonster && colIndex > 4) {
-        $scope.gameData.monsters[rowIndex][colIndex - 5] = $scope.currentMonster;
-        $scope.currentMonster = null;
-        $scope.showAlert(`Placed monster at (${rowIndex}, ${colIndex}). Your turn to roll the dice.`);
-    } else {
-        $scope.showAlert('Invalid placement.');
-    }
-};
+    };
+
+    // Place a monster
+    $scope.placeMonster = function(row, col) {
+        if ($scope.currentMonster) {
+            if (!$scope.gameData.monsters[row][col]) {
+                $scope.gameData.monsters[row][col] = angular.copy($scope.currentMonster);
+                $scope.currentMonster = null;
+                $scope.showAlert('Monster placed successfully.');
+            } else {
+                $scope.showAlert('A monster is already placed here.');
+            }
+        } else {
+            $scope.showAlert('No monster to place.');
+        }
+    };
 
     // Set maximum waves
     $scope.setMaxWaves = function(maxWaves) {
