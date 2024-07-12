@@ -61,17 +61,37 @@
                             }"
                             dnd-list="row"
                             dnd-drop="true" dnd-drop-success="onDropCell($event, $index, $parent.$index)">
-                            <div class="defense" ng-if="cell && cell.type === 'defense'" dnd-draggable="cell" dnd-type="'defense'">{{cell.content.type}}</div>
-                            <div class="monster" ng-if="cell && cell.type === 'monster'" dnd-draggable="cell" dnd-type="'monster'">{{cell.content.type}}</div>
+                            <div class="defense" ng-if="cell && cell.type === 'defense'" dnd-draggable="cell" dnd-type="'defense'">
+                                <img ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
+                                <div class="hp-bar">
+                                    <div class="hp" ng-style="{'width': (cell.content.hp / cell.content.maxHp) * 100 + '%'}"></div>
+                                </div>
+                            </div>
+                            <div class="monster" ng-if="cell && cell.type === 'monster'" dnd-draggable="cell" dnd-type="'monster'">
+                                <img ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
+                                <div class="hp-bar">
+                                    <div class="hp" ng-style="{'width': (cell.content.hp / cell.content.maxHp) * 100 + '%'}"></div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <div id="defenseHolder" ng-show="currentDefense">
-                <div class="defense draggable" dnd-draggable="currentDefense" dnd-type="'defense'">{{currentDefense.type}}</div>
+                <div class="defense draggable" dnd-draggable="currentDefense" dnd-type="'defense'">
+                    <img ng-src="assets/images/{{currentDefense.type | lowercase}}.png" alt="{{currentDefense.type}}">
+                    <div class="hp-bar">
+                        <div class="hp" ng-style="{'width': (currentDefense.hp / currentDefense.maxHp) * 100 + '%'}"></div>
+                    </div>
+                </div>
             </div>
             <div id="monsterHolder" ng-show="currentMonster">
-                <div class="monster draggable" dnd-draggable="currentMonster" dnd-type="'monster'">{{currentMonster.type}}</div>
+                <div class="monster draggable" dnd-draggable="currentMonster" dnd-type="'monster'">
+                    <img ng-src="assets/images/{{currentMonster.type | lowercase}}.png" alt="{{currentMonster.type}}">
+                    <div class="hp-bar">
+                        <div class="hp" ng-style="{'width': (currentMonster.hp / currentMonster.maxHp) * 100 + '%'}"></div>
+                    </div>
+                </div>
             </div>
             <div id="turnIndicator" ng-show="showTurnIndicator">
                 <h3>Current Turn: <span id="currentPlayerName" ng-bind="currentPlayerName"></span></h3>
