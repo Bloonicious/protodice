@@ -1,3 +1,5 @@
+var app = angular.module('tdGameApp', ['dndLists']);
+
 app.controller('GameController', ['$scope', 'ConfigService', function($scope, ConfigService) {
     // UI flags
     $scope.showPlaySectionFlag = false;
