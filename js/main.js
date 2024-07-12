@@ -14,7 +14,24 @@ app.service('ConfigService', ['$http', function($http) {
     };
 }]);
 
-app.controller('GameController', ['$scope', 'ConfigService', function($scope, ConfigService) {
+// Custom Alert Service
+app.service('AlertService', function() {
+    var service = this;
+    service.alertMessage = '';
+    service.showCustomAlert = false;
+
+    service.showAlert = function(message) {
+        service.alertMessage = message;
+        service.showCustomAlert = true;
+    };
+
+    service.hideAlert = function() {
+        service.showCustomAlert = false;
+        service.alertMessage = '';
+    };
+});
+
+app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', function($scope, ConfigService, AlertService) {
     // UI flags
     $scope.showPlaySectionFlag = false;
     $scope.showHelpSectionFlag = false;
