@@ -162,6 +162,11 @@ h1 {
     background-color: #0056b3;
 }
 
+/* Ensure the alert shows when ng-show="showCustomAlert" */
+#customAlert.show {
+    display: block;
+}
+
 .hp-bar {
     width: 100%;
     background-color: #ccc;
