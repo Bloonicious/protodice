@@ -59,7 +59,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
         monsters: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
         currentPlayerIndex: 0,
-        players: ['player1', 'player2'],
+        players: ['player1', 'AI'],
         status: 'started',
         turnCount: 0,
         rolledSix: false,
@@ -94,6 +94,8 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
 
         if ($scope.numPlayers > 1) {
             $scope.gameData.players.push($scope.player2Name);
+        } else {
+            $scope.gameData.players.push('AI');
         }
 
         // Update UI flags
@@ -125,6 +127,11 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
 
     // Function to roll dice
     $scope.rollDice = function() {
+        if ($scope.currentDefense || $scope.currentMonster) {
+            $scope.showAlert('Please place your current piece before rolling the dice.');
+            return;
+        }
+        
         if (!$scope.defensesConfig || !$scope.monstersConfig) {
             $scope.showAlert('Configurations not loaded. Please try again.');
             return;
@@ -150,14 +157,19 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
             $scope.gameData.rolledSix = false;
         } else {
             spawnDefenses(roll);
-            $scope.gameData.currentPlayerIndex = ($scope.gameData.currentPlayerIndex + 1) % $scope.gameData.players.length;
-            $scope.gameData.turnCount++;
-            if ($scope.gameData.turnCount % 2 === 0) {
-                moveMonsters($scope.gameData);
-                combat($scope.gameData);
-                spawnMonsters($scope.gameData);
-                checkWaveProgress($scope.gameData);
-                checkWinConditions($scope.gameData);
+            if (currentPlayer === 'AI') {
+                $scope.showAlert('AI turn: placing a monster.');
+                aiPlaceMonster();
+            } else {
+                $scope.gameData.currentPlayerIndex = ($scope.gameData.currentPlayerIndex + 1) % $scope.gameData.players.length;
+                $scope.gameData.turnCount++;
+                if ($scope.gameData.turnCount % 2 === 0) {
+                    moveMonsters($scope.gameData);
+                    combat($scope.gameData);
+                    spawnMonsters($scope.gameData);
+                    checkWaveProgress($scope.gameData);
+                    checkWinConditions($scope.gameData);
+                }
             }
         }
     };
