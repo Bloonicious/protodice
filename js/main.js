@@ -57,13 +57,13 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         $scope.showGameArea = false;
     };
 
-    // Show custom alert
+    // Function to show alert
     $scope.showAlert = function(message) {
         $scope.alertMessage = message;
         $scope.showCustomAlert = true;
     };
 
-    // Hide custom alert
+    // Function to hide alert
     $scope.hideAlert = function() {
         $scope.showCustomAlert = false;
         $scope.alertMessage = '';
