@@ -41,7 +41,7 @@ app.service('AlertService', ['$timeout', function($timeout) {
     };
 }]);
 
-app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', function($scope, ConfigService, AlertService) {
+app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', function($scope, ConfigService, AlertService) {
     // UI flags
     $scope.showPlaySectionFlag = false;
     $scope.showHelpSectionFlag = false;
