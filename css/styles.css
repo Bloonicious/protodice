@@ -125,7 +125,7 @@ h1 {
 }
 
 .bridge-zone {
-    background-color: #f4f4f4;
+    background-color: #00ff00; /* Use the green hex color */
 }
 
 #customAlert {
@@ -138,7 +138,7 @@ h1 {
     background-color: #fff;
     border: 1px solid black;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 200;
+    z-index: 200; /* Ensure it's higher than other elements */
     text-align: center;
 }
 
