@@ -247,21 +247,21 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
         }
     };
 
-    // Create a monster based on configuration
-    function createMonster(config) {
+    // Create a monster
+    proto.createMonster = function(config) {
         return Object.assign({
             id: `monster-${Date.now()}-${Math.random()}`,
             maxHp: config.hp
         }, config);
-    }
+    };
 
     // Spawn monsters based on dice roll
-    function spawnMonsters(game) {
+    proto.spawnMonsters = function(game) {
         const roll = Math.floor(Math.random() * 6) + 1;
         let monster;
-        if (roll in $scope.monstersConfig) {
-            const config = $scope.monstersConfig[roll];
-            monster = createMonster(config);
+        if (roll in proto.monstersConfig) {
+            const config = proto.monstersConfig[roll];
+            monster = proto.createMonster(config);
         }
 
         if (monster) {
@@ -270,24 +270,24 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
         } else {
             AlertService.showAlert('No monster was spawned.', 'warning');
         }
-    }
+    };
 
     // Move monsters on the track
-    function moveMonsters(game) {
+    proto.moveMonsters = function(game) {
         const monsters = game.monsters;
 
         for (let i = 0; i < 5; i++) {
-            for (let j = 0; j < 4; j++) {
+            for (let j = 0; j < 8; j++) {
                 if (monsters[i][j + 1]) {
                     monsters[i][j] = monsters[i][j + 1];
                     monsters[i][j + 1] = null;
                 }
             }
         }
-    }
+    };
 
     // Combat between defenses and monsters
-    function combat(game) {
+    proto.combat = function(game) {
         const defenses = game.defenses;
         const monsters = game.monsters;
 
@@ -309,11 +309,11 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
                             }
 
                             if (defense.type === 'Microwav\'r' && monster.hp > 0) {
-                                applyAreaDamage(monsters, i, j + k, defense.damage);
+                                proto.applyAreaDamage(monsters, i, j + k, defense.damage);
                             }
 
                             if (defense.type === 'Laser Beam') {
-                                for (let p = j + k; p < 4; p++) {
+                                for (let p = j + k; p < 8; p++) {
                                     if (monsters[i][p]) {
                                         monsters[i][p].hp -= defense.damage;
                                         if (monsters[i][p].hp <= 0) {
@@ -333,13 +333,13 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
                 }
             }
         }
-    }
+    };
 
     // Apply area damage to monsters
-    function applyAreaDamage(monsters, rowIndex, colIndex, damage) {
+    proto.applyAreaDamage = function(monsters, rowIndex, colIndex, damage) {
         for (let i = rowIndex - 1; i <= rowIndex + 1; i++) {
             for (let j = colIndex - 1; j <= colIndex + 1; j++) {
-                if (i >= 0 && i < 5 && j >= 0 && j < 4 && monsters[i][j]) {
+                if (i >= 0 && i < 5 && j >= 0 && j < 8 && monsters[i][j]) {
                     monsters[i][j].hp -= damage;
                     if (monsters[i][j].hp <= 0) {
                         monsters[i][j] = null;
@@ -347,26 +347,26 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
                 }
             }
         }
-    }
+    };
 
     // Check wave progress and adjust game state
-    function checkWaveProgress(game) {
+    proto.checkWaveProgress = function(game) {
         if (game.waveCount < game.maxWaves || game.maxWaves === 9999) {
             game.waveCount++;
             if (game.waveCount > 25) {
-                $scope.monstersConfig.forEach(monster => {
+                proto.monstersConfig.forEach(monster => {
                     monster.hp += monster.hp * 0.1 * (game.waveCount - 25);
                     monster.damage += monster.damage * 0.1 * (game.waveCount - 25);
                 });
             }
             AlertService.showAlert(`Wave ${game.waveCount} has started!`, 'info');
         } else {
-            checkWinConditions(game);
+            proto.checkWinConditions(game);
         }
-    }
+    };
 
     // Check win conditions
-    function checkWinConditions(game) {
+    proto.checkWinConditions = function(game) {
         const monsters = game.monsters;
 
         for (let i = 0; i < 5; i++) {
@@ -381,87 +381,87 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
             AlertService.showAlert('Defenders have won the game by surviving all waves!', 'info');
             game.status = 'ended';
         }
-    }
+    };
 
     // AI place monster function
-    function aiPlaceMonster() {
-        const game = $scope.gameData;
+    proto.aiPlaceMonster = function() {
+        const game = proto.gameData;
         const monsters = game.monsters;
 
-    // AI logic to place monsters
-    for (let i = 0; i < 5; i++) {
-        for (let j = 4; j < 8; j++) { // Monsters can only be placed in columns 5, 6, 7 (0-indexed)
-            if (!monsters[i][j]) {
-                const roll = Math.floor(Math.random() * 6) + 1;
-                if (roll in $scope.monstersConfig) {
-                    const config = $scope.monstersConfig[roll];
-                    monsters[i][j] = createMonster(config);
-                    AlertService.showAlert(`AI placed a ${monsters[i][j].type} at (${i}, ${j + 1}).`, 'info');
-                    return; // AI places only one monster per turn
+        for (let i = 0; i < 5; i++) {
+            for (let j = 4; j < 8; j++) { // Monsters can only be placed in columns 5, 6, 7 (0-indexed)
+                if (!monsters[i][j]) {
+                    const roll = Math.floor(Math.random() * 6) + 1;
+                    if (roll in proto.monstersConfig) {
+                        const config = proto.monstersConfig[roll];
+                        monsters[i][j] = proto.createMonster(config);
+                        AlertService.showAlert(`AI placed a ${monsters[i][j].type} at (${i}, ${j + 1}).`, 'info');
+                        return; // AI places only one monster per turn
+                    }
                 }
             }
         }
-    }
-}
+    };
 
     // Place current defense
-    $scope.placeCurrentDefense = function(row, col) {
-        if ($scope.currentDefense) {
-            $scope.gameData.defenses[row][col] = $scope.currentDefense;
-            $scope.currentDefense = null;
+    proto.placeCurrentDefense = function(row, col) {
+        if (proto.currentDefense) {
+            proto.gameData.defenses[row][col] = proto.currentDefense;
+            proto.currentDefense = null;
             AlertService.showAlert('Defense placed successfully.', 'success');
         }
     };
 
     // Place current monster
-    $scope.placeCurrentMonster = function(row, col) {
-        if ($scope.currentMonster) {
-            $scope.gameData.monsters[row][col] = $scope.currentMonster;
-            $scope.currentMonster = null;
+    proto.placeCurrentMonster = function(row, col) {
+        if (proto.currentMonster) {
+            proto.gameData.monsters[row][col] = proto.currentMonster;
+            proto.currentMonster = null;
             AlertService.showAlert('Monster placed successfully.', 'success');
         }
     };
 
     // Function to handle dropping a defense onto a cell
-$scope.onDropDefense = function(event, index, row) {
-    if ($scope.currentDefense) {
-        if (!$scope.gameData.track[row][index]) {
-            let defense = angular.copy($scope.currentDefense);
-            defense.hp = defense.maxHp; // Initialize the defense's HP
-            $scope.gameData.track[row][index] = { type: 'defense', content: defense };
-            $scope.currentDefense = null;
-            AlertService.showAlert('Defense placed successfully.', 'success');
+    proto.onDropDefense = function(event, index, row) {
+        if (proto.currentDefense) {
+            if (!proto.gameData.track[row][index]) {
+                let defense = angular.copy(proto.currentDefense);
+                defense.hp = defense.maxHp; // Initialize the defense's HP
+                proto.gameData.track[row][index] = { type: 'defense', content: defense };
+                proto.currentDefense = null;
+                AlertService.showAlert('Defense placed successfully.', 'success');
+            } else {
+                AlertService.showAlert('A defense is already placed here.', 'info');
+            }
         } else {
-            AlertService.showAlert('A defense is already placed here.', 'info');
+            AlertService.showAlert('No defense to place.', 'warning');
         }
-    } else {
-        AlertService.showAlert('No defense to place.', 'warning');
-    }
-};
+    };
 
-// Function to handle dropping a monster onto a cell
-$scope.onDropMonster = function(event, index, row) {
-    if ($scope.currentMonster) {
-        if (!$scope.gameData.track[row][index]) {
-            let monster = angular.copy($scope.currentMonster);
-            monster.hp = monster.maxHp; // Initialize the monster's HP
-            $scope.gameData.track[row][index] = { type: 'monster', content: monster };
-            $scope.currentMonster = null;
-            AlertService.showAlert('Monster placed successfully.', 'success');
+    // Function to handle dropping a monster onto a cell
+    proto.onDropMonster = function(event, index, row) {
+        if (proto.currentMonster) {
+            if (!proto.gameData.track[row][index]) {
+                let monster = angular.copy(proto.currentMonster);
+                monster.hp = monster.maxHp; // Initialize the monster's HP
+                proto.gameData.track[row][index] = { type: 'monster', content: monster };
+                proto.currentMonster = null;
+                AlertService.showAlert('Monster placed successfully.', 'success');
+            } else {
+                AlertService.showAlert('A monster is already placed here.', 'info');
+            }
         } else {
-            AlertService.showAlert('A monster is already placed here.', 'info');
+            AlertService.showAlert('No monster to place.', 'warning');
         }
-    } else {
-        AlertService.showAlert('No monster to place.', 'warning');
-    }
-};
+    };
+
 
     // Set maximum waves
-    $scope.setMaxWaves = function(maxWaves) {
+    proto.setMaxWaves = function(maxWaves) {
         if (maxWaves === '∞') {
-            $scope.gameData.maxWaves = 9999;
+            proto.gameData.maxWaves = 9999;
         } else {
-            $scope.gameData.maxWaves = parseInt(maxWaves);
+            proto.gameData.maxWaves = parseInt(maxWaves);
         }
         AlertService.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`, 'info');
     };
