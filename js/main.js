@@ -42,50 +42,52 @@ app.service('AlertService', ['$timeout', function($timeout) {
 }]);
 
 app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', function($scope, ConfigService, AlertService) {
+    var proto = this;
     $scope.alertService = AlertService;
+
     // UI flags
-    $scope.showPlaySectionFlag = false;
-    $scope.showHelpSectionFlag = false;
-    $scope.showBackButton = false;
-    $scope.showStartButton = false;
-    $scope.showRollDiceButton = false;
-    $scope.showGameArea = false;
-    $scope.showTurnIndicator = false;
+    proto.showPlaySectionFlag = false;
+    proto.showHelpSectionFlag = false;
+    proto.showBackButton = false;
+    proto.showStartButton = false;
+    proto.showRollDiceButton = false;
+    proto.showGameArea = false;
+    proto.showTurnIndicator = false;
 
     // Game setup defaults
-    $scope.numPlayers = 1; // Default to 1 player
-    $scope.player1Name = '';
-    $scope.player2Name = '';
-    $scope.swapSides = false; // Default to not swapping sides
-    $scope.waveOptions = [10, 15, 20, 25, '∞'];
-    $scope.selectedMaxWaves = $scope.waveOptions[0];
+    proto.numPlayers = 1; // Default to 1 player
+    proto.player1Name = '';
+    proto.player2Name = '';
+    proto.swapSides = false; // Default to not swapping sides
+    proto.waveOptions = [10, 15, 20, 25, '∞'];
+    proto.selectedMaxWaves = proto.waveOptions[0];
 
     // Toggle Play section
-    $scope.togglePlaySection = function() {
-        $scope.showPlaySectionFlag = !$scope.showPlaySectionFlag;
-        $scope.showHelpSectionFlag = false;
-        $scope.showStartButton = $scope.showPlaySectionFlag;
-        $scope.showBackButton = $scope.showPlaySectionFlag;
+    proto.togglePlaySection = function() {
+        proto.showPlaySectionFlag = !proto.showPlaySectionFlag;
+        proto.showHelpSectionFlag = false;
+        proto.showStartButton = proto.showPlaySectionFlag;
+        proto.showBackButton = proto.showPlaySectionFlag;
     };
 
     // Toggle Help section
-    $scope.toggleHelpSection = function() {
-        $scope.showHelpSectionFlag = !$scope.showHelpSectionFlag;
-        $scope.showPlaySectionFlag = false;
+    proto.toggleHelpSection = function() {
+        proto.showHelpSectionFlag = !proto.showHelpSectionFlag;
+        proto.showPlaySectionFlag = false;
     };
 
     // Go back to the initial state
-    $scope.goBack = function() {
-        $scope.showPlaySectionFlag = false;
-        $scope.showHelpSectionFlag = false;
-        $scope.showStartButton = false;
-        $scope.showRollDiceButton = false;
-        $scope.showBackButton = false;
-        $scope.showGameArea = false;
+    proto.goBack = function() {
+        proto.showPlaySectionFlag = false;
+        proto.showHelpSectionFlag = false;
+        proto.showStartButton = false;
+        proto.showRollDiceButton = false;
+        proto.showBackButton = false;
+        proto.showGameArea = false;
     };
     
     // Initialize game data
-    $scope.gameData = {
+    proto.gameData = {
         track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
         defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
         monsters: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
@@ -99,151 +101,151 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
     };
 
     // Function to start the game
-    $scope.startGame = function() {
+    proto.startGame = function() {
         // Reset custom alert
         AlertService.hideAlert();
         
         // Validation
-        if (!$scope.player1Name || ($scope.numPlayers > 1 && !$scope.player2Name)) {
+        if (!proto.player1Name || (proto.numPlayers > 1 && !proto.player2Name)) {
             AlertService.showAlert('Please enter names for all players.', 'error');
             return;
         }
-        if ($scope.player1Name.length < 2 || ($scope.numPlayers > 1 && $scope.player2Name.length < 2)) {
+        if (proto.player1Name.length < 2 || (proto.numPlayers > 1 && proto.player2Name.length < 2)) {
             AlertService.showAlert('Player names must be at least 2 characters long.', 'error');
             return;
         }
 
         // Set up initial game state
-        $scope.gameData.players = [$scope.player1Name];
-        $scope.gameData.currentPlayerIndex = 0;
-        $scope.gameData.status = 'started';
-        $scope.gameData.turnCount = 0;
-        $scope.gameData.rolledSix = false;
-        $scope.gameData.waveCount = 0;
-        $scope.gameData.maxWaves = $scope.selectedMaxWaves === '∞' ? 9999 : parseInt($scope.selectedMaxWaves);
+        proto.gameData.players = [proto.player1Name];
+        proto.gameData.currentPlayerIndex = 0;
+        proto.gameData.status = 'started';
+        proto.gameData.turnCount = 0;
+        proto.gameData.rolledSix = false;
+        proto.gameData.waveCount = 0;
+        proto.gameData.maxWaves = proto.selectedMaxWaves === '∞' ? 9999 : parseInt(proto.selectedMaxWaves);
 
-        if ($scope.numPlayers > 1) {
-            $scope.gameData.players.push($scope.player2Name);
+        if (proto.numPlayers > 1) {
+            proto.gameData.players.push(proto.player2Name);
         } else {
-            $scope.gameData.players.push('AI');
+            proto.gameData.players.push('AI');
         }
 
         // Update UI flags
-        $scope.showGameArea = true;
-        $scope.showPlaySectionFlag = false;
-        $scope.showStartButton = false;
-        $scope.showRollDiceButton = true;
-        $scope.showTurnIndicator = true;
-        $scope.showBackButton = false;
+        proto.showGameArea = true;
+        proto.showPlaySectionFlag = false;
+        proto.showStartButton = false;
+        proto.showRollDiceButton = true;
+        proto.showTurnIndicator = true;
+        proto.showBackButton = false;
 
         // Initial message
-        AlertService.showAlert('Game started! Good luck, ' + $scope.gameData.players.join(' and ') + '!', 'success');
+        AlertService.showAlert('Game started! Good luck, ' + proto.gameData.players.join(' and ') + '!', 'success');
     };
 
     // Load configurations
     ConfigService.loadDefenses().then(function(data) {
-        $scope.defensesConfig = data;
+        proto.defensesConfig = data;
     });
 
     ConfigService.loadMonsters().then(function(data) {
-        $scope.monstersConfig = data;
+        proto.monstersConfig = data;
     });
 
     // Initialize current elements
-    $scope.currentDefense = null;
-    $scope.currentMonster = null;
-    $scope.currentPlayerName = $scope.gameData.players[0];
-    $scope.diceRollResult = null;
+    proto.currentDefense = null;
+    proto.currentMonster = null;
+    proto.currentPlayerName = proto.gameData.players[0];
+    proto.diceRollResult = null;
 
     // Function to roll dice
-    $scope.rollDice = function() {
-        if ($scope.currentDefense || $scope.currentMonster) {
+    proto.rollDice = function() {
+        if (proto.currentDefense || proto.currentMonster) {
             AlertService.showAlert('Please place your current piece before rolling the dice.', 'warning');
             return;
         }
         
-        if (!$scope.defensesConfig || !$scope.monstersConfig) {
+        if (!proto.defensesConfig || !proto.monstersConfig) {
             AlertService.showAlert('Configurations not loaded. Please try again.', 'warning');
             return;
         }
 
-        const currentPlayer = $scope.gameData.players[$scope.gameData.currentPlayerIndex];
-        $scope.currentPlayerName = currentPlayer;
+        const currentPlayer = proto.gameData.players[proto.gameData.currentPlayerIndex];
+        proto.currentPlayerName = currentPlayer;
 
         const roll = Math.floor(Math.random() * 6) + 1;
-        $scope.diceRollResult = roll;
+        proto.diceRollResult = roll;
 
-        if (roll === 6 && !$scope.gameData.rolledSix) {
-            $scope.gameData.rolledSix = true;
+        if (roll === 6 && !proto.gameData.rolledSix) {
+            proto.gameData.rolledSix = true;
             AlertService.showAlert('You rolled a 6! Roll again for a prototype defense.', 'success');
             return;
-        } else if (roll === 6 && $scope.gameData.rolledSix) {
+        } else if (roll === 6 && proto.gameData.rolledSix) {
             AlertService.showAlert('You rolled a 6 and a special prototype defense!', 'success');
-            rollPrototypeDefense($scope.gameData);
-            $scope.gameData.rolledSix = false;
-        } else if ($scope.gameData.rolledSix) {
+            proto.rollPrototypeDefense(proto.gameData);
+            proto.gameData.rolledSix = false;
+        } else if (proto.gameData.rolledSix) {
             AlertService.showAlert('You\'ve already rolled your protodice! Place your prototype defense.', 'warning');
-            rollPrototypeDefense($scope.gameData);
-            $scope.gameData.rolledSix = false;
+            proto.rollPrototypeDefense(proto.gameData);
+            proto.gameData.rolledSix = false;
         } else {
-            spawnDefenses(roll);
+            proto.spawnDefenses(roll);
             if (currentPlayer === 'AI') {
                 AlertService.showAlert('AI turn: placing a monster.', 'info');
-                aiPlaceMonster();
+                proto.aiPlaceMonster();
             } else {
-                $scope.gameData.currentPlayerIndex = ($scope.gameData.currentPlayerIndex + 1) % $scope.gameData.players.length;
-                $scope.gameData.turnCount++;
-                if ($scope.gameData.turnCount % 2 === 0) {
-                    moveMonsters($scope.gameData);
-                    combat($scope.gameData);
-                    spawnMonsters($scope.gameData);
-                    checkWaveProgress($scope.gameData);
-                    checkWinConditions($scope.gameData);
+                proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+                proto.gameData.turnCount++;
+                if (proto.gameData.turnCount % 2 === 0) {
+                    proto.moveMonsters(proto.gameData);
+                    proto.combat(proto.gameData);
+                    proto.spawnMonsters(proto.gameData);
+                    proto.checkWaveProgress(proto.gameData);
+                    proto.checkWinConditions(proto.gameData);
                 }
             }
         }
     };
 
     // Create a defense based on configuration
-    function createDefense(config) {
+    proto.createDefense = function(config) {
         return Object.assign({
             id: `defense-${Date.now()}-${Math.random()}`,
             maxHp: config.hp
         }, config);
-    }
+    };
 
     // Spawn defenses based on dice roll
-    function spawnDefenses(roll) {
+    proto.spawnDefenses = function(roll) {
         let defense;
-        if (roll in $scope.defensesConfig) {
-            const config = $scope.defensesConfig[roll];
-            defense = createDefense(config);
+        if (roll in proto.defensesConfig) {
+            const config = proto.defensesConfig[roll];
+            defense = proto.createDefense(config);
         }
 
         if (defense) {
-            $scope.currentDefense = defense;
+            proto.currentDefense = defense;
             AlertService.showAlert(`You rolled a ${roll} and got a ${defense.type}. Place your defense.`, 'success');
         } else {
             AlertService.showAlert(`You rolled a ${roll}, but no defense was placed.`, 'warning');
         }
-    }
+    };
 
     // Roll prototype defense
-    function rollPrototypeDefense(game) {
+    proto.rollPrototypeDefense = function(game) {
         const roll = Math.floor(Math.random() * 5) + 1;
         let defense;
-        if (6 in $scope.defensesConfig) {
-            const subConfig = $scope.defensesConfig[6].subTypes[roll];
-            defense = createDefense(subConfig);
+        if (6 in proto.defensesConfig) {
+            const subConfig = proto.defensesConfig[6].subTypes[roll];
+            defense = proto.createDefense(subConfig);
         }
 
         if (defense) {
-            $scope.currentDefense = defense;
+            proto.currentDefense = defense;
             AlertService.showAlert(`You rolled a special 6 and got a ${defense.type}. Place your defense.`, 'success');
         } else {
             AlertService.showAlert(`You rolled a special 6, but no defense was placed.`, 'warning');
         }
-    }
+    };
 
     // Create a monster based on configuration
     function createMonster(config) {
