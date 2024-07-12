@@ -17,15 +17,25 @@ app.service('ConfigService', ['$http', function($http) {
 app.service('AlertService', function() {
     this.showCustomAlert = false;
     this.alertMessage = '';
+    this.alertType = ''; // Added to differentiate alert types
 
-    this.showAlert = function(message) {
+    // Function to show custom alert
+    this.showAlert = function(message, type = 'info') {
         this.alertMessage = message;
+        this.alertType = type;
         this.showCustomAlert = true;
+
+        // Automatically hide the alert after 3 seconds (adjust as needed)
+        setTimeout(() => {
+            this.hideAlert();
+        }, 3000);
     };
 
+    // Function to hide alert
     this.hideAlert = function() {
         this.showCustomAlert = false;
         this.alertMessage = '';
+        this.alertType = '';
     };
 });
 
