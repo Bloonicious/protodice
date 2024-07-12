@@ -130,16 +130,21 @@ h1 {
 
 #customAlert {
     position: fixed;
+    top: 50%;
     left: 50%;
-    top: 20px; /* Positioned at the top for visibility */
-    transform: translateX(-50%);
-    width: 300px;
-    padding: 20px;
-    background-color: #fff;
-    border: 1px solid black;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 15px;
+    border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 200; /* Ensure it's higher than other elements */
-    text-align: center;
+    z-index: 1000; /* Ensure it's above other elements */
+    display: none; /* Initially hidden */
+}
+
+/* Show the custom alert when its corresponding class is applied */
+.show-custom-alert {
+    display: block !important; /* Ensure it overrides any other display settings */
 }
 
 #customAlert .alert-content {
