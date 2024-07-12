@@ -71,15 +71,14 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
         $scope.showGameArea = false;
     };
 
-    // Function to show alert
-    function showAlert(message) {
+    // Expose showAlert and hideAlert to the $scope
+    $scope.showAlert = function(message) {
         AlertService.showAlert(message);
-    }
+    };
 
-    // Function to hide alert
-    function hideAlert() {
+    $scope.hideAlert = function() {
         AlertService.hideAlert();
-    }
+    };
     
     // Initialize game data
     $scope.gameData = {
@@ -98,15 +97,15 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
     // Function to start the game
     $scope.startGame = function() {
         // Reset custom alert
-        hideAlert();
+        $scope.hideAlert();
         
         // Validation
         if (!$scope.player1Name || ($scope.numPlayers > 1 && !$scope.player2Name)) {
-            showAlert('Please enter names for all players.');
+            $scope.showAlert('Please enter names for all players.');
             return;
         }
         if ($scope.player1Name.length < 2 || ($scope.numPlayers > 1 && $scope.player2Name.length < 2)) {
-            showAlert('Player names must be at least 2 characters long.');
+            $scope.showAlert('Player names must be at least 2 characters long.');
             return;
         }
 
@@ -134,7 +133,7 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
         $scope.showBackButton = false;
 
         // Initial message
-        showAlert('Game started! Good luck, ' + $scope.gameData.players.join(' and ') + '!');
+        $scope.showAlert('Game started! Good luck, ' + $scope.gameData.players.join(' and ') + '!');
     };
 
     // Load configurations
@@ -155,12 +154,12 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
     // Function to roll dice
     $scope.rollDice = function() {
         if ($scope.currentDefense || $scope.currentMonster) {
-            showAlert('Please place your current piece before rolling the dice.');
+            $scope.showAlert('Please place your current piece before rolling the dice.');
             return;
         }
         
         if (!$scope.defensesConfig || !$scope.monstersConfig) {
-            showAlert('Configurations not loaded. Please try again.');
+            $scope.showAlert('Configurations not loaded. Please try again.');
             return;
         }
 
@@ -172,20 +171,20 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
 
         if (roll === 6 && !$scope.gameData.rolledSix) {
             $scope.gameData.rolledSix = true;
-            showAlert('You rolled a 6! Roll again for a prototype defense.');
+            $scope.showAlert('You rolled a 6! Roll again for a prototype defense.');
             return;
         } else if (roll === 6 && $scope.gameData.rolledSix) {
-            showAlert('You rolled a 6 and a special prototype defense!');
+            $scope.showAlert('You rolled a 6 and a special prototype defense!');
             rollPrototypeDefense($scope.gameData);
             $scope.gameData.rolledSix = false;
         } else if ($scope.gameData.rolledSix) {
-            showAlert('You\'ve already rolled your protodice! Place your prototype defense.');
+            $scope.showAlert('You\'ve already rolled your protodice! Place your prototype defense.');
             rollPrototypeDefense($scope.gameData);
             $scope.gameData.rolledSix = false;
         } else {
             spawnDefenses(roll);
             if (currentPlayer === 'AI') {
-                showAlert('AI turn: placing a monster.');
+                $scope.showAlert('AI turn: placing a monster.');
                 aiPlaceMonster();
             } else {
                 $scope.gameData.currentPlayerIndex = ($scope.gameData.currentPlayerIndex + 1) % $scope.gameData.players.length;
@@ -219,9 +218,9 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
 
         if (defense) {
             $scope.currentDefense = defense;
-            showAlert(`You rolled a ${roll} and got a ${defense.type}. Place your defense.`);
+            $scope.showAlert(`You rolled a ${roll} and got a ${defense.type}. Place your defense.`);
         } else {
-            showAlert(`You rolled a ${roll}, but no defense was placed.`);
+            $scope.showAlert(`You rolled a ${roll}, but no defense was placed.`);
         }
     }
 
@@ -236,9 +235,9 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
 
         if (defense) {
             $scope.currentDefense = defense;
-            showAlert(`You rolled a special 6 and got a ${defense.type}. Place your defense.`);
+            $scope.showAlert(`You rolled a special 6 and got a ${defense.type}. Place your defense.`);
         } else {
-            showAlert(`You rolled a special 6, but no defense was placed.`);
+            $scope.showAlert(`You rolled a special 6, but no defense was placed.`);
         }
     }
 
@@ -261,9 +260,9 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
 
         if (monster) {
             game.monsters.push(monster);
-            showAlert(`A ${monster.type} has spawned!`);
+            $scope.showAlert(`A ${monster.type} has spawned!`);
         } else {
-            showAlert('No monster was spawned.');
+            $scope.showAlert('No monster was spawned.');
         }
     }
 
@@ -354,7 +353,7 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
                     monster.damage += monster.damage * 0.1 * (game.waveCount - 25);
                 });
             }
-            showAlert(`Wave ${game.waveCount} has started!`);
+            $scope.showAlert(`Wave ${game.waveCount} has started!`);
         } else {
             checkWinConditions(game);
         }
@@ -366,14 +365,14 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
 
         for (let i = 0; i < 5; i++) {
             if (monsters[i][0]) {
-                showAlert('Monsters have won the game!');
+                $scope.showAlert('Monsters have won the game!');
                 game.status = 'ended';
                 return;
             }
         }
 
         if (game.waveCount === game.maxWaves) {
-            showAlert('Defenders have won the game by surviving all waves!');
+            $scope.showAlert('Defenders have won the game by surviving all waves!');
             game.status = 'ended';
         }
     }
@@ -391,7 +390,7 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
                 if (roll in $scope.monstersConfig) {
                     const config = $scope.monstersConfig[roll];
                     monsters[i][j] = createMonster(config);
-                    showAlert(`AI placed a ${monsters[i][j].type} at (${i}, ${j + 1}).`);
+                    $scope.showAlert(`AI placed a ${monsters[i][j].type} at (${i}, ${j + 1}).`);
                     return; // AI places only one monster per turn
                 }
             }
@@ -404,7 +403,7 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
         if ($scope.currentDefense) {
             $scope.gameData.defenses[row][col] = $scope.currentDefense;
             $scope.currentDefense = null;
-            showAlert('Defense placed successfully.');
+            $scope.showAlert('Defense placed successfully.');
         }
     };
 
@@ -413,7 +412,7 @@ app.controller('GameController', ['$scope', 'ConfigService', 'AlertService', fun
         if ($scope.currentMonster) {
             $scope.gameData.monsters[row][col] = $scope.currentMonster;
             $scope.currentMonster = null;
-            showAlert('Monster placed successfully.');
+            $scope.showAlert('Monster placed successfully.');
         }
     };
 
@@ -425,12 +424,12 @@ $scope.onDropDefense = function(event, index, row) {
             defense.hp = defense.maxHp; // Initialize the defense's HP
             $scope.gameData.track[row][index] = { type: 'defense', content: defense };
             $scope.currentDefense = null;
-            showAlert('Defense placed successfully.');
+            $scope.showAlert('Defense placed successfully.');
         } else {
-            showAlert('A defense is already placed here.');
+            $scope.showAlert('A defense is already placed here.');
         }
     } else {
-        showAlert('No defense to place.');
+        $scope.showAlert('No defense to place.');
     }
 };
 
@@ -442,12 +441,12 @@ $scope.onDropMonster = function(event, index, row) {
             monster.hp = monster.maxHp; // Initialize the monster's HP
             $scope.gameData.track[row][index] = { type: 'monster', content: monster };
             $scope.currentMonster = null;
-            showAlert('Monster placed successfully.');
+            $scope.showAlert('Monster placed successfully.');
         } else {
-            showAlert('A monster is already placed here.');
+            $scope.showAlert('A monster is already placed here.');
         }
     } else {
-        showAlert('No monster to place.');
+        $scope.showAlert('No monster to place.');
     }
 };
 
@@ -458,6 +457,6 @@ $scope.onDropMonster = function(event, index, row) {
         } else {
             $scope.gameData.maxWaves = parseInt(maxWaves);
         }
-        showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`);
+        $scope.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`);
     };
 }]);
