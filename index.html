@@ -103,10 +103,9 @@
             </div>
         </div>
     </div>
-    <div ng-show="mainCtrl.AlertService.showCustomAlert" class="alert" ng-class="{'alert-info': mainCtrl.AlertService.alertType === 'info', 'alert-success': mainCtrl.AlertService.alertType === 'success', 'alert-warning': mainCtrl.AlertService.alertType === 'warning', 'alert-danger': mainCtrl.AlertService.alertType === 'error'}">
-        {{ mainCtrl.AlertService.alertMessage }}
-        <button ng-click="mainCtrl.hideCustomAlert()">Close</button>
-    </div>
+    <div ng-show="alertService.showCustomAlert" class="alert-box" ng-class="{'info': alertService.alertType === 'info', 'success': alertService.alertType === 'success', 'warning': alertService.alertType === 'warning', 'error': alertService.alertType === 'error'}">
+    <span ng-bind="alertService.alertMessage"></span>
+</div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <script src="dist/angular-drag-and-drop-lists.min.js"></script>
     <script src="js/main.js"></script>
