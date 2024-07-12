@@ -61,7 +61,7 @@
                             }"
                             dnd-list="row"
                             dnd-drop="true" 
-                            ng-drop-success="mainCtrl.onDrop($event, $index, $parent.$index)">
+                            ng-drop-success="mainCtrl.onDrop($event, cell, $index, $parent.$index)">
                             <!-- Game cell content -->
                             <div class="defense" ng-if="cell && cell.type === 'defense'" dnd-draggable="cell" dnd-type="'defense'">
                                 <img ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
