@@ -42,6 +42,7 @@ app.service('AlertService', ['$timeout', function($timeout) {
 }]);
 
 app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', function($scope, ConfigService, AlertService) {
+    $scope.alertService = AlertService;
     // UI flags
     $scope.showPlaySectionFlag = false;
     $scope.showHelpSectionFlag = false;
@@ -55,6 +56,7 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
     $scope.numPlayers = 1; // Default to 1 player
     $scope.player1Name = '';
     $scope.player2Name = '';
+    $scope.swapSides = false; // Default to not swapping sides
     $scope.waveOptions = [10, 15, 20, 25, '∞'];
     $scope.selectedMaxWaves = $scope.waveOptions[0];
 
