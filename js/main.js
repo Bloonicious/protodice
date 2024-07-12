@@ -396,6 +396,27 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
         }
     };
 
+    proto.onDrop = function(event, index, parentIndex) {
+        var data = event.data;
+        if (data.type === 'defense') {
+            if (vm.currentDefense) {
+                vm.gameData.track[parentIndex][index] = {
+                    type: 'defense',
+                    content: angular.copy(vm.currentDefense)
+                };
+                vm.currentDefense = null;
+            }
+        } else if (data.type === 'monster') {
+            if (vm.currentMonster) {
+                vm.gameData.track[parentIndex][index] = {
+                    type: 'monster',
+                    content: angular.copy(vm.currentMonster)
+                };
+                vm.currentMonster = null;
+            }
+        }
+    };
+
     // Function to handle dropping a defense on the game grid
     proto.dropDefense = function(event, index, outerIndex) {
         if (!proto.currentDefense) {
@@ -442,7 +463,7 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
     };
 
     // Function to handle drag over event
-    $scope.onDragOver = function(event) {
+    proto.onDragOver = function(event) {
         event.preventDefault();
     };
 
