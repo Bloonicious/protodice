@@ -277,10 +277,16 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
         const monsters = game.monsters;
 
         for (let i = 0; i < 5; i++) {
-            for (let j = 0; j < 8; j++) {
-                if (monsters[i][j + 1]) {
-                    monsters[i][j] = monsters[i][j + 1];
-                    monsters[i][j + 1] = null;
+            for (let j = 0; j < 9; j++) {
+                if (game.track[i][j] && game.track[i][j].type === 'monster') {
+                    if (j === 8) {
+                        AlertService.showAlert('A monster has reached the end of the track!', 'danger');
+                        game.track[i][j] = null;
+                        // Implement health reduction logic here
+                    } else if (j + 1 < 9 && game.track[i][j + 1] === null) {
+                        game.track[i][j + 1] = game.track[i][j];
+                        game.track[i][j] = null;
+                    }
                 }
             }
         }
@@ -383,19 +389,24 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
         }
     };
 
-    // AI place monster function
+    // AI places a monster
     proto.aiPlaceMonster = function() {
-        const emptyCell = findEmptyCell(proto.gameData.monsters);
-        if (emptyCell) {
-            const [row, col] = emptyCell;
-            proto.gameData.monsters[row][col] = proto.currentMonster;
-            proto.currentMonster = null;
-            AlertService.showAlert('AI placed a monster.', 'info');
-        } else {
-            AlertService.showAlert('AI could not place a monster due to no empty cells.', 'warning');
-        }
-    };
+        const roll = Math.floor(Math.random() * 5) + 1;
+        const config = proto.monstersConfig[roll];
+        const monster = proto.createMonster(config);
 
+        for (let i = 0; i < 5; i++) {
+            if (proto.gameData.track[i][0] === null) {
+                proto.gameData.track[i][0] = monster;
+                AlertService.showAlert(`AI placed a ${monster.type} at the start of the track.`, 'info');
+                break;
+            }
+        }
+
+        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+        proto.gameData.turnCount++;
+    };
+    
     proto.onDrop = function(event, index, parentIndex) {
         var data = event.data;
         if (data.type === 'defense') {
@@ -485,47 +496,44 @@ app.directive('draggable', function() {
         link: function(scope, element) {
             element.attr('draggable', true);
 
-            element.on('dragstart', function(event) {
-                event.dataTransfer.setData('text', element.attr('id'));
+            element.bind('dragstart', function(event) {
+                event.dataTransfer.setData('text', event.target.id);
             });
         }
     };
 });
 
-app.directive('droppableDefense', ['MainController', function(MainController) {
+app.directive('droppable', function() {
     return {
         restrict: 'A',
-        link: function(scope, element) {
-            element.on('dragover', function(event) {
+        link: function(scope, element, attrs) {
+            element.bind('dragover', function(event) {
                 event.preventDefault();
             });
 
-            element.on('drop', function(event) {
+            element.bind('drop', function(event) {
                 event.preventDefault();
-                const index = scope.$index;
-                const outerIndex = scope.$parent.$index;
-                MainController.dropDefense(event, index, outerIndex);
-                scope.$apply();
+                var data = event.dataTransfer.getData('text');
+                var draggedElement = document.getElementById(data);
+
+                if (draggedElement) {
+                    var targetId = attrs.id;
+                    scope.$apply(function() {
+                        var target = scope.gameData.track[targetId.row][targetId.col];
+                        if (draggedElement.classList.contains('defense') && !target) {
+                            scope.gameData.track[targetId.row][targetId.col] = scope.currentDefense;
+                            scope.currentDefense = null;
+                            scope.AlertService.showAlert('Defense placed!', 'success');
+                        } else if (draggedElement.classList.contains('monster') && !target) {
+                            scope.gameData.track[targetId.row][targetId.col] = scope.currentMonster;
+                            scope.currentMonster = null;
+                            scope.AlertService.showAlert('Monster placed!', 'success');
+                        } else {
+                            scope.AlertService.showAlert('Invalid placement.', 'error');
+                        }
+                    });
+                }
             });
         }
     };
-}]);
-
-app.directive('droppableMonster', ['MainController', function(MainController) {
-    return {
-        restrict: 'A',
-        link: function(scope, element) {
-            element.on('dragover', function(event) {
-                event.preventDefault();
-            });
-
-            element.on('drop', function(event) {
-                event.preventDefault();
-                const index = scope.$index;
-                const outerIndex = scope.$parent.$index;
-                MainController.dropMonster(event, index, outerIndex);
-                scope.$apply();
-            });
-        }
-    };
-}]);
+});
