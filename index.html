@@ -81,7 +81,7 @@
             </table>
             <div id="defenseHolder" ng-show="mainCtrl.currentDefense">
                 <div class="defense draggable" dnd-draggable="mainCtrl.currentDefense" dnd-type="'defense'">
-                    <img ng-src="assets/images/{{mainCtrl.currentDefense.type | lowercase}}.jpg" alt="{{mainCtrl.currentDefense.type}}">
+                    <img ng-src="assets/images/{{mainCtrl.currentDefense.type | lowercase}}.png" alt="{{mainCtrl.currentDefense.type}}">
                     <div class="hp-bar">
                         <div class="hp" ng-style="{'width': (mainCtrl.currentDefense.hp / mainCtrl.currentDefense.maxHp) * 100 + '%'}"></div>
                     </div>
@@ -89,7 +89,7 @@
             </div>
             <div id="monsterHolder" ng-show="mainCtrl.currentMonster">
                 <div class="monster draggable" dnd-draggable="mainCtrl.currentMonster" dnd-type="'monster'">
-                    <img ng-src="assets/images/{{mainCtrl.currentMonster.type | lowercase}}.jpg" alt="{{mainCtrl.currentMonster.type}}">
+                    <img ng-src="assets/images/{{mainCtrl.currentMonster.type | lowercase}}.png" alt="{{mainCtrl.currentMonster.type}}">
                     <div class="hp-bar">
                         <div class="hp" ng-style="{'width': (mainCtrl.currentMonster.hp / mainCtrl.currentMonster.maxHp) * 100 + '%'}"></div>
                     </div>
