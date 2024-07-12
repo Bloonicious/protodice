@@ -349,18 +349,45 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         }
     }
 
-    // Handle drop event
-    $scope.onDropCell = function(event, colIndex, rowIndex) {
-        if ($scope.currentDefense && colIndex < 4) {
-            $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
-            $scope.currentDefense = null;
-        } else if ($scope.currentMonster && colIndex > 4) {
-            $scope.gameData.monsters[rowIndex][colIndex - 5] = $scope.currentMonster;
-            $scope.currentMonster = null;
-        } else {
-            $scope.showAlert('Invalid placement.');
+    // AI place monster function
+    function aiPlaceMonster() {
+        const game = $scope.gameData;
+        const monsters = game.monsters;
+
+    // AI logic to place monsters
+    for (let i = 0; i < 5; i++) {
+        for (let j = 4; j < 8; j++) { // Monsters can only be placed in columns 5, 6, 7 (0-indexed)
+            if (!monsters[i][j]) {
+                const roll = Math.floor(Math.random() * 6) + 1;
+                if (roll in $scope.monstersConfig) {
+                    const config = $scope.monstersConfig[roll];
+                    monsters[i][j] = createMonster(config);
+                    $scope.showAlert(`AI placed a ${monsters[i][j].type} at (${i}, ${j + 1}).`);
+                    return; // AI places only one monster per turn
+                }
+            }
         }
-    };
+    }
+}
+
+    // Handle drop event
+$scope.onDropCell = function(event, colIndex, rowIndex) {
+    if ($scope.currentDefense && colIndex < 4) {
+        $scope.gameData.defenses[rowIndex][colIndex] = $scope.currentDefense;
+        $scope.currentDefense = null;
+        $scope.showRollDiceButton = false; // Prevent rolling dice after placing defense
+        $scope.showAlert(`Placed defense at (${rowIndex}, ${colIndex}). AI's turn to place monsters.`);
+        if ($scope.numPlayers === 1 && $scope.gameData.players[$scope.gameData.currentPlayerIndex] === 'AI') {
+            aiPlaceMonster();
+        }
+    } else if ($scope.currentMonster && colIndex > 4) {
+        $scope.gameData.monsters[rowIndex][colIndex - 5] = $scope.currentMonster;
+        $scope.currentMonster = null;
+        $scope.showAlert(`Placed monster at (${rowIndex}, ${colIndex}). Your turn to roll the dice.`);
+    } else {
+        $scope.showAlert('Invalid placement.');
+    }
+};
 
     // Set maximum waves
     $scope.setMaxWaves = function(maxWaves) {
