@@ -408,25 +408,27 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
     };
     
     proto.onDrop = function(event, index, parentIndex) {
-        var data = event.data;
-        if (data.type === 'defense') {
-            if (vm.currentDefense) {
-                vm.gameData.track[parentIndex][index] = {
-                    type: 'defense',
-                    content: angular.copy(vm.currentDefense)
-                };
-                vm.currentDefense = null;
-            }
-        } else if (data.type === 'monster') {
-            if (vm.currentMonster) {
-                vm.gameData.track[parentIndex][index] = {
-                    type: 'monster',
-                    content: angular.copy(vm.currentMonster)
-                };
-                vm.currentMonster = null;
-            }
+    var data = event.data;
+    if (data.type === 'defense') {
+        if (proto.currentDefense) {
+            // Ensure proper scoping with proto instead of vm
+            proto.gameData.track[parentIndex][index] = {
+                type: 'defense',
+                content: angular.copy(proto.currentDefense)
+            };
+            proto.currentDefense = null;
         }
-    };
+    } else if (data.type === 'monster') {
+        if (proto.currentMonster) {
+            // Ensure proper scoping with proto instead of vm
+            proto.gameData.track[parentIndex][index] = {
+                type: 'monster',
+                content: angular.copy(proto.currentMonster)
+            };
+            proto.currentMonster = null;
+        }
+    }
+};
 
     // Function to handle dropping a defense on the game grid
     proto.dropDefense = function(event, index, outerIndex) {
