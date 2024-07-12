@@ -123,7 +123,7 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
         $scope.showBackButton = false;
 
         // Initial message
-        $scope.showAlert(`Game started! Good luck, ${$scope.gameData.players.join(' and ')}!`);
+        $scope.showAlert('Game started! Good luck, ' + $scope.gameData.players.join(' and ') + '!');
     };
 
     // Load configurations
