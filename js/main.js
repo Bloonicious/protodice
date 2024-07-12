@@ -388,13 +388,31 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
     }
 }
 
-   // Place a defense
-$scope.placeDefense = function(row, col) {
+    // Place current defense
+    $scope.placeCurrentDefense = function(row, col) {
+        if ($scope.currentDefense) {
+            $scope.gameData.defenses[row][col] = $scope.currentDefense;
+            $scope.currentDefense = null;
+            $scope.showAlert('Defense placed successfully.');
+        }
+    };
+
+    // Place current monster
+    $scope.placeCurrentMonster = function(row, col) {
+        if ($scope.currentMonster) {
+            $scope.gameData.monsters[row][col] = $scope.currentMonster;
+            $scope.currentMonster = null;
+            $scope.showAlert('Monster placed successfully.');
+        }
+    };
+
+    // Function to handle dropping a defense onto a cell
+$scope.onDropDefense = function(event, index, row) {
     if ($scope.currentDefense) {
-        if (!$scope.gameData.track[row][col]) {
+        if (!$scope.gameData.track[row][index]) {
             let defense = angular.copy($scope.currentDefense);
             defense.hp = defense.maxHp; // Initialize the defense's HP
-            $scope.gameData.track[row][col] = { type: 'defense', content: defense };
+            $scope.gameData.track[row][index] = { type: 'defense', content: defense };
             $scope.currentDefense = null;
             $scope.showAlert('Defense placed successfully.');
         } else {
@@ -405,13 +423,13 @@ $scope.placeDefense = function(row, col) {
     }
 };
 
-// Place a monster
-$scope.placeMonster = function(row, col) {
+// Function to handle dropping a monster onto a cell
+$scope.onDropMonster = function(event, index, row) {
     if ($scope.currentMonster) {
-        if (!$scope.gameData.track[row][col]) {
+        if (!$scope.gameData.track[row][index]) {
             let monster = angular.copy($scope.currentMonster);
             monster.hp = monster.maxHp; // Initialize the monster's HP
-            $scope.gameData.track[row][col] = { type: 'monster', content: monster };
+            $scope.gameData.track[row][index] = { type: 'monster', content: monster };
             $scope.currentMonster = null;
             $scope.showAlert('Monster placed successfully.');
         } else {
