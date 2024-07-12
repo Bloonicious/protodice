@@ -14,20 +14,19 @@ app.service('ConfigService', ['$http', function($http) {
     };
 }]);
 
-// Custom Alert Service
+// Define AlertService in your AngularJS module
 app.service('AlertService', function() {
-    var service = this;
-    service.alertMessage = '';
-    service.showCustomAlert = false;
+    this.showCustomAlert = false;
+    this.alertMessage = '';
 
-    service.showAlert = function(message) {
-        service.alertMessage = message;
-        service.showCustomAlert = true;
+    this.showAlert = function(message) {
+        this.alertMessage = message;
+        this.showCustomAlert = true;
     };
 
-    service.hideAlert = function() {
-        service.showCustomAlert = false;
-        service.alertMessage = '';
+    this.hideAlert = function() {
+        this.showCustomAlert = false;
+        this.alertMessage = '';
     };
 });
 
