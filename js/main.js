@@ -389,34 +389,38 @@ app.controller('GameController', ['$scope', 'ConfigService', function($scope, Co
 }
 
    // Place a defense
-    $scope.placeDefense = function(row, col) {
-        if ($scope.currentDefense) {
-            if (!$scope.gameData.defenses[row][col]) {
-                $scope.gameData.defenses[row][col] = angular.copy($scope.currentDefense);
-                $scope.currentDefense = null;
-                $scope.showAlert('Defense placed successfully.');
-            } else {
-                $scope.showAlert('A defense is already placed here.');
-            }
+$scope.placeDefense = function(row, col) {
+    if ($scope.currentDefense) {
+        if (!$scope.gameData.track[row][col]) {
+            let defense = angular.copy($scope.currentDefense);
+            defense.hp = defense.maxHp; // Initialize the defense's HP
+            $scope.gameData.track[row][col] = { type: 'defense', content: defense };
+            $scope.currentDefense = null;
+            $scope.showAlert('Defense placed successfully.');
         } else {
-            $scope.showAlert('No defense to place.');
+            $scope.showAlert('A defense is already placed here.');
         }
-    };
+    } else {
+        $scope.showAlert('No defense to place.');
+    }
+};
 
-    // Place a monster
-    $scope.placeMonster = function(row, col) {
-        if ($scope.currentMonster) {
-            if (!$scope.gameData.monsters[row][col]) {
-                $scope.gameData.monsters[row][col] = angular.copy($scope.currentMonster);
-                $scope.currentMonster = null;
-                $scope.showAlert('Monster placed successfully.');
-            } else {
-                $scope.showAlert('A monster is already placed here.');
-            }
+// Place a monster
+$scope.placeMonster = function(row, col) {
+    if ($scope.currentMonster) {
+        if (!$scope.gameData.track[row][col]) {
+            let monster = angular.copy($scope.currentMonster);
+            monster.hp = monster.maxHp; // Initialize the monster's HP
+            $scope.gameData.track[row][col] = { type: 'monster', content: monster };
+            $scope.currentMonster = null;
+            $scope.showAlert('Monster placed successfully.');
         } else {
-            $scope.showAlert('No monster to place.');
+            $scope.showAlert('A monster is already placed here.');
         }
-    };
+    } else {
+        $scope.showAlert('No monster to place.');
+    }
+};
 
     // Set maximum waves
     $scope.setMaxWaves = function(maxWaves) {
