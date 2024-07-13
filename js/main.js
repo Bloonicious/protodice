@@ -399,22 +399,19 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
         }
     };
 
-    // AI places a monster
+    // AI place monster
     proto.aiPlaceMonster = function() {
-        const roll = Math.floor(Math.random() * 5) + 1;
-        const config = proto.monstersConfig[roll];
-        const monster = proto.createMonster(config);
+        const col = Math.floor(Math.random() * 9);
+        const row = Math.floor(Math.random() * 5);
 
-        for (let i = 0; i < 5; i++) {
-            if (proto.gameData.track[i][0] === null) {
-                proto.gameData.track[i][0] = monster;
-                AlertService.showAlert(`AI placed a ${monster.type} at the start of the track.`, 'info');
-                break;
-            }
+        if (!proto.gameData.track[row][col]) {
+            proto.gameData.track[row][col] = proto.currentMonster;
+            proto.currentMonster = null;
+            proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+            proto.gameData.turnCount++;
+        } else {
+            proto.aiPlaceMonster();
         }
-
-        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-        proto.gameData.turnCount++;
     };
     
     proto.onDrop = function(event, index, parentIndex) {
@@ -501,15 +498,27 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
         AlertService.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`, 'info');
     };
 
-    // Method to update placed status (called from droppable directive)
-    proto.updatePlacedStatus = function(defense, targetRow, targetCol) {
-        $scope.$apply(function() {
-            if (proto.currentDefense) {
-                proto.gameData.defenses[targetRow][targetCol] = proto.currentDefense;
+    // Update placed status
+    proto.updatePlacedStatus = function(type, row, col) {
+        if (type === 'defense' && proto.currentDefense) {
+            if (!proto.gameData.track[row][col]) {
+                proto.gameData.track[row][col] = proto.currentDefense;
                 proto.currentDefense = null;
-                AlertService.showAlert(`Defense placed at row ${targetRow}, col ${targetCol}`, 'success');
+            } else {
+                AlertService.showAlert('Place your defense in an empty spot.', 'warning');
             }
-        });
+        } else if (type === 'monster' && proto.currentMonster) {
+            if (!proto.gameData.track[row][col]) {
+                proto.gameData.track[row][col] = proto.currentMonster;
+                proto.currentMonster = null;
+            } else {
+                AlertService.showAlert('Place your monster in an empty spot.', 'warning');
+            }
+        }
+        // Use $timeout to avoid nested $apply error
+        $timeout(() => {
+            $scope.$apply();
+        }, 0);
     };
 }]);
 
