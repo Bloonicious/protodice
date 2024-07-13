@@ -60,15 +60,16 @@
                                 'monster-zone': colIndex > 4
                             }"
                             id="cell-{{rowIndex}}-{{colIndex}}"
-                            droppable>
+                            ng-drop="true"
+                            ng-drop-success="mainCtrl.handleDrop($data, rowIndex, colIndex)">
                             <!-- Game cell content -->
-                            <div class="defense" ng-if="cell && cell.type === 'defense'" draggable>
+                            <div class="defense" ng-if="cell && cell.type === 'defense'" ng-drag="true" ng-drag-data="cell">
                                 <img class="defense-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
                                 <div class="hp-bar">
                                     <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
                                 </div>
                             </div>
-                            <div class="monster" ng-if="cell && cell.type === 'monster'" draggable>
+                            <div class="monster" ng-if="cell && cell.type === 'monster'" ng-drag="true" ng-drag-data="cell">
                                 <img class="monster-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
                                 <div class="hp-bar">
                                     <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
@@ -79,7 +80,7 @@
                 </tbody>
             </table>
             <div id="defenseHolder" ng-show="mainCtrl.currentDefense">
-                <div class="defense draggable" draggable>
+                <div class="defense draggable" ng-drag="true" ng-drag-data="mainCtrl.currentDefense">
                     <img class="defense-img" ng-src="assets/images/{{mainCtrl.currentDefense.type | lowercase}}.png" alt="{{mainCtrl.currentDefense.type}}">
                     <div class="hp-bar">
                         <div class="hp" ng-style="{'width': (mainCtrl.currentDefense.currentHp / mainCtrl.currentDefense.maxHp) * 100 + '%'}"></div>
@@ -87,7 +88,7 @@
                 </div>
             </div>
             <div id="monsterHolder" ng-show="mainCtrl.currentMonster">
-                <div class="monster draggable" draggable>
+                <div class="monster draggable" ng-drag="true" ng-drag-data="mainCtrl.currentMonster">
                     <img class="monster-img" ng-src="assets/images/{{mainCtrl.currentMonster.type | lowercase}}.png" alt="{{mainCtrl.currentMonster.type}}">
                     <div class="hp-bar">
                         <div class="hp" ng-style="{'width': (mainCtrl.currentMonster.currentHp / mainCtrl.currentMonster.maxHp) * 100 + '%'}"></div>
@@ -105,9 +106,9 @@
     <div id="customAlertOverlay" ng-show="alertService.showCustomAlert" class="overlay"></div>
     <!-- Custom alert box -->
     <div id="customAlert" ng-class="{'active': alertService.showCustomAlert, 'info': alertService.alertType === 'info', 'success': alertService.alertType === 'success', 'warning': alertService.alertType === 'warning', 'error': alertService.alertType === 'error'}">
-    <div class="alert-content">
-        <span ng-bind="alertService.alertMessage"></span>
-    </div>
+        <div class="alert-content">
+            <span ng-bind="alertService.alertMessage"></span>
+        </div>
         <button ng-click="alertService.hideAlert()">OK</button>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
