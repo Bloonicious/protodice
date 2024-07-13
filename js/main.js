@@ -545,7 +545,6 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
 }]);
 
-// Draggable directive
 app.directive('draggable', function() {
     return {
         restrict: 'A',
@@ -559,7 +558,7 @@ app.directive('draggable', function() {
 
             setDraggable(!scope.placed);
 
-            element.bind('dragstart', function(event) {
+            element.on('dragstart', function(event) {
                 if (!scope.placed) {
                     if (!element.attr('id')) {
                         element.attr('id', `draggable-${Date.now()}-${Math.random()}`);
@@ -577,16 +576,15 @@ app.directive('draggable', function() {
     };
 });
 
-// Droppable directive
 app.directive('droppable', function() {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
-            element.bind('dragover', function(event) {
+            element.on('dragover', function(event) {
                 event.preventDefault();
             });
 
-            element.bind('drop', function(event) {
+            element.on('drop', function(event) {
                 event.preventDefault();
                 var data = event.dataTransfer.getData('text');
                 var draggedElement = document.getElementById(data);
@@ -596,12 +594,10 @@ app.directive('droppable', function() {
                     var [_, row, col] = targetId.split('-').map(Number);
 
                     scope.$apply(function() {
-                        var target = scope.mainCtrl.gameData.track[row][col];
                         if (draggedElement.classList.contains('defense')) {
-                            scope.mainCtrl.placeDefense(row, col);
+                            scope.mainCtrl.onDrop(event, row, col);
                         } else if (draggedElement.classList.contains('monster')) {
-                            scope.mainCtrl.placeMonster(row, col);
-                            // Trigger combat and wave progression after placing monsters
+                            scope.mainCtrl.onDrop(event, row, col);
                             scope.mainCtrl.moveMonsters(scope.mainCtrl.gameData);
                             scope.mainCtrl.combat(scope.mainCtrl.gameData);
                             scope.mainCtrl.checkWaveProgress(scope.mainCtrl.gameData);
