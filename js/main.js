@@ -394,9 +394,13 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
 
     // Function to check if a drag operation is valid for the given cell
-    $scope.canDropOnCell = function(rowIndex, colIndex) {
-        // Example restriction: Don't allow drops on bridge zones (colIndex === 4)
-        return colIndex !== 4; // Modify this condition based on your game rules
+    proto.canDropOnCell = function(rowIndex, colIndex, data) {
+        if (data === 'defense') {
+            return colIndex >= 0 && colIndex < 4 && colIndex !== 4;
+        } else if (data === 'monster') {
+            return colIndex > 4 && colIndex < 9;
+        }
+        return false;
     };
 
     proto.aiPlaceDefense = function() {
@@ -443,50 +447,49 @@ proto.aiPlaceMonster = function() {
     
     // Function to handle dropping an item on the game grid
     proto.onDrop = function(event, index, parentIndex) {
-        var data = event.dataTransfer.getData("text");
-        var cellType = '';
+    var data = event.dataTransfer.getData("text");
+    var cellType = '';
 
-        // Determine cell type based on column index
-        if (index < 4) {
-            cellType = 'defense';
-        } else if (index === 4) {
-            cellType = 'bridge';
-        } else {
-            cellType = 'monster';
-        }
+    // Determine cell type based on column index
+    if (index < 4) {
+        cellType = 'defense';
+    } else if (index === 4) {
+        cellType = 'bridge';
+    } else {
+        cellType = 'monster';
+    }
 
-        // Check if drop is allowed in the target zone
-        if ((data === 'defense' && cellType === 'defense' && index < 4) ||
-            (data === 'monster' && cellType === 'monster' && index > 4 && index < 9)) {
-            
-            var targetCell = proto.gameData.track[parentIndex][index];
+    // Check if drop is allowed in the target zone
+    if ($scope.canDropOnCell(parentIndex, index, data)) {
 
-            // Check if the cell is empty (you may need additional conditions here)
-            if (!targetCell) {
-                // Place the defense or monster
-                var newItem = {
-                    type: data,
-                    content: angular.copy(data === 'defense' ? proto.currentDefense : proto.currentMonster)
-                };
+        var targetCell = proto.gameData.track[parentIndex][index];
 
-                // Ensure proper scoping with proto instead of vm
-                proto.gameData.track[parentIndex][index] = newItem;
+        // Check if the cell is empty (you may need additional conditions here)
+        if (!targetCell) {
+            // Place the defense or monster
+            var newItem = {
+                type: data,
+                content: angular.copy(data === 'defense' ? proto.currentDefense : proto.currentMonster)
+            };
 
-                // Reset the current item after placing
-                if (data === 'defense') {
-                    proto.currentDefense = null;
-                } else if (data === 'monster') {
-                    proto.currentMonster = null;
-                }
+            // Ensure proper scoping with proto instead of vm
+            proto.gameData.track[parentIndex][index] = newItem;
 
-                AlertService.showAlert(data.charAt(0).toUpperCase() + data.slice(1) + ' placed!', 'success');
-            } else {
-                AlertService.showAlert('Zone occupied!', 'warning');
+            // Reset the current item after placing
+            if (data === 'defense') {
+                proto.currentDefense = null;
+            } else if (data === 'monster') {
+                proto.currentMonster = null;
             }
+
+            AlertService.showAlert(data.charAt(0).toUpperCase() + data.slice(1) + ' placed!', 'success');
         } else {
-            AlertService.showAlert('Cannot drop ' + data + ' in ' + cellType + ' zone.', 'error');
+            AlertService.showAlert('Zone occupied!', 'warning');
         }
-    };
+    } else {
+        AlertService.showAlert('Cannot drop ' + data + ' in ' + cellType + ' zone.', 'error');
+    }
+};
     
     // Function to handle dropping a defense on the game grid
     proto.dropDefense = function(event, index, outerIndex) {
