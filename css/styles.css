@@ -129,18 +129,20 @@ h1 {
 }
 
 #customAlert {
+    display: none; /* Initially hide the alert */
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #ffffff;
-    border: 1px solid transparent; /* Initially transparent border */
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
     z-index: 1000;
-    width: 300px;
-    text-align: center;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#customAlert.active {
+    display: block; /* Display the alert when active */
 }
 
 #customAlert.info {
