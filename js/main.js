@@ -445,8 +445,8 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     }
 
     // Check if drop is allowed in the target zone
-    if ((data.type === 'defense' && cellType === 'defense') ||
-        (data.type === 'monster' && cellType === 'monster')) {
+    if ((data.type === 'defense' && cellType === 'defense' && index < 4) ||
+        (data.type === 'monster' && cellType === 'monster' && index > 4 && index < 9)) {
         
         var targetCell = proto.gameData.track[parentIndex][index];
 
