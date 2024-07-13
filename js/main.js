@@ -499,15 +499,29 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
 app.directive('draggable', function() {
     return {
         restrict: 'A',
+        scope: {
+            placed: '='
+        },
         link: function(scope, element) {
-            element.attr('draggable', true);
+            function setDraggable(value) {
+                element.attr('draggable', value);
+            }
+
+            setDraggable(!scope.placed);
 
             element.bind('dragstart', function(event) {
-                // Use a unique id for each draggable element
-                if (!element.attr('id')) {
-                    element.attr('id', `draggable-${Date.now()}-${Math.random()}`);
+                if (!scope.placed) {
+                    if (!element.attr('id')) {
+                        element.attr('id', `draggable-${Date.now()}-${Math.random()}`);
+                    }
+                    event.dataTransfer.setData('text', element.attr('id'));
+                } else {
+                    event.preventDefault();
                 }
-                event.dataTransfer.setData('text', element.attr('id'));
+            });
+
+            scope.$watch('placed', function(newVal) {
+                setDraggable(!newVal);
             });
         }
     };
