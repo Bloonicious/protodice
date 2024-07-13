@@ -210,7 +210,8 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
     proto.createDefense = function(config) {
         return Object.assign({
             id: `defense-${Date.now()}-${Math.random()}`,
-            maxHp: config.hp
+            maxHp: config.hp,
+            currentHp: config.hp
         }, config);
     };
 
@@ -251,7 +252,8 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
     proto.createMonster = function(config) {
         return Object.assign({
             id: `monster-${Date.now()}-${Math.random()}`,
-            maxHp: config.hp
+            maxHp: config.hp,
+            currentHp: config.hp
         }, config);
     };
 
@@ -294,52 +296,53 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
 
     // Combat between defenses and monsters
     proto.combat = function(game) {
-        const defenses = game.defenses;
-        const monsters = game.monsters;
+    const defenses = game.defenses;
+    const monsters = game.monsters;
 
-        for (let i = 0; i < 5; i++) {
-            for (let j = 0; j < 4; j++) {
-                const defense = defenses[i][j];
-                if (defense) {
-                    for (let k = 1; k <= defense.range; k++) {
-                        if (j + k < 4 && monsters[i][j + k]) {
-                            const monster = monsters[i][j + k];
-                            monster.hp -= Array.isArray(defense.damage) ? Math.floor(Math.random() * (defense.damage[1] - defense.damage[0] + 1)) + defense.damage[0] : defense.damage;
+    for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 4; j++) {
+            const defense = defenses[i][j];
+            if (defense) {
+                for (let k = 1; k <= defense.range; k++) {
+                    if (j + k < 4 && monsters[i][j + k]) {
+                        const monster = monsters[i][j + k];
+                        const damage = Array.isArray(defense.damage) ? Math.floor(Math.random() * (defense.damage[1] - defense.damage[0] + 1)) + defense.damage[0] : defense.damage;
+                        monster.currentHp -= damage;
 
-                            if (defense.type === 'Shock Blaster' && monster.hp > 0) {
-                                monster.stunned = true;
-                            }
+                        if (defense.type === 'Shock Blaster' && monster.currentHp > 0) {
+                            monster.stunned = true;
+                        }
 
-                            if (defense.type === 'Acid Shooter' && monster.hp > 0) {
-                                monster.debuff = (monster.debuff || 0) + defense.debuff;
-                            }
+                        if (defense.type === 'Acid Shooter' && monster.currentHp > 0) {
+                            monster.debuff = (monster.debuff || 0) + defense.debuff;
+                        }
 
-                            if (defense.type === 'Microwav\'r' && monster.hp > 0) {
-                                proto.applyAreaDamage(monsters, i, j + k, defense.damage);
-                            }
+                        if (defense.type === 'Microwav\'r' && monster.currentHp > 0) {
+                            proto.applyAreaDamage(monsters, i, j + k, damage);
+                        }
 
-                            if (defense.type === 'Laser Beam') {
-                                for (let p = j + k; p < 8; p++) {
-                                    if (monsters[i][p]) {
-                                        monsters[i][p].hp -= defense.damage;
-                                        if (monsters[i][p].hp <= 0) {
-                                            monsters[i][p] = null;
-                                        }
+                        if (defense.type === 'Laser Beam') {
+                            for (let p = j + k; p < 8; p++) {
+                                if (monsters[i][p]) {
+                                    monsters[i][p].currentHp -= damage;
+                                    if (monsters[i][p].currentHp <= 0) {
+                                        monsters[i][p] = null;
                                     }
                                 }
                             }
-
-                            if (monster.hp <= 0) {
-                                monsters[i][j + k] = null;
-                            }
-
-                            break;
                         }
+
+                        if (monster.currentHp <= 0) {
+                            monsters[i][j + k] = null;
+                        }
+
+                        break;
                     }
                 }
             }
         }
-    };
+    }
+};
 
     // Apply area damage to monsters
     proto.applyAreaDamage = function(monsters, rowIndex, colIndex, damage) {
