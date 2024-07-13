@@ -60,7 +60,8 @@
                                 'monster-zone': colIndex > 4
                             }"
                             id="cell-{{rowIndex}}-{{colIndex}}"
-                            droppable>
+                            droppable
+                            ng-if="canDropOnCell(rowIndex, colIndex)">
                             <!-- Game cell content -->
                             <div class="defense" ng-if="cell && cell.type === 'defense'" draggable>
                                 <img class="defense-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
