@@ -500,7 +500,11 @@ app.directive('draggable', function() {
             element.attr('draggable', true);
 
             element.bind('dragstart', function(event) {
-                event.dataTransfer.setData('text', event.target.id);
+                // Use a unique id for each draggable element
+                if (!element.attr('id')) {
+                    element.attr('id', `draggable-${Date.now()}-${Math.random()}`);
+                }
+                event.dataTransfer.setData('text', element.attr('id'));
             });
         }
     };
@@ -527,11 +531,17 @@ app.directive('droppable', function() {
                     scope.$apply(function() {
                         var target = scope.mainCtrl.gameData.track[row][col];
                         if (draggedElement.classList.contains('defense') && !target) {
-                            scope.mainCtrl.gameData.track[row][col] = scope.mainCtrl.currentDefense;
+                            scope.mainCtrl.gameData.track[row][col] = {
+                                type: 'defense',
+                                content: angular.copy(scope.mainCtrl.currentDefense)
+                            };
                             scope.mainCtrl.currentDefense = null;
                             scope.alertService.showAlert('Defense placed!', 'success');
                         } else if (draggedElement.classList.contains('monster') && !target) {
-                            scope.mainCtrl.gameData.track[row][col] = scope.mainCtrl.currentMonster;
+                            scope.mainCtrl.gameData.track[row][col] = {
+                                type: 'monster',
+                                content: angular.copy(scope.mainCtrl.currentMonster)
+                            };
                             scope.mainCtrl.currentMonster = null;
                             scope.alertService.showAlert('Monster placed!', 'success');
                         } else {
