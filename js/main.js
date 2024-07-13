@@ -41,7 +41,7 @@ app.service('AlertService', ['$timeout', function($timeout) {
     };
 }]);
 
-app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', function($scope, ConfigService, AlertService) {
+app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertService', function($scope, $timeout, ConfigService, AlertService) {
     var proto = this;
     $scope.alertService = AlertService;
 
