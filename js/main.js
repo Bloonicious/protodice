@@ -574,7 +574,7 @@ app.directive('draggable', function() {
 });
 
 // Droppable directive
-app.directive('droppable', function($timeout) {
+app.directive('droppable', function() {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
@@ -602,7 +602,6 @@ app.directive('droppable', function($timeout) {
                             scope.mainCtrl.updatePlacedStatus('defense', row, col);
                             scope.alertService.showAlert('Defense placed!', 'success');
                         } else if (draggedElement.classList.contains('monster') && !target) {
-                            // Update currentMonster and trigger placement logic
                             scope.mainCtrl.gameData.track[row][col] = {
                                 type: 'monster',
                                 content: angular.copy(scope.mainCtrl.currentMonster)
