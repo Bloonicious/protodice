@@ -171,7 +171,6 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
             proto.aiPlaceMonster();
             // After monsters have taken their turn, toggle to next phase
             proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-            proto.gameData.turnCount++;
         }
     } else {
         if (roll === 6 && !proto.gameData.rolledSix) {
@@ -191,21 +190,21 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
                 proto.spawnDefenses(roll);
             } else {
                 proto.spawnMonsters(proto.gameData);
-                // After monsters have taken their turn, toggle to next phase
-                proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-                proto.gameData.turnCount++;
             }
         }
     }
 
-    if (proto.gameData.turnCount % proto.gameData.players.length === 0) {
+    // Check if both players have placed their units
+    if (proto.gameData.currentPlayerIndex % 2 === 0) {
+        // Both players have placed their units, start wave progression
         proto.moveMonsters(proto.gameData);
         proto.combat(proto.gameData);
         proto.checkWaveProgress(proto.gameData);
         proto.checkWinConditions(proto.gameData);
+        proto.gameData.turnCount++;
+        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
     }
 };
-
     // Create a defense based on configuration
     proto.createDefense = function(config) {
         return Object.assign({
