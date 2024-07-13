@@ -419,47 +419,45 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         return false;
     };
 
+    proto.placeDefense = function(row, col) {
+        if (proto.gameData.defenses[row][col] === null && proto.currentDefense) {
+            proto.gameData.defenses[row][col] = proto.currentDefense;
+            proto.currentDefense = null;
+        } else {
+            AlertService.showAlert('Invalid placement. Please try again.', 'warning');
+        }
+    };
+
+    proto.placeMonster = function(row, col) {
+        if (proto.gameData.monsters[row][col] === null && proto.currentMonster) {
+            proto.gameData.monsters[row][col] = proto.currentMonster;
+            proto.currentMonster = null;
+        } else {
+            AlertService.showAlert('Invalid placement. Please try again.', 'warning');
+        }
+    };
+
     proto.aiPlaceDefense = function() {
-    const validSpots = [];
+        const row = Math.floor(Math.random() * 5);
+        const col = Math.floor(Math.random() * 4);
 
-    // Iterate over the game grid to find empty spots
-    for (let row = 0; row < proto.gameData.defenses.length; row++) {
-        for (let col = 0; col < proto.gameData.defenses[row].length; col++) {
-            if (proto.gameData.defenses[row][col] === null) {
-                validSpots.push({ row, col });
-            }
+        if (proto.gameData.defenses[row][col] === null) {
+            proto.placeDefense(row, col);
+        } else {
+            proto.aiPlaceDefense();
         }
-    }
+    };
 
-    // Prioritize placing defenses based on strategic criteria
-    if (validSpots.length > 0 && proto.currentDefense) {
-        const spot = validSpots[Math.floor(Math.random() * validSpots.length)];
-        proto.gameData.defenses[spot.row][spot.col] = proto.currentDefense;
-        proto.currentDefense = null;
-        AlertService.showAlert('AI placed a defense.', 'info');
-    }
-};
+    proto.aiPlaceMonster = function() {
+        const row = Math.floor(Math.random() * 5);
+        const col = Math.floor(Math.random() * 4);
 
-proto.aiPlaceMonster = function() {
-    const validSpots = [];
-
-    // Iterate over the game grid to find empty spots
-    for (let row = 0; row < proto.gameData.monsters.length; row++) {
-        for (let col = 0; col < proto.gameData.monsters[row].length; col++) {
-            if (proto.gameData.monsters[row][col] === null) {
-                validSpots.push({ row, col });
-            }
+        if (proto.gameData.monsters[row][col] === null) {
+            proto.placeMonster(row, col);
+        } else {
+            proto.aiPlaceMonster();
         }
-    }
-
-    // Prioritize placing monsters based on strategic criteria
-    if (validSpots.length > 0 && proto.currentMonster) {
-        const spot = validSpots[Math.floor(Math.random() * validSpots.length)];
-        proto.gameData.monsters[spot.row][spot.col] = proto.currentMonster;
-        proto.currentMonster = null;
-        AlertService.showAlert('AI placed a monster.', 'info');
-    }
-};
+    };
     
     // Function to handle dropping an item on the game grid
     proto.onDrop = function(event, index, parentIndex) {
@@ -507,40 +505,6 @@ proto.aiPlaceMonster = function() {
     }
 };
     
-    // Function to handle dropping a defense on the game grid
-    proto.dropDefense = function(event, index, outerIndex) {
-        if (!proto.currentDefense) {
-            AlertService.showAlert('No defense to place.', 'warning');
-            return;
-        }
-
-        if (proto.gameData.defenses[outerIndex][index]) {
-            AlertService.showAlert('There is already a defense here.', 'warning');
-            return;
-        }
-
-        proto.gameData.defenses[outerIndex][index] = proto.currentDefense;
-        proto.currentDefense = null;
-        AlertService.showAlert('Defense placed!', 'success');
-    };
-
-    // Function to handle dropping a monster on the game grid
-    proto.dropMonster = function(event, index, outerIndex) {
-        if (!proto.currentMonster) {
-            AlertService.showAlert('No monster to place.', 'warning');
-            return;
-        }
-
-        if (proto.gameData.monsters[outerIndex][index]) {
-            AlertService.showAlert('There is already a monster here.', 'warning');
-            return;
-        }
-
-        proto.gameData.monsters[outerIndex][index] = proto.currentMonster;
-        proto.currentMonster = null;
-        AlertService.showAlert('Monster placed!', 'success');
-    };
-
     proto.advanceGamePhase = function() {
         proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
         proto.gameData.turnCount++;
