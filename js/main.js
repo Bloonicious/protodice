@@ -500,6 +500,17 @@ app.controller('MainController', ['$scope', 'ConfigService', 'AlertService', fun
         }
         AlertService.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`, 'info');
     };
+
+    // Method to update placed status (called from droppable directive)
+    proto.updatePlacedStatus = function(defense, targetRow, targetCol) {
+        $scope.$apply(function() {
+            if (proto.currentDefense) {
+                proto.gameData.defenses[targetRow][targetCol] = proto.currentDefense;
+                proto.currentDefense = null;
+                AlertService.showAlert(`Defense placed at row ${targetRow}, col ${targetCol}`, 'success');
+            }
+        });
+    };
 }]);
 
 // Draggable directive
