@@ -420,20 +420,22 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
 
     proto.placeDefense = function(row, col) {
-        if (proto.gameData.defenses[row][col] === null && proto.currentDefense) {
-            proto.gameData.defenses[row][col] = proto.currentDefense;
+        if (col < 4 && !proto.gameData.track[row][col] && proto.currentDefense) {
+            proto.gameData.track[row][col] = { type: 'defense', content: proto.currentDefense };
             proto.currentDefense = null;
+            AlertService.showAlert('Defense placed!', 'success');
         } else {
-            AlertService.showAlert('Invalid placement. Please try again.', 'warning');
+            AlertService.showAlert('Invalid placement. Defenses can only be placed in defense zones.', 'warning');
         }
     };
 
     proto.placeMonster = function(row, col) {
-        if (proto.gameData.monsters[row][col] === null && proto.currentMonster) {
-            proto.gameData.monsters[row][col] = proto.currentMonster;
+        if (col > 4 && !proto.gameData.track[row][col] && proto.currentMonster) {
+            proto.gameData.track[row][col] = { type: 'monster', content: proto.currentMonster };
             proto.currentMonster = null;
+            AlertService.showAlert('Monster placed!', 'success');
         } else {
-            AlertService.showAlert('Invalid placement. Please try again.', 'warning');
+            AlertService.showAlert('Invalid placement. Monsters can only be placed in monster zones.', 'warning');
         }
     };
 
@@ -603,22 +605,10 @@ app.directive('droppable', function() {
 
                     scope.$apply(function() {
                         var target = scope.mainCtrl.gameData.track[row][col];
-                        if (draggedElement.classList.contains('defense') && !target) {
-                            scope.mainCtrl.gameData.track[row][col] = {
-                                type: 'defense',
-                                content: angular.copy(scope.mainCtrl.currentDefense)
-                            };
-                            scope.mainCtrl.currentDefense = null;
-                            scope.mainCtrl.updatePlacedStatus('defense', row, col);
-                            scope.alertService.showAlert('Defense placed!', 'success');
-                        } else if (draggedElement.classList.contains('monster') && !target) {
-                            scope.mainCtrl.gameData.track[row][col] = {
-                                type: 'monster',
-                                content: angular.copy(scope.mainCtrl.currentMonster)
-                            };
-                            scope.mainCtrl.currentMonster = null;
-                            scope.mainCtrl.updatePlacedStatus('monster', row, col);
-                            scope.alertService.showAlert('Monster placed!', 'success');
+                        if (draggedElement.classList.contains('defense')) {
+                            scope.mainCtrl.placeDefense(row, col);
+                        } else if (draggedElement.classList.contains('monster')) {
+                            scope.mainCtrl.placeMonster(row, col);
                             // Trigger combat and wave progression after placing monsters
                             scope.mainCtrl.moveMonsters(scope.mainCtrl.gameData);
                             scope.mainCtrl.combat(scope.mainCtrl.gameData);
