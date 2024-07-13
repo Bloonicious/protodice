@@ -435,51 +435,53 @@ proto.aiPlaceMonster = function() {
     }
 };
     
+    // Function to handle dropping an item on the game grid
     proto.onDrop = function(event, index, parentIndex) {
-    var data = event.data;
-    var cellType = '';
+        var data = event.dataTransfer.getData("text");
+        var cellType = '';
 
-    // Determine cell type based on column index
-    if (index < 4) {
-        cellType = 'defense';
-    } else if (index === 4) {
-        cellType = 'bridge';
-    } else {
-        cellType = 'monster';
-    }
-
-    // Check if drop is allowed in the target zone
-    if ((data.type === 'defense' && cellType === 'defense' && index < 4) ||
-        (data.type === 'monster' && cellType === 'monster' && index > 4 && index < 9)) {
-        
-        var targetCell = proto.gameData.track[parentIndex][index];
-
-        // Check if the cell is empty (you may need additional conditions here)
-        if (!targetCell) {
-            // Place the defense or monster
-            var newItem = {
-                type: data.type,
-                content: angular.copy(data.type === 'defense' ? proto.currentDefense : proto.currentMonster)
-            };
-
-            // Ensure proper scoping with proto instead of vm
-            proto.gameData.track[parentIndex][index] = newItem;
-
-            // Reset the current item after placing
-            if (data.type === 'defense') {
-                proto.currentDefense = null;
-            } else if (data.type === 'monster') {
-                proto.currentMonster = null;
-            }
-
-            AlertService.showAlert(data.type.charAt(0).toUpperCase() + data.type.slice(1) + ' placed!', 'success');
+        // Determine cell type based on column index
+        if (index < 4) {
+            cellType = 'defense';
+        } else if (index === 4) {
+            cellType = 'bridge';
         } else {
-            AlertService.showAlert('Zone occupied!', 'warning');
+            cellType = 'monster';
         }
-    } else {
-        AlertService.showAlert('Cannot drop ' + data.type + ' in ' + cellType + ' zone.', 'error');
-    }
-};
+
+        // Check if drop is allowed in the target zone
+        if ((data === 'defense' && cellType === 'defense' && index < 4) ||
+            (data === 'monster' && cellType === 'monster' && index > 4 && index < 9)) {
+            
+            var targetCell = proto.gameData.track[parentIndex][index];
+
+            // Check if the cell is empty (you may need additional conditions here)
+            if (!targetCell) {
+                // Place the defense or monster
+                var newItem = {
+                    type: data,
+                    content: angular.copy(data === 'defense' ? proto.currentDefense : proto.currentMonster)
+                };
+
+                // Ensure proper scoping with proto instead of vm
+                proto.gameData.track[parentIndex][index] = newItem;
+
+                // Reset the current item after placing
+                if (data === 'defense') {
+                    proto.currentDefense = null;
+                } else if (data === 'monster') {
+                    proto.currentMonster = null;
+                }
+
+                AlertService.showAlert(data.charAt(0).toUpperCase() + data.slice(1) + ' placed!', 'success');
+            } else {
+                AlertService.showAlert('Zone occupied!', 'warning');
+            }
+        } else {
+            AlertService.showAlert('Cannot drop ' + data + ' in ' + cellType + ' zone.', 'error');
+        }
+    };
+    
     // Function to handle dropping a defense on the game grid
     proto.dropDefense = function(event, index, outerIndex) {
         if (!proto.currentDefense) {
