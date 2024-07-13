@@ -171,6 +171,11 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
             proto.aiPlaceMonster();
             // After monsters have taken their turn, toggle to next phase
             proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+            proto.moveMonsters(proto.gameData);
+            proto.combat(proto.gameData);
+            proto.checkWaveProgress(proto.gameData);
+            proto.checkWinConditions(proto.gameData);
+            proto.gameData.turnCount++;
         }
     } else {
         if (roll === 6 && !proto.gameData.rolledSix) {
@@ -190,21 +195,18 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
                 proto.spawnDefenses(roll);
             } else {
                 proto.spawnMonsters(proto.gameData);
+                // After monsters have taken their turn, toggle to next phase
+                proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+                proto.moveMonsters(proto.gameData);
+                proto.combat(proto.gameData);
+                proto.checkWaveProgress(proto.gameData);
+                proto.checkWinConditions(proto.gameData);
+                proto.gameData.turnCount++;
             }
         }
     }
-
-    // Check if both players have placed their units
-    if (proto.gameData.currentPlayerIndex % 2 === 0) {
-        // Both players have placed their units, start wave progression
-        proto.moveMonsters(proto.gameData);
-        proto.combat(proto.gameData);
-        proto.checkWaveProgress(proto.gameData);
-        proto.checkWinConditions(proto.gameData);
-        proto.gameData.turnCount++;
-        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-    }
 };
+    
     // Create a defense based on configuration
     proto.createDefense = function(config) {
         return Object.assign({
@@ -266,8 +268,8 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         }
 
         if (monster) {
-            game.monsters.push(monster);
-            AlertService.showAlert(`A ${monster.type} has spawned!`, 'success');
+            proto.currentMonster = monster;
+            AlertService.showAlert(`You rolled a ${roll} and got a ${monster.type}. Place your monster.`, 'error');
         } else {
             AlertService.showAlert('No monster was spawned.', 'warning');
         }
@@ -572,7 +574,7 @@ app.directive('draggable', function() {
 });
 
 // Droppable directive
-app.directive('droppable', function() {
+app.directive('droppable', function($timeout) {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
@@ -597,16 +599,23 @@ app.directive('droppable', function() {
                                 content: angular.copy(scope.mainCtrl.currentDefense)
                             };
                             scope.mainCtrl.currentDefense = null;
-                            scope.mainCtrl.updatePlacedStatus(draggedElement.id, true);
+                            scope.mainCtrl.updatePlacedStatus('defense', row, col);
                             scope.alertService.showAlert('Defense placed!', 'success');
                         } else if (draggedElement.classList.contains('monster') && !target) {
+                            // Update currentMonster and trigger placement logic
                             scope.mainCtrl.gameData.track[row][col] = {
                                 type: 'monster',
                                 content: angular.copy(scope.mainCtrl.currentMonster)
                             };
                             scope.mainCtrl.currentMonster = null;
-                            scope.mainCtrl.updatePlacedStatus(draggedElement.id, true);
+                            scope.mainCtrl.updatePlacedStatus('monster', row, col);
                             scope.alertService.showAlert('Monster placed!', 'success');
+                            // Trigger combat and wave progression after placing monsters
+                            scope.mainCtrl.moveMonsters(scope.mainCtrl.gameData);
+                            scope.mainCtrl.combat(scope.mainCtrl.gameData);
+                            scope.mainCtrl.checkWaveProgress(scope.mainCtrl.gameData);
+                            scope.mainCtrl.checkWinConditions(scope.mainCtrl.gameData);
+                            scope.mainCtrl.gameData.turnCount++;
                         } else {
                             scope.alertService.showAlert('Invalid placement.', 'error');
                         }
