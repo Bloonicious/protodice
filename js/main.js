@@ -144,64 +144,67 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     proto.diceRollResult = null;
 
     proto.rollDice = function() {
-        if (proto.currentDefense || proto.currentMonster) {
-            AlertService.showAlert('Please place your current piece before rolling the dice.', 'warning');
-            return;
+    if (proto.currentDefense || proto.currentMonster) {
+        AlertService.showAlert('Please place your current piece before rolling the dice.', 'warning');
+        return;
+    }
+    
+    if (!proto.defensesConfig || !proto.monstersConfig) {
+        AlertService.showAlert('Configurations not loaded. Please try again.', 'warning');
+        return;
+    }
+
+    const currentPlayer = proto.gameData.players[proto.gameData.currentPlayerIndex];
+    proto.currentPlayerName = currentPlayer;
+
+    const roll = Math.floor(Math.random() * 6) + 1;
+    proto.diceRollResult = roll;
+
+    if (currentPlayer === 'AI') {
+        if (proto.gameData.currentPlayerIndex % 2 === 0) {
+            proto.spawnDefenses(roll);
+            AlertService.showAlert('AI rolled ' + roll + ' for defenses.', 'info');
+            proto.aiPlaceDefense();
+        } else {
+            proto.spawnMonsters(proto.gameData);
+            AlertService.showAlert('AI rolled ' + roll + ' for monsters.', 'info');
+            proto.aiPlaceMonster();
+            // After monsters have taken their turn, toggle to next phase
+            proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+            proto.gameData.turnCount++;
         }
-        
-        if (!proto.defensesConfig || !proto.monstersConfig) {
-            AlertService.showAlert('Configurations not loaded. Please try again.', 'warning');
+    } else {
+        if (roll === 6 && !proto.gameData.rolledSix) {
+            proto.gameData.rolledSix = true;
+            AlertService.showAlert('You rolled a 6! Roll again for a prototype defense.', 'success');
             return;
-        }
-
-        const currentPlayer = proto.gameData.players[proto.gameData.currentPlayerIndex];
-        proto.currentPlayerName = currentPlayer;
-
-        const roll = Math.floor(Math.random() * 6) + 1;
-        proto.diceRollResult = roll;
-
-        if (currentPlayer === 'AI') {
+        } else if (roll === 6 && proto.gameData.rolledSix) {
+            AlertService.showAlert('You rolled a 6 and a special prototype defense!', 'success');
+            proto.rollPrototypeDefense(proto.gameData);
+            proto.gameData.rolledSix = false;
+        } else if (proto.gameData.rolledSix) {
+            AlertService.showAlert('You\'ve already rolled your protodice! Place your prototype defense.', 'warning');
+            proto.rollPrototypeDefense(proto.gameData);
+            proto.gameData.rolledSix = false;
+        } else {
             if (proto.gameData.currentPlayerIndex % 2 === 0) {
                 proto.spawnDefenses(roll);
-                AlertService.showAlert('AI rolled ' + roll + ' for defenses.', 'info');
-                proto.aiPlaceDefense();
             } else {
                 proto.spawnMonsters(proto.gameData);
-                AlertService.showAlert('AI rolled ' + roll + ' for monsters.', 'info');
-                proto.aiPlaceMonster();
-            }
-        } else {
-            if (roll === 6 && !proto.gameData.rolledSix) {
-                proto.gameData.rolledSix = true;
-                AlertService.showAlert('You rolled a 6! Roll again for a prototype defense.', 'success');
-                return;
-            } else if (roll === 6 && proto.gameData.rolledSix) {
-                AlertService.showAlert('You rolled a 6 and a special prototype defense!', 'success');
-                proto.rollPrototypeDefense(proto.gameData);
-                proto.gameData.rolledSix = false;
-            } else if (proto.gameData.rolledSix) {
-                AlertService.showAlert('You\'ve already rolled your protodice! Place your prototype defense.', 'warning');
-                proto.rollPrototypeDefense(proto.gameData);
-                proto.gameData.rolledSix = false;
-            } else {
-                if (proto.gameData.currentPlayerIndex % 2 === 0) {
-                    proto.spawnDefenses(roll);
-                } else {
-                    proto.spawnMonsters(proto.gameData);
-                }
+                // After monsters have taken their turn, toggle to next phase
+                proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+                proto.gameData.turnCount++;
             }
         }
+    }
 
-        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-        proto.gameData.turnCount++;
-        
-        if (proto.gameData.turnCount % proto.gameData.players.length === 0) {
-            proto.moveMonsters(proto.gameData);
-            proto.combat(proto.gameData);
-            proto.checkWaveProgress(proto.gameData);
-            proto.checkWinConditions(proto.gameData);
-        }
-    };
+    if (proto.gameData.turnCount % proto.gameData.players.length === 0) {
+        proto.moveMonsters(proto.gameData);
+        proto.combat(proto.gameData);
+        proto.checkWaveProgress(proto.gameData);
+        proto.checkWinConditions(proto.gameData);
+    }
+};
 
     // Create a defense based on configuration
     proto.createDefense = function(config) {
