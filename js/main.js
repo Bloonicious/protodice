@@ -460,7 +460,7 @@ proto.aiPlaceMonster = function() {
     }
 
     // Check if drop is allowed in the target zone
-    if ($scope.canDropOnCell(parentIndex, index, data)) {
+    if (proto.canDropOnCell(parentIndex, index, data)) {
 
         var targetCell = proto.gameData.track[parentIndex][index];
 
