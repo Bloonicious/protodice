@@ -51,34 +51,33 @@
         </div>
         <div class="game-area" ng-show="mainCtrl.showGameArea">
             <table>
-                <tbody>
-                    <tr ng-repeat="(rowIndex, row) in mainCtrl.gameData.track">
-                        <td ng-repeat="(colIndex, cell) in row track by $index"
-                            ng-class="{
-                                'defense-zone': colIndex < 4,
-                                'bridge-zone': colIndex === 4,
-                                'monster-zone': colIndex > 4
-                            }"
-                            id="cell-{{rowIndex}}-{{colIndex}}"
-                            ng-drop="true"
-                            ng-drop-success="mainCtrl.handleDrop($data, rowIndex, colIndex)">
-                            <!-- Game cell content -->
-                            <div class="defense" ng-if="cell && cell.type === 'defense'" ng-drag="true" ng-drag-data="cell">
-                                <img class="defense-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
-                                <div class="hp-bar">
-                                    <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
-                                </div>
-                            </div>
-                            <div class="monster" ng-if="cell && cell.type === 'monster'" ng-drag="true" ng-drag-data="cell">
-                                <img class="monster-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
-                                <div class="hp-bar">
-                                    <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <tbody>
+            <tr ng-repeat="(rowIndex, row) in mainCtrl.gameData.track">
+                <td ng-repeat="(colIndex, cell) in row track by $index"
+                    ng-class="{
+                        'defense-zone': colIndex < 4,
+                        'bridge-zone': colIndex === 4,
+                        'monster-zone': colIndex > 4
+                    }"
+                    id="cell-{{rowIndex}}-{{colIndex}}"
+                    droppable>
+                    <!-- Game cell content -->
+                    <div class="defense" ng-if="cell && cell.type === 'defense'">
+                        <img class="defense-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
+                        <div class="hp-bar">
+                            <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
+                        </div>
+                    </div>
+                    <div class="monster" ng-if="cell && cell.type === 'monster'">
+                        <img class="monster-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
+                        <div class="hp-bar">
+                            <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
             <div id="defenseHolder" ng-show="mainCtrl.currentDefense">
                 <div class="defense draggable" ng-drag="true" ng-drag-data="mainCtrl.currentDefense">
                     <img class="defense-img" ng-src="assets/images/{{mainCtrl.currentDefense.type | lowercase}}.png" alt="{{mainCtrl.currentDefense.type}}">
