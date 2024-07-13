@@ -56,7 +56,7 @@
                         <td ng-repeat="(colIndex, cell) in row track by $index"
                             ng-class="{
                                 'defense-zone': colIndex < 4,
-                                'bridge-zone': colIndex === 4 && canDropOnCell(rowIndex, colIndex),
+                                'bridge-zone': colIndex === 4,
                                 'monster-zone': colIndex > 4
                             }"
                             id="cell-{{rowIndex}}-{{colIndex}}"
