@@ -63,13 +63,13 @@
                             droppable>
                             <!-- Game cell content -->
                             <div class="defense" ng-if="cell && cell.type === 'defense'" draggable>
-                                <img ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
+                                <img class="defense-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
                                 <div class="hp-bar">
                                     <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
                                 </div>
                             </div>
                             <div class="monster" ng-if="cell && cell.type === 'monster'" draggable>
-                                <img ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
+                                <img class="monster-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
                                 <div class="hp-bar">
                                     <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
                                 </div>
@@ -80,7 +80,7 @@
             </table>
             <div id="defenseHolder" ng-show="mainCtrl.currentDefense">
                 <div class="defense draggable" draggable>
-                    <img ng-src="assets/images/{{mainCtrl.currentDefense.type | lowercase}}.png" alt="{{mainCtrl.currentDefense.type}}">
+                    <img class="defense-img" ng-src="assets/images/{{mainCtrl.currentDefense.type | lowercase}}.png" alt="{{mainCtrl.currentDefense.type}}">
                     <div class="hp-bar">
                         <div class="hp" ng-style="{'width': (mainCtrl.currentDefense.currentHp / mainCtrl.currentDefense.maxHp) * 100 + '%'}"></div>
                     </div>
@@ -88,7 +88,7 @@
             </div>
             <div id="monsterHolder" ng-show="mainCtrl.currentMonster">
                 <div class="monster draggable" draggable>
-                    <img ng-src="assets/images/{{mainCtrl.currentMonster.type | lowercase}}.png" alt="{{mainCtrl.currentMonster.type}}">
+                    <img class="monster-img" ng-src="assets/images/{{mainCtrl.currentMonster.type | lowercase}}.png" alt="{{mainCtrl.currentMonster.type}}">
                     <div class="hp-bar">
                         <div class="hp" ng-style="{'width': (mainCtrl.currentMonster.currentHp / mainCtrl.currentMonster.maxHp) * 100 + '%'}"></div>
                     </div>
