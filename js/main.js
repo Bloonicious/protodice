@@ -462,50 +462,65 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
     
     // Function to handle dropping an item on the game grid
-    proto.onDrop = function(event, index, parentIndex) {
-    var data = event.dataTransfer.getData("text");
-    var cellType = '';
+    proto.onDrop = function(event, rowIndex, colIndex) {
+        var data = event.dataTransfer.getData("text");
+        var cellType = '';
 
-    // Determine cell type based on column index
-    if (index < 4) {
-        cellType = 'defense';
-    } else if (index === 4) {
-        cellType = 'bridge';
-    } else {
-        cellType = 'monster';
-    }
-
-    // Check if drop is allowed in the target zone
-    if (proto.canDropOnCell(parentIndex, index, data)) {
-
-        var targetCell = proto.gameData.track[parentIndex][index];
-
-        // Check if the cell is empty (you may need additional conditions here)
-        if (!targetCell) {
-            // Place the defense or monster
-            var newItem = {
-                type: data,
-                content: angular.copy(data === 'defense' ? proto.currentDefense : proto.currentMonster)
-            };
-
-            // Ensure proper scoping with proto instead of vm
-            proto.gameData.track[parentIndex][index] = newItem;
-
-            // Reset the current item after placing
-            if (data === 'defense') {
-                proto.currentDefense = null;
-            } else if (data === 'monster') {
-                proto.currentMonster = null;
-            }
-
-            AlertService.showAlert(data.charAt(0).toUpperCase() + data.slice(1) + ' placed!', 'success');
+        if (colIndex < 4) {
+            cellType = 'defense';
+        } else if (colIndex === 4) {
+            cellType = 'bridge';
         } else {
-            AlertService.showAlert('Zone occupied!', 'warning');
+            cellType = 'monster';
         }
-    } else {
-        AlertService.showAlert('Cannot drop ' + data + ' in ' + cellType + ' zone.', 'error');
-    }
-};
+
+        if (proto.canDropOnCell(rowIndex, colIndex, data)) {
+            var targetCell = proto.gameData.track[rowIndex][colIndex];
+
+            if (!targetCell) {
+                var newItem = {
+                    type: data,
+                    content: angular.copy(data === 'defense' ? proto.currentDefense : proto.currentMonster)
+                };
+
+                proto.gameData.track[rowIndex][colIndex] = newItem;
+
+                if (data === 'defense') {
+                    proto.currentDefense = null;
+                } else if (data === 'monster') {
+                    proto.currentMonster = null;
+                }
+
+                AlertService.showAlert(data.charAt(0).toUpperCase() + data.slice(1) + ' placed!', 'success');
+            } else {
+                AlertService.showAlert('Zone occupied!', 'warning');
+            }
+        } else {
+            AlertService.showAlert('Cannot drop ' + data + ' in ' + cellType + ' zone.', 'error');
+        }
+    };
+
+    // Handles placement data
+    proto.updatePlacedStatus = function(type, row, col) {
+        if (type === 'defense' && proto.currentDefense) {
+            if (!proto.gameData.track[row][col]) {
+                proto.gameData.track[row][col] = proto.currentDefense;
+                proto.currentDefense = null;
+            } else {
+                AlertService.showAlert('Place your defense in an empty spot.', 'warning');
+            }
+        } else if (type === 'monster' && proto.currentMonster) {
+            if (!proto.gameData.track[row][col]) {
+                proto.gameData.track[row][col] = proto.currentMonster;
+                proto.currentMonster = null;
+            } else {
+                AlertService.showAlert('Place your monster in an empty spot.', 'warning');
+            }
+        }
+        $timeout(function() {
+            $scope.$apply();
+        }, 0);
+    };
     
     proto.advanceGamePhase = function() {
         proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
@@ -527,29 +542,6 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
             proto.gameData.maxWaves = parseInt(maxWaves);
         }
         AlertService.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`, 'info');
-    };
-
-    // Update placed status
-    proto.updatePlacedStatus = function(type, row, col) {
-        if (type === 'defense' && proto.currentDefense) {
-            if (!proto.gameData.track[row][col]) {
-                proto.gameData.track[row][col] = proto.currentDefense;
-                proto.currentDefense = null;
-            } else {
-                AlertService.showAlert('Place your defense in an empty spot.', 'warning');
-            }
-        } else if (type === 'monster' && proto.currentMonster) {
-            if (!proto.gameData.track[row][col]) {
-                proto.gameData.track[row][col] = proto.currentMonster;
-                proto.currentMonster = null;
-            } else {
-                AlertService.showAlert('Place your monster in an empty spot.', 'warning');
-            }
-        }
-        // Use $timeout to avoid nested $apply error
-        $timeout(() => {
-            $scope.$apply();
-        }, 0);
     };
 }]);
 
