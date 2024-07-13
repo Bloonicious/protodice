@@ -560,6 +560,7 @@ app.directive('droppable', function() {
                                 content: angular.copy(scope.mainCtrl.currentDefense)
                             };
                             scope.mainCtrl.currentDefense = null;
+                            scope.mainCtrl.updatePlacedStatus(draggedElement.id, true);
                             scope.alertService.showAlert('Defense placed!', 'success');
                         } else if (draggedElement.classList.contains('monster') && !target) {
                             scope.mainCtrl.gameData.track[row][col] = {
@@ -567,6 +568,7 @@ app.directive('droppable', function() {
                                 content: angular.copy(scope.mainCtrl.currentMonster)
                             };
                             scope.mainCtrl.currentMonster = null;
+                            scope.mainCtrl.updatePlacedStatus(draggedElement.id, true);
                             scope.alertService.showAlert('Monster placed!', 'success');
                         } else {
                             scope.alertService.showAlert('Invalid placement.', 'error');
