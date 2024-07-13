@@ -394,42 +394,46 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
 
     proto.aiPlaceDefense = function() {
-        const validSpots = [];
+    const validSpots = [];
 
-        for (let row = 0; row < proto.gameData.defenses.length; row++) {
-            for (let col = 0; col < proto.gameData.defenses[row].length; col++) {
-                if (proto.gameData.defenses[row][col] === null) {
-                    validSpots.push({ row, col });
-                }
+    // Iterate over the game grid to find empty spots
+    for (let row = 0; row < proto.gameData.defenses.length; row++) {
+        for (let col = 0; col < proto.gameData.defenses[row].length; col++) {
+            if (proto.gameData.defenses[row][col] === null) {
+                validSpots.push({ row, col });
             }
         }
+    }
 
-        if (validSpots.length > 0 && proto.currentDefense) {
-            const spot = validSpots[Math.floor(Math.random() * validSpots.length)];
-            proto.gameData.defenses[spot.row][spot.col] = proto.currentDefense;
-            proto.currentDefense = null;
-            AlertService.showAlert('AI placed a defense.', 'info');
-        }
-    };
+    // Prioritize placing defenses based on strategic criteria
+    if (validSpots.length > 0 && proto.currentDefense) {
+        const spot = validSpots[Math.floor(Math.random() * validSpots.length)];
+        proto.gameData.defenses[spot.row][spot.col] = proto.currentDefense;
+        proto.currentDefense = null;
+        AlertService.showAlert('AI placed a defense.', 'info');
+    }
+};
 
-    proto.aiPlaceMonster = function() {
-        const validSpots = [];
+proto.aiPlaceMonster = function() {
+    const validSpots = [];
 
-        for (let row = 0; row < proto.gameData.monsters.length; row++) {
-            for (let col = 0; col < proto.gameData.monsters[row].length; col++) {
-                if (proto.gameData.monsters[row][col] === null) {
-                    validSpots.push({ row, col });
-                }
+    // Iterate over the game grid to find empty spots
+    for (let row = 0; row < proto.gameData.monsters.length; row++) {
+        for (let col = 0; col < proto.gameData.monsters[row].length; col++) {
+            if (proto.gameData.monsters[row][col] === null) {
+                validSpots.push({ row, col });
             }
         }
+    }
 
-        if (validSpots.length > 0 && proto.currentMonster) {
-            const spot = validSpots[Math.floor(Math.random() * validSpots.length)];
-            proto.gameData.monsters[spot.row][spot.col] = proto.currentMonster;
-            proto.currentMonster = null;
-            AlertService.showAlert('AI placed a monster.', 'info');
-        }
-    };
+    // Prioritize placing monsters based on strategic criteria
+    if (validSpots.length > 0 && proto.currentMonster) {
+        const spot = validSpots[Math.floor(Math.random() * validSpots.length)];
+        proto.gameData.monsters[spot.row][spot.col] = proto.currentMonster;
+        proto.currentMonster = null;
+        AlertService.showAlert('AI placed a monster.', 'info');
+    }
+};
     
     proto.onDrop = function(event, index, parentIndex) {
     var data = event.data;
