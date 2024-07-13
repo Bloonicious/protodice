@@ -393,6 +393,12 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         }
     };
 
+    // Function to check if a drag operation is valid for the given cell
+    $scope.canDropOnCell = function(rowIndex, colIndex) {
+        // Example restriction: Don't allow drops on bridge zones (colIndex === 4)
+        return colIndex !== 4; // Modify this condition based on your game rules
+    };
+
     proto.aiPlaceDefense = function() {
     const validSpots = [];
 
