@@ -45,7 +45,6 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     var proto = this;
     $scope.alertService = AlertService;
 
-    // UI flags
     proto.showPlaySectionFlag = false;
     proto.showHelpSectionFlag = false;
     proto.showBackButton = false;
@@ -54,15 +53,13 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     proto.showGameArea = false;
     proto.showTurnIndicator = false;
 
-    // Game setup defaults
-    proto.numPlayers = 1; // Default to 1 player
+    proto.numPlayers = 1;
     proto.player1Name = '';
     proto.player2Name = '';
-    proto.swapSides = false; // Default to not swapping sides
+    proto.swapSides = false;
     proto.waveOptions = [10, 15, 20, 25, '∞'];
     proto.selectedMaxWaves = proto.waveOptions[0];
 
-    // Toggle Play section
     proto.togglePlaySection = function() {
         proto.showPlaySectionFlag = !proto.showPlaySectionFlag;
         proto.showHelpSectionFlag = false;
@@ -70,13 +67,11 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         proto.showBackButton = proto.showPlaySectionFlag;
     };
 
-    // Toggle Help section
     proto.toggleHelpSection = function() {
         proto.showHelpSectionFlag = !proto.showHelpSectionFlag;
         proto.showPlaySectionFlag = false;
     };
 
-    // Go back to the initial state
     proto.goBack = function() {
         proto.showPlaySectionFlag = false;
         proto.showHelpSectionFlag = false;
@@ -85,8 +80,7 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         proto.showBackButton = false;
         proto.showGameArea = false;
     };
-    
-    // Initialize game data
+
     proto.gameData = {
         track: Array.from({ length: 5 }, () => Array.from({ length: 9 }, () => null)),
         defenses: Array.from({ length: 5 }, () => Array.from({ length: 4 }, () => null)),
@@ -97,15 +91,12 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         turnCount: 0,
         rolledSix: false,
         waveCount: 0,
-        maxWaves: 10 // default value, can be changed by selection
+        maxWaves: 10
     };
 
-    // Function to start the game
     proto.startGame = function() {
-        // Reset custom alert
         AlertService.hideAlert();
         
-        // Validation
         if (!proto.player1Name || (proto.numPlayers > 1 && !proto.player2Name)) {
             AlertService.showAlert('Please enter names for all players.', 'error');
             return;
@@ -115,7 +106,6 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
             return;
         }
 
-        // Set up initial game state
         proto.gameData.players = [proto.player1Name];
         proto.gameData.currentPlayerIndex = 0;
         proto.gameData.status = 'started';
@@ -130,7 +120,6 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
             proto.gameData.players.push('AI');
         }
 
-        // Update UI flags
         proto.showGameArea = true;
         proto.showPlaySectionFlag = false;
         proto.showStartButton = false;
@@ -138,11 +127,9 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         proto.showTurnIndicator = true;
         proto.showBackButton = false;
 
-        // Initial message
         AlertService.showAlert('Game started! Good luck, ' + proto.gameData.players.join(' and ') + '!', 'success');
     };
 
-    // Load configurations
     ConfigService.loadDefenses().then(function(data) {
         proto.defensesConfig = data;
     });
@@ -151,67 +138,70 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         proto.monstersConfig = data;
     });
 
-    // Initialize current elements
     proto.currentDefense = null;
     proto.currentMonster = null;
     proto.currentPlayerName = proto.gameData.players[0];
     proto.diceRollResult = null;
 
-    // Function to roll dice
     proto.rollDice = function() {
-    if (proto.currentDefense || proto.currentMonster) {
-        AlertService.showAlert('Please place your current piece before rolling the dice.', 'warning');
-        return;
-    }
-    
-    if (!proto.defensesConfig || !proto.monstersConfig) {
-        AlertService.showAlert('Configurations not loaded. Please try again.', 'warning');
-        return;
-    }
+        if (proto.currentDefense || proto.currentMonster) {
+            AlertService.showAlert('Please place your current piece before rolling the dice.', 'warning');
+            return;
+        }
+        
+        if (!proto.defensesConfig || !proto.monstersConfig) {
+            AlertService.showAlert('Configurations not loaded. Please try again.', 'warning');
+            return;
+        }
 
-    const currentPlayer = proto.gameData.players[proto.gameData.currentPlayerIndex];
-    proto.currentPlayerName = currentPlayer;
+        const currentPlayer = proto.gameData.players[proto.gameData.currentPlayerIndex];
+        proto.currentPlayerName = currentPlayer;
 
-    const roll = Math.floor(Math.random() * 6) + 1;
-    proto.diceRollResult = roll;
+        const roll = Math.floor(Math.random() * 6) + 1;
+        proto.diceRollResult = roll;
 
-    if (roll === 6 && !proto.gameData.rolledSix) {
-        proto.gameData.rolledSix = true;
-        AlertService.showAlert('You rolled a 6! Roll again for a prototype defense.', 'success');
-        return;
-    } else if (roll === 6 && proto.gameData.rolledSix) {
-        AlertService.showAlert('You rolled a 6 and a special prototype defense!', 'success');
-        proto.rollPrototypeDefense(proto.gameData);
-        proto.gameData.rolledSix = false;
-    } else if (proto.gameData.rolledSix) {
-        AlertService.showAlert('You\'ve already rolled your protodice! Place your prototype defense.', 'warning');
-        proto.rollPrototypeDefense(proto.gameData);
-        proto.gameData.rolledSix = false;
-    } else {
-        proto.spawnDefenses(roll);
         if (currentPlayer === 'AI') {
-            AlertService.showAlert('AI turn: placing a monster.', 'info');
-            proto.aiPlaceMonster();
-        } else {
-            proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-            proto.gameData.turnCount++;
-            if (proto.gameData.turnCount % 2 === 0) {
-                proto.moveMonsters(proto.gameData);
-                proto.combat(proto.gameData);
+            if (proto.gameData.currentPlayerIndex % 2 === 0) {
+                proto.spawnDefenses(roll);
+                AlertService.showAlert('AI rolled ' + roll + ' for defenses.', 'info');
+                proto.aiPlaceDefense();
+            } else {
                 proto.spawnMonsters(proto.gameData);
-                proto.checkWaveProgress(proto.gameData);
-                proto.checkWinConditions(proto.gameData);
+                AlertService.showAlert('AI rolled ' + roll + ' for monsters.', 'info');
+                proto.aiPlaceMonster();
+            }
+        } else {
+            if (roll === 6 && !proto.gameData.rolledSix) {
+                proto.gameData.rolledSix = true;
+                AlertService.showAlert('You rolled a 6! Roll again for a prototype defense.', 'success');
+                return;
+            } else if (roll === 6 && proto.gameData.rolledSix) {
+                AlertService.showAlert('You rolled a 6 and a special prototype defense!', 'success');
+                proto.rollPrototypeDefense(proto.gameData);
+                proto.gameData.rolledSix = false;
+            } else if (proto.gameData.rolledSix) {
+                AlertService.showAlert('You\'ve already rolled your protodice! Place your prototype defense.', 'warning');
+                proto.rollPrototypeDefense(proto.gameData);
+                proto.gameData.rolledSix = false;
+            } else {
+                if (proto.gameData.currentPlayerIndex % 2 === 0) {
+                    proto.spawnDefenses(roll);
+                } else {
+                    proto.spawnMonsters(proto.gameData);
+                }
             }
         }
-    }
 
-    if (proto.gameData.players[proto.gameData.currentPlayerIndex] === 'AI') {
-        // Delay to simulate AI thinking
-        setTimeout(() => {
-            proto.rollDice();
-        }, 1000);
-    }
-};
+        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+        proto.gameData.turnCount++;
+        
+        if (proto.gameData.turnCount % proto.gameData.players.length === 0) {
+            proto.moveMonsters(proto.gameData);
+            proto.combat(proto.gameData);
+            proto.checkWaveProgress(proto.gameData);
+            proto.checkWinConditions(proto.gameData);
+        }
+    };
 
     // Create a defense based on configuration
     proto.createDefense = function(config) {
@@ -399,18 +389,41 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         }
     };
 
-    // AI place monster
-    proto.aiPlaceMonster = function() {
-        const col = Math.floor(Math.random() * 9);
-        const row = Math.floor(Math.random() * 5);
+    proto.aiPlaceDefense = function() {
+        const validSpots = [];
 
-        if (!proto.gameData.track[row][col]) {
-            proto.gameData.track[row][col] = proto.currentMonster;
+        for (let row = 0; row < proto.gameData.defenses.length; row++) {
+            for (let col = 0; col < proto.gameData.defenses[row].length; col++) {
+                if (proto.gameData.defenses[row][col] === null) {
+                    validSpots.push({ row, col });
+                }
+            }
+        }
+
+        if (validSpots.length > 0 && proto.currentDefense) {
+            const spot = validSpots[Math.floor(Math.random() * validSpots.length)];
+            proto.gameData.defenses[spot.row][spot.col] = proto.currentDefense;
+            proto.currentDefense = null;
+            AlertService.showAlert('AI placed a defense.', 'info');
+        }
+    };
+
+    proto.aiPlaceMonster = function() {
+        const validSpots = [];
+
+        for (let row = 0; row < proto.gameData.monsters.length; row++) {
+            for (let col = 0; col < proto.gameData.monsters[row].length; col++) {
+                if (proto.gameData.monsters[row][col] === null) {
+                    validSpots.push({ row, col });
+                }
+            }
+        }
+
+        if (validSpots.length > 0 && proto.currentMonster) {
+            const spot = validSpots[Math.floor(Math.random() * validSpots.length)];
+            proto.gameData.monsters[spot.row][spot.col] = proto.currentMonster;
             proto.currentMonster = null;
-            proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-            proto.gameData.turnCount++;
-        } else {
-            proto.aiPlaceMonster();
+            AlertService.showAlert('AI placed a monster.', 'info');
         }
     };
     
@@ -471,15 +484,17 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         AlertService.showAlert('Monster placed!', 'success');
     };
 
-    function findEmptyCell(array) {
-        for (let i = 0; i < array.length; i++) {
-            for (let j = 0; j < array[i].length; j++) {
-                if (array[i][j] === null) {
-                    return [i, j];
-                }
-            }
+    proto.nextTurn = function() {
+        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+        proto.gameData.turnCount++;
+        proto.diceRollResult = null;
+
+        if (proto.gameData.turnCount % proto.gameData.players.length === 0) {
+            proto.moveMonsters(proto.gameData);
+            proto.combat(proto.gameData);
+            proto.checkWaveProgress(proto.gameData);
+            proto.checkWinConditions(proto.gameData);
         }
-        return null;
     };
 
     // Function to handle drag over event
