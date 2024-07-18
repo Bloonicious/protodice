@@ -462,43 +462,37 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
     
     // Function to handle dropping an item on the game grid
-    proto.onDrop = function(event, rowIndex, colIndex) {
-        var data = event.dataTransfer.getData("text");
-        var cellType = '';
+    proto.onDrop = function(event, rowIndex, colIndex, type) {
+    var data = event.dataTransfer.getData("text");
 
-        if (colIndex < 4) {
-            cellType = 'defense';
-        } else if (colIndex === 4) {
-            cellType = 'bridge';
-        } else {
-            cellType = 'monster';
-        }
+    // Determine the zone type based on the column index
+    var cellType = (colIndex < 4) ? 'defense' : (colIndex === 4) ? 'bridge' : 'monster';
 
-        if (proto.canDropOnCell(rowIndex, colIndex, data)) {
-            var targetCell = proto.gameData.track[rowIndex][colIndex];
+    if (proto.canDropOnCell(rowIndex, colIndex, data)) {
+        var targetCell = proto.gameData.track[rowIndex][colIndex];
 
-            if (!targetCell) {
-                var newItem = {
-                    type: data,
-                    content: angular.copy(data === 'defense' ? proto.currentDefense : proto.currentMonster)
-                };
+        if (!targetCell) {
+            var newItem = {
+                type: type,
+                content: angular.copy(type === 'defense' ? proto.currentDefense : proto.currentMonster)
+            };
 
-                proto.gameData.track[rowIndex][colIndex] = newItem;
+            proto.gameData.track[rowIndex][colIndex] = newItem;
 
-                if (data === 'defense') {
-                    proto.currentDefense = null;
-                } else if (data === 'monster') {
-                    proto.currentMonster = null;
-                }
-
-                AlertService.showAlert(data.charAt(0).toUpperCase() + data.slice(1) + ' placed!', 'success');
-            } else {
-                AlertService.showAlert('Zone occupied!', 'warning');
+            if (type === 'defense') {
+                proto.currentDefense = null;
+            } else if (type === 'monster') {
+                proto.currentMonster = null;
             }
+
+            AlertService.showAlert(type.charAt(0).toUpperCase() + type.slice(1) + ' placed!', 'success');
         } else {
-            AlertService.showAlert('Cannot drop ' + data + ' in ' + cellType + ' zone.', 'error');
+            AlertService.showAlert('Zone occupied!', 'warning');
         }
-    };
+    } else {
+        AlertService.showAlert('Cannot drop ' + data + ' in ' + cellType + ' zone.', 'error');
+    }
+};
 
     // Handles placement data
     proto.updatePlacedStatus = function(type, row, col) {
@@ -595,14 +589,9 @@ app.directive('droppable', function() {
 
                     scope.$apply(function() {
                         if (draggedElement.classList.contains('defense')) {
-                            scope.mainCtrl.onDrop(event, row, col);
+                            scope.mainCtrl.onDrop(event, row, col, 'defense');
                         } else if (draggedElement.classList.contains('monster')) {
-                            scope.mainCtrl.onDrop(event, row, col);
-                            scope.mainCtrl.moveMonsters(scope.mainCtrl.gameData);
-                            scope.mainCtrl.combat(scope.mainCtrl.gameData);
-                            scope.mainCtrl.checkWaveProgress(scope.mainCtrl.gameData);
-                            scope.mainCtrl.checkWinConditions(scope.mainCtrl.gameData);
-                            scope.mainCtrl.gameData.turnCount++;
+                            scope.mainCtrl.onDrop(event, row, col, 'monster');
                         } else {
                             scope.alertService.showAlert('Invalid placement.', 'error');
                         }
