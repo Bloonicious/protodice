@@ -468,8 +468,8 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
     
     // Function to handle dropping an item on the game grid
-    proto.onDrop = function(event, rowIndex, colIndex, type) {
-    var data = event.dataTransfer.getData("text");
+proto.onDrop = function(event, rowIndex, colIndex, type) {
+    var data = JSON.parse(event.dataTransfer.getData("text"));
 
     // Determine the zone type based on the column index
     var cellType = (colIndex < 4) ? 'defense' : (colIndex === 4) ? 'bridge' : 'monster';
@@ -496,31 +496,31 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
             AlertService.showAlert('Zone occupied!', 'warning');
         }
     } else {
-        AlertService.showAlert('Cannot drop ' + data + ' in ' + cellType + ' zone.', 'error');
+        AlertService.showAlert('Cannot drop ' + data.type + ' in ' + cellType + ' zone.', 'error');
     }
 };
 
-    // Handles placement data
-    proto.updatePlacedStatus = function(type, row, col) {
-        if (type === 'defense' && proto.currentDefense) {
-            if (!proto.gameData.track[row][col]) {
-                proto.gameData.track[row][col] = proto.currentDefense;
-                proto.currentDefense = null;
-            } else {
-                AlertService.showAlert('Place your defense in an empty spot.', 'warning');
-            }
-        } else if (type === 'monster' && proto.currentMonster) {
-            if (!proto.gameData.track[row][col]) {
-                proto.gameData.track[row][col] = proto.currentMonster;
-                proto.currentMonster = null;
-            } else {
-                AlertService.showAlert('Place your monster in an empty spot.', 'warning');
-            }
+// Handles placement data
+proto.updatePlacedStatus = function(type, row, col) {
+    if (type === 'defense' && proto.currentDefense) {
+        if (!proto.gameData.track[row][col]) {
+            proto.gameData.track[row][col] = proto.currentDefense;
+            proto.currentDefense = null;
+        } else {
+            AlertService.showAlert('Place your defense in an empty spot.', 'warning');
         }
-        $timeout(function() {
-            $scope.$apply();
-        }, 0);
-    };
+    } else if (type === 'monster' && proto.currentMonster) {
+        if (!proto.gameData.track[row][col]) {
+            proto.gameData.track[row][col] = proto.currentMonster;
+            proto.currentMonster = null;
+        } else {
+            AlertService.showAlert('Place your monster in an empty spot.', 'warning');
+        }
+    }
+    $timeout(function() {
+        $scope.$apply();
+    }, 0);
+};
     
     proto.advanceGamePhase = function() {
         proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
@@ -545,6 +545,33 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
 }]);
 
+// Updated draggable directive
+app.directive('draggable', function() {
+    return {
+        scope: {
+            drag: '&'
+        },
+        link: function(scope, element) {
+            const el = element[0];
+
+            el.setAttribute('draggable', 'true');
+
+            el.addEventListener('dragstart', function(e) {
+                e.dataTransfer.effectAllowed = 'move';
+                const dragData = scope.drag();
+                e.dataTransfer.setData('text', JSON.stringify(dragData));
+                this.classList.add('drag');
+                return false;
+            });
+
+            el.addEventListener('dragend', function(e) {
+                this.classList.remove('drag');
+            });
+        }
+    };
+});
+
+// Updated droppable directive
 app.directive('droppable', function() {
     return {
         scope: {
@@ -576,31 +603,6 @@ app.directive('droppable', function() {
                 scope.$apply(function() {
                     scope.drop({ item: item });
                 });
-            });
-        }
-    };
-});
-
-app.directive('draggable', function() {
-    return {
-        scope: {
-            drag: '&'
-        },
-        link: function(scope, element) {
-            const el = element[0];
-
-            el.setAttribute('draggable', 'true');
-
-            el.addEventListener('dragstart', function(e) {
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text', angular.toJson(scope.drag()));
-                this.classList.add('drag');
-
-                return false;
-            });
-
-            el.addEventListener('dragend', function(e) {
-                this.classList.remove('drag');
             });
         }
     };
