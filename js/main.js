@@ -419,43 +419,49 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         return false;
     };
 
-    proto.placeDefense = function(row, col) {
-        if (col < 4 && !proto.gameData.track[row][col] && proto.currentDefense) {
-            proto.gameData.track[row][col] = { type: 'defense', content: proto.currentDefense };
-            proto.currentDefense = null;
-            AlertService.showAlert('Defense placed!', 'success');
+    proto.dropDefense = function(event, x, y) {
+        if (proto.currentDefense && !proto.gameData.defenses[x][y]) {
+            $scope.$apply(function() {
+                proto.gameData.defenses[x][y] = proto.currentDefense;
+                proto.currentDefense = null;
+                proto.advanceGamePhase();
+            });
         } else {
-            AlertService.showAlert('Invalid placement. Defenses can only be placed in defense zones.', 'warning');
+            AlertService.showAlert('Invalid placement for defense.', 'warning');
         }
     };
 
-    proto.placeMonster = function(row, col) {
-        if (col > 4 && !proto.gameData.track[row][col] && proto.currentMonster) {
-            proto.gameData.track[row][col] = { type: 'monster', content: proto.currentMonster };
-            proto.currentMonster = null;
-            AlertService.showAlert('Monster placed!', 'success');
+    proto.dropMonster = function(event, x, y) {
+        if (proto.currentMonster && !proto.gameData.monsters[x][y]) {
+            $scope.$apply(function() {
+                proto.gameData.monsters[x][y] = proto.currentMonster;
+                proto.currentMonster = null;
+                proto.advanceGamePhase();
+            });
         } else {
-            AlertService.showAlert('Invalid placement. Monsters can only be placed in monster zones.', 'warning');
+            AlertService.showAlert('Invalid placement for monster.', 'warning');
         }
     };
 
     proto.aiPlaceDefense = function() {
-        const row = Math.floor(Math.random() * 5);
-        const col = Math.floor(Math.random() * 4);
+        const x = Math.floor(Math.random() * 5);
+        const y = Math.floor(Math.random() * 4);
 
-        if (proto.gameData.defenses[row][col] === null) {
-            proto.placeDefense(row, col);
+        if (!proto.gameData.defenses[x][y]) {
+            proto.gameData.defenses[x][y] = proto.currentDefense;
+            proto.currentDefense = null;
         } else {
             proto.aiPlaceDefense();
         }
     };
 
     proto.aiPlaceMonster = function() {
-        const row = Math.floor(Math.random() * 5);
-        const col = Math.floor(Math.random() * 4);
+        const x = Math.floor(Math.random() * 5);
+        const y = Math.floor(Math.random() * 4);
 
-        if (proto.gameData.monsters[row][col] === null) {
-            proto.placeMonster(row, col);
+        if (!proto.gameData.monsters[x][y]) {
+            proto.gameData.monsters[x][y] = proto.currentMonster;
+            proto.currentMonster = null;
         } else {
             proto.aiPlaceMonster();
         }
@@ -539,64 +545,62 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
 }]);
 
-app.directive('draggable', function() {
+app.directive('droppable', function() {
     return {
-        restrict: 'A',
         scope: {
-            placed: '='
+            drop: '&',
+            bin: '='
         },
         link: function(scope, element) {
-            function setDraggable(value) {
-                element.attr('draggable', value);
-            }
+            const el = element[0];
 
-            setDraggable(!scope.placed);
-
-            element.on('dragstart', function(event) {
-                if (!scope.placed) {
-                    if (!element.attr('id')) {
-                        element.attr('id', `draggable-${Date.now()}-${Math.random()}`);
-                    }
-                    event.dataTransfer.setData('text', element.attr('id'));
-                } else {
-                    event.preventDefault();
-                }
+            el.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                this.classList.add('over');
             });
 
-            scope.$watch('placed', function(newVal) {
-                setDraggable(!newVal);
+            el.addEventListener('dragenter', function(e) {
+                this.classList.add('over');
+            });
+
+            el.addEventListener('dragleave', function(e) {
+                this.classList.remove('over');
+            });
+
+            el.addEventListener('drop', function(e) {
+                e.stopPropagation();
+                this.classList.remove('over');
+
+                const item = JSON.parse(e.dataTransfer.getData('text'));
+                scope.$apply(function() {
+                    scope.drop({ item: item });
+                });
             });
         }
     };
 });
 
-app.directive('droppable', function() {
+app.directive('draggable', function() {
     return {
-        restrict: 'A',
-        link: function(scope, element, attrs) {
-            element.on('dragover', function(event) {
-                event.preventDefault();
+        scope: {
+            drag: '&'
+        },
+        link: function(scope, element) {
+            const el = element[0];
+
+            el.setAttribute('draggable', 'true');
+
+            el.addEventListener('dragstart', function(e) {
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text', angular.toJson(scope.drag()));
+                this.classList.add('drag');
+
+                return false;
             });
 
-            element.on('drop', function(event) {
-                event.preventDefault();
-                var data = event.dataTransfer.getData('text');
-                var draggedElement = document.getElementById(data);
-
-                if (draggedElement) {
-                    var targetId = attrs.id;
-                    var [_, row, col] = targetId.split('-').map(Number);
-
-                    scope.$apply(function() {
-                        if (draggedElement.classList.contains('defense')) {
-                            scope.mainCtrl.onDrop(event, row, col, 'defense');
-                        } else if (draggedElement.classList.contains('monster')) {
-                            scope.mainCtrl.onDrop(event, row, col, 'monster');
-                        } else {
-                            scope.alertService.showAlert('Invalid placement.', 'error');
-                        }
-                    });
-                }
+            el.addEventListener('dragend', function(e) {
+                this.classList.remove('drag');
             });
         }
     };
