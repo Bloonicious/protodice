@@ -121,6 +121,8 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         proto.showGameElements();
 
         AlertService.showAlert('Game started! Good luck, ' + proto.gameData.players.join(' and ') + '!', 'success');
+
+        console.log(proto.gameData["track"]);
     };
 
     proto.validatePlayerNames = function() {
