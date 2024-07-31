@@ -376,7 +376,7 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
 
     proto.onDragStart = function(event, type) {
-        event.dataTransfer.setData('type', type);
+        event.dataTransfer.setData('text/plain', type); // Set type as text
         event.dataTransfer.effectAllowed = 'move'; // Allow moving
     };
 
@@ -388,21 +388,21 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
 
     proto.onDropCell = function(event, row, col) {
     event.preventDefault(); // Prevent default behavior
-    var type = event.dataTransfer.getData('type');
+    var type = event.dataTransfer.getData('text/plain'); // Retrieve data as text
 
     if (type === 'defense' && col < 4 && !proto.gameData.track[row][col]) {
         proto.gameData.track[row][col] = {
             type: 'defense',
             content: proto.currentDefense
         };
-        proto.currentDefense = null; // Clear the current defense after placing it
+        proto.currentDefense = null; // Clear current defense
         proto.showFinishTurnButton = true; // Show finish turn button
     } else if (type === 'monster' && col >= 5 && !proto.gameData.track[row][col]) {
         proto.gameData.track[row][col] = {
             type: 'monster',
             content: proto.currentMonster
         };
-        proto.currentMonster = null; // Clear the current monster after placing it
+        proto.currentMonster = null; // Clear current monster
         proto.showFinishTurnButton = true; // Show finish turn button
     } else {
         AlertService.showAlert('Invalid placement!', 'error'); // Alert invalid placement
