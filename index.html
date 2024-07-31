@@ -53,28 +53,28 @@
                 <tbody>
                     <tr ng-repeat="(rowIndex, row) in mainCtrl.gameData.track">
                         <td ng-repeat="(colIndex, cell) in row track by $index"
-                            ng-class="{
-                                'defense-zone': colIndex < 4,
-                                'bridge-zone': colIndex === 4,
-                                'monster-zone': colIndex > 4
-                            }"
-                            id="cell-{{rowIndex}}-{{colIndex}}"
-                            ng-drop="mainCtrl.onDropCell($event, rowIndex, colIndex)"
-                            ng-drag-over="mainCtrl.allowDrop($event)"
-                            <!-- Game cell content -->
-                            <div class="defense" ng-if="cell && cell.type === 'defense'">
-                                <img class="defense-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
-                                <div class="hp-bar">
-                                    <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
-                                </div>
-                            </div>
-                            <div class="monster" ng-if="cell && cell.type === 'monster'">
-                                <img class="monster-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
-                                <div class="hp-bar">
-                                    <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
-                                </div>
-                            </div>
-                        </td>
+    ng-class="{
+        'defense-zone': colIndex < 4,
+        'bridge-zone': colIndex === 4,
+        'monster-zone': colIndex > 4
+    }"
+    id="cell-{{rowIndex}}-{{colIndex}}"
+    ng-drop="mainCtrl.onDropCell($event, rowIndex, colIndex)"
+    ng-drag-over="mainCtrl.allowDrop($event)">
+    <!-- Game cell content -->
+    <div class="defense" ng-if="cell && cell.type === 'defense'">
+        <img class="defense-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
+        <div class="hp-bar">
+            <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
+        </div>
+    </div>
+    <div class="monster" ng-if="cell && cell.type === 'monster'">
+        <img class="monster-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
+        <div class="hp-bar">
+            <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
+        </div>
+    </div>
+</td>
                     </tr>
                 </tbody>
             </table>
