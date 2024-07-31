@@ -392,6 +392,7 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
             const col = Array.from(event.target.parentNode.children).indexOf(event.target);
             const row = Array.from(event.target.parentNode.parentNode.children).indexOf(event.target.parentNode);
 
+            // Validating cell placement
             if ((type === 'defense' && col < 4) || (type === 'monster' && col > 4)) {
                 event.dataTransfer.dropEffect = 'move'; // Valid drop
             } else {
@@ -405,24 +406,28 @@ proto.onDropCell = function(event, row, col) {
     event.preventDefault(); // Prevent default behavior
     const type = event.dataTransfer.getData('text/plain'); // Retrieve the type from the drag data
 
-    if ((type === 'defense' && col < 4) || (type === 'monster' && col > 4)) {
-        const cellContent = proto.gameData.track[row][col];
+    // Check if the cell is empty and in the correct area
+    const cellContent = proto.gameData.track[row][col];
+
+    if (type === 'defense' && col < 4) {
         if (!cellContent) {
-            // Place the defense or monster in the cell
             proto.gameData.track[row][col] = {
-                type: type,
-                content: type === 'defense' ? angular.copy(proto.currentDefense) : angular.copy(proto.currentMonster)
+                type: 'defense',
+                content: angular.copy(proto.currentDefense)
             };
-
-            // Clear the current selection
-            if (type === 'defense') {
-                proto.currentDefense = null; // Clear current defense
-            } else if (type === 'monster') {
-                proto.currentMonster = null; // Clear current monster
-            }
-
-            // Show success message
-            AlertService.showAlert(`${type.charAt(0).toUpperCase() + type.slice(1)} placed at Row ${row}, Column ${col}.`, 'success');
+            proto.currentDefense = null; // Clear current defense
+            AlertService.showAlert(`Defense placed at Row ${row}, Column ${col}.`, 'success');
+        } else {
+            AlertService.showAlert('Invalid placement! Cell is already occupied.', 'error');
+        }
+    } else if (type === 'monster' && col > 4) {
+        if (!cellContent) {
+            proto.gameData.track[row][col] = {
+                type: 'monster',
+                content: angular.copy(proto.currentMonster)
+            };
+            proto.currentMonster = null; // Clear current monster
+            AlertService.showAlert(`Monster placed at Row ${row}, Column ${col}.`, 'success');
         } else {
             AlertService.showAlert('Invalid placement! Cell is already occupied.', 'error');
         }
