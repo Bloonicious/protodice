@@ -383,6 +383,13 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     // Improved drag-and-drop functionality for placing defenses and monsters
     proto.allowDrop = function(event) {
         event.preventDefault(); // Prevent default to allow drop
+        const type = event.dataTransfer.getData('text/plain'); // Retrieve the drag type
+        // Change the cursor style based on the type and validity of the drop
+        if ((type === 'defense' && event.target.cellIndex < 4) || (type === 'monster' && event.target.cellIndex >= 5)) {
+            event.dataTransfer.dropEffect = 'move'; // Valid drop
+        } else {
+        event.dataTransfer.dropEffect = 'none'; // Invalid drop
+        }
     };
 
     proto.onDropCell = function(event, row, col) {
@@ -390,6 +397,7 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     var type = event.dataTransfer.getData('text/plain'); // Retrieve the type from the drag data
     console.log('Dropped at:', row, col, 'Type:', type); // Debugging info
 
+    // Check the drop validity
     if (type === 'defense' && col < 4 && !proto.gameData.track[row][col]) {
         // Valid drop for defense
         proto.gameData.track[row][col] = {
@@ -408,6 +416,7 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         proto.showFinishTurnButton = true; // Show finish turn button
     } else {
         AlertService.showAlert('Invalid placement!', 'error'); // Alert invalid placement
+        event.dataTransfer.dropEffect = 'none'; // Change cursor to indicate invalid placement
     }
 };
     proto.dragDefense = function(event, defense) {
