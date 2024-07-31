@@ -81,7 +81,11 @@
                 </tbody>
             </table>
             <div id="defenseHolder" ng-show="mainCtrl.currentDefense">
-                <div class="defense draggable" draggable="true" ng-drag="true" ng-drag-data="mainCtrl.currentDefense" ng-drag-start="mainCtrl.onDragStart($event, 'defense')">
+                <div class="defense draggable" 
+                    draggable="true" 
+                    ng-drag="true" 
+                    ng-drag-data="mainCtrl.currentDefense" 
+                    ng-drag-start="mainCtrl.dragDefense($event, mainCtrl.currentDefense)">
                     <img class="defense-img" ng-src="assets/images/{{mainCtrl.currentDefense.type | lowercase}}.png" alt="{{mainCtrl.currentDefense.type}}">
                     <div class="hp-bar">
                         <div class="hp" ng-style="{'width': (mainCtrl.currentDefense.currentHp / mainCtrl.currentDefense.maxHp) * 100 + '%'}"></div>
@@ -89,7 +93,11 @@
                 </div>
             </div>
             <div id="monsterHolder" ng-show="mainCtrl.currentMonster">
-                <div class="monster draggable" draggable="true" ng-drag="true" ng-drag-data="mainCtrl.currentMonster" ng-drag-start="mainCtrl.onDragStart($event, 'monster')">
+                <div class="monster draggable" 
+                    draggable="true" 
+                    ng-drag="true" 
+                    ng-drag-data="mainCtrl.currentMonster" 
+                    ng-drag-start="mainCtrl.dragMonster($event, mainCtrl.currentMonster)">
                     <img class="monster-img" ng-src="assets/images/{{mainCtrl.currentMonster.type | lowercase}}.png" alt="{{mainCtrl.currentMonster.type}}">
                     <div class="hp-bar">
                         <div class="hp" ng-style="{'width': (mainCtrl.currentMonster.currentHp / mainCtrl.currentMonster.maxHp) * 100 + '%'}"></div>
