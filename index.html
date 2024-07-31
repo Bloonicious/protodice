@@ -101,6 +101,7 @@
                 <h3>Dice Roll: <span id="diceRollResult" ng-bind="mainCtrl.diceRollResult"></span></h3>
                 <h3>Wave: <span id="currentWave">{{ mainCtrl.gameData.waveCount }} / {{ mainCtrl.gameData.maxWaves === 9999 ? '∞' : mainCtrl.gameData.maxWaves }}</span></h3>
             </div>
+            <button ng-click="mainCtrl.finishTurn()" ng-show="mainCtrl.showFinishTurnButton">Finish Turn</button>
         </div>
     </div>
     <!-- Custom alert overlay -->
