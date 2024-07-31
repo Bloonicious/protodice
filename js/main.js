@@ -384,42 +384,53 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
 
     // Improved drag-and-drop functionality for placing defenses and monsters
     proto.allowDrop = function(event) {
-        event.preventDefault(); // Prevent default to allow drop
-        const type = event.dataTransfer.getData('text/plain'); // Retrieve the drag type
-        // Change the cursor style based on the type and validity of the drop
-        if ((type === 'defense' && event.target.cellIndex < 4) || (type === 'monster' && event.target.cellIndex >= 5)) {
-            event.dataTransfer.dropEffect = 'move'; // Valid drop
+        event.preventDefault();
+        const type = event.dataTransfer.getData('text/plain');
+        const col = event.target.cellIndex;
+
+        if ((type === 'defense' && col < 4) || (type === 'monster' && col >= 5)) {
+            event.dataTransfer.dropEffect = 'move';
+            console.log(`Valid drop for: ${type} at column ${col}`);
         } else {
-        event.dataTransfer.dropEffect = 'none'; // Invalid drop
+            event.dataTransfer.dropEffect = 'none';
+            console.log(`Invalid drop for: ${type} at column ${col}`);
         }
     };
 
     proto.onDropCell = function(event, row, col) {
-    event.preventDefault(); // Prevent default behavior
-    var type = event.dataTransfer.getData('text/plain'); // Retrieve the type from the drag data
-    console.log('Dropped at:', row, col, 'Type:', type); // Debugging info
+    event.preventDefault();
+    var type = event.dataTransfer.getData('text/plain');
+    console.log(`Dropped at: Row ${row}, Column ${col}, Type: ${type}`);
 
-    // Check the drop validity
-    if (type === 'defense' && col < 4 && !proto.gameData.track[row][col]) {
-        // Valid drop for defense
-        proto.gameData.track[row][col] = {
-            type: 'defense',
-            content: angular.copy(proto.currentDefense) // Make a copy of the defense object
-        };
-        proto.currentDefense = null; // Clear current defense
-        proto.showFinishTurnButton = true; // Show finish turn button
-    } else if (type === 'monster' && col >= 5 && !proto.gameData.track[row][col]) {
-        // Valid drop for monster
-        proto.gameData.track[row][col] = {
-            type: 'monster',
-            content: angular.copy(proto.currentMonster) // Make a copy of the monster object
-        };
-        proto.currentMonster = null; // Clear current monster
-        proto.showFinishTurnButton = true; // Show finish turn button
+    // Validate the drop
+    const cellContent = proto.gameData.track[row][col];
+    if ((type === 'defense' && col < 4) || (type === 'monster' && col >= 5)) {
+        if (!cellContent) {
+            if (type === 'defense') {
+                proto.gameData.track[row][col] = {
+                    type: 'defense',
+                    content: angular.copy(proto.currentDefense)
+                };
+                console.log(`Defense placed at Row ${row}, Column ${col}`);
+                proto.currentDefense = null; // Clear current defense
+            } else if (type === 'monster') {
+                proto.gameData.track[row][col] = {
+                    type: 'monster',
+                    content: angular.copy(proto.currentMonster)
+                };
+                console.log(`Monster placed at Row ${row}, Column ${col}`);
+                proto.currentMonster = null; // Clear current monster
+            }
+            proto.showFinishTurnButton = true;
+        } else {
+            AlertService.showAlert('Invalid placement! Cell is already occupied.', 'error');
+        }
     } else {
-        AlertService.showAlert('Invalid placement!', 'error'); // Alert invalid placement
-        event.dataTransfer.dropEffect = 'none'; // Change cursor to indicate invalid placement
+        AlertService.showAlert('Invalid placement!', 'error');
+        event.dataTransfer.dropEffect = 'none';
     }
+
+    console.log('Current Game Data:', proto.gameData.track);
 };
     proto.dragDefense = function(event, defense) {
         proto.currentDefense = defense; // Set the current defense to be dragged
@@ -427,17 +438,8 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
 
     proto.dropDefense = function(event, row, col) {
-    if (col < 4 && !proto.gameData.track[row][col]) {  // Ensure placement is within the leftmost columns and the cell is empty
-        proto.gameData.track[row][col] = {
-            type: 'defense',
-            content: proto.currentDefense
-        };
-        proto.currentDefense = null;
-        proto.showFinishTurnButton = true;
-    } else {
-        AlertService.showAlert('Invalid placement for defense!', 'error');
-    }
-};
+        proto.onDropCell(event, row, col);
+    };
 
     proto.dragMonster = function(event, monster) {
         proto.currentMonster = monster; // Set the current monster to be dragged
@@ -445,17 +447,8 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
 
     proto.dropMonster = function(event, row, col) {
-    if (col >= 5 && !proto.gameData.track[row][col]) {  // Ensure placement is within the rightmost columns and the cell is empty
-        proto.gameData.track[row][col] = {
-            type: 'monster',
-            content: proto.currentMonster
-        };
-        proto.currentMonster = null;
-        proto.showFinishTurnButton = true;
-    } else {
-        AlertService.showAlert('Invalid placement for monster!', 'error');
-    }
-};
+        proto.onDropCell(event, row, col);
+    };
 
     // AI placing defense logic
     proto.aiPlaceDefense = function() {
