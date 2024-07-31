@@ -467,38 +467,25 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         }
     };
     
-    // Function to handle dropping an item on the game grid
-proto.onDrop = function(event, rowIndex, colIndex, type) {
-    var data = JSON.parse(event.dataTransfer.getData("text"));
+// Function to handle dropping an item on the game grid
+proto.onDrop = function(event, rowIndex, colIndex, cell) {
+        event.preventDefault();
+        var data = event.dataTransfer.getData('text');
+        var item = JSON.parse(data);
 
-    // Determine the zone type based on the column index
-    var cellType = (colIndex < 4) ? 'defense' : (colIndex === 4) ? 'bridge' : 'monster';
-
-    if (proto.canDropOnCell(rowIndex, colIndex, data)) {
-        var targetCell = proto.gameData.track[rowIndex][colIndex];
-
-        if (!targetCell) {
-            var newItem = {
-                type: type,
-                content: angular.copy(type === 'defense' ? proto.currentDefense : proto.currentMonster)
+        if (item.type === 'defense' && colIndex < 4) {
+            proto.gameData.track[rowIndex][colIndex] = {
+                type: 'defense',
+                content: item
             };
-
-            proto.gameData.track[rowIndex][colIndex] = newItem;
-
-            if (type === 'defense') {
-                proto.currentDefense = null;
-            } else if (type === 'monster') {
-                proto.currentMonster = null;
-            }
-
-            AlertService.showAlert(type.charAt(0).toUpperCase() + type.slice(1) + ' placed!', 'success');
-        } else {
-            AlertService.showAlert('Zone occupied!', 'warning');
+        } else if (item.type === 'monster' && colIndex > 4) {
+            proto.gameData.track[rowIndex][colIndex] = {
+                type: 'monster',
+                content: item
+            };
         }
-    } else {
-        AlertService.showAlert('Cannot drop ' + data.type + ' in ' + cellType + ' zone.', 'error');
-    }
-};
+        $scope.$apply();
+    };
 
 // Handles placement data
 proto.updatePlacedStatus = function(type, row, col) {
@@ -533,6 +520,10 @@ proto.updatePlacedStatus = function(type, row, col) {
         event.preventDefault();
     };
 
+    proto.onDragLeave = function(event) {
+        event.preventDefault();
+    };
+
 
     // Set maximum waves
     proto.setMaxWaves = function(maxWaves) {
@@ -544,66 +535,3 @@ proto.updatePlacedStatus = function(type, row, col) {
         AlertService.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`, 'info');
     };
 }]);
-
-// Updated draggable directive
-app.directive('draggable', function() {
-    return {
-        scope: {
-            drag: '&'
-        },
-        link: function(scope, element) {
-            const el = element[0];
-
-            el.setAttribute('draggable', 'true');
-
-            el.addEventListener('dragstart', function(e) {
-                e.dataTransfer.effectAllowed = 'move';
-                const dragData = scope.drag();
-                e.dataTransfer.setData('text', JSON.stringify(dragData));
-                this.classList.add('drag');
-                return false;
-            });
-
-            el.addEventListener('dragend', function(e) {
-                this.classList.remove('drag');
-            });
-        }
-    };
-});
-
-// Updated droppable directive
-app.directive('droppable', function() {
-    return {
-        scope: {
-            drop: '&',
-            bin: '='
-        },
-        link: function(scope, element) {
-            const el = element[0];
-
-            el.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                this.classList.add('over');
-            });
-
-            el.addEventListener('dragenter', function(e) {
-                this.classList.add('over');
-            });
-
-            el.addEventListener('dragleave', function(e) {
-                this.classList.remove('over');
-            });
-
-            el.addEventListener('drop', function(e) {
-                e.stopPropagation();
-                this.classList.remove('over');
-
-                const item = JSON.parse(e.dataTransfer.getData('text'));
-                scope.$apply(function() {
-                    scope.drop({ item: item });
-                });
-            });
-        }
-    };
-});
