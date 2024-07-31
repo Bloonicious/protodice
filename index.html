@@ -60,8 +60,8 @@
                             }"
                             id="cell-{{rowIndex}}-{{colIndex}}"
                             droppable="true"
-                            ng-drop="mainCtrl.onDrop($event, rowIndex, colIndex, cell)"
-                            ng-drag-over="mainCtrl.onDragOver($event)"
+                            ng-drop="mainCtrl.onDropCell($event, rowIndex, colIndex)"
+                            ng-drag-over="mainCtrl.allowDrop($event)"
                             ng-drag-leave="mainCtrl.onDragLeave($event)">
                             <!-- Game cell content -->
                             <div class="defense" ng-if="cell && cell.type === 'defense'">
