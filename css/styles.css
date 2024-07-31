@@ -113,7 +113,11 @@ h1 {
     vertical-align: middle;
     line-height: 50px;
     user-select: none;
-    cursor: grab;
+    cursor: move;
+}
+
+.droppable {
+    border: 2px dashed #ccc; /* Optional visual for droppable areas */
 }
 
 .defense-zone {
