@@ -383,24 +383,26 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     // Improved drag-and-drop functionality for placing defenses and monsters
     proto.allowDrop = function(event) {
         event.preventDefault(); // Prevent default to allow drop
-        event.dataTransfer.dropEffect = 'move'; // Specify that this is a move operation
     };
 
     proto.onDropCell = function(event, row, col) {
     event.preventDefault(); // Prevent default behavior
-    var type = event.dataTransfer.getData('text/plain'); // Retrieve data as text
+    var type = event.dataTransfer.getData('text/plain'); // Retrieve the type from the drag data
+    console.log('Dropped at:', row, col, 'Type:', type); // Debugging info
 
     if (type === 'defense' && col < 4 && !proto.gameData.track[row][col]) {
+        // Valid drop for defense
         proto.gameData.track[row][col] = {
             type: 'defense',
-            content: proto.currentDefense
+            content: angular.copy(proto.currentDefense) // Make a copy of the defense object
         };
         proto.currentDefense = null; // Clear current defense
         proto.showFinishTurnButton = true; // Show finish turn button
     } else if (type === 'monster' && col >= 5 && !proto.gameData.track[row][col]) {
+        // Valid drop for monster
         proto.gameData.track[row][col] = {
             type: 'monster',
-            content: proto.currentMonster
+            content: angular.copy(proto.currentMonster) // Make a copy of the monster object
         };
         proto.currentMonster = null; // Clear current monster
         proto.showFinishTurnButton = true; // Show finish turn button
@@ -410,7 +412,7 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
 };
     proto.dragDefense = function(event, defense) {
         proto.currentDefense = defense; // Set the current defense to be dragged
-        event.dataTransfer.setData('type', 'defense'); // Set the data type for drag
+        event.dataTransfer.setData('text/plain', 'defense'); // Set the data type for drag
     };
 
     proto.dropDefense = function(event, row, col) {
@@ -428,7 +430,7 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
 
     proto.dragMonster = function(event, monster) {
         proto.currentMonster = monster; // Set the current monster to be dragged
-        event.dataTransfer.setData('type', 'monster'); // Set the data type for drag
+        event.dataTransfer.setData('text/plain', 'monster'); // Set the data type for drag
     };
 
     proto.dropMonster = function(event, row, col) {
