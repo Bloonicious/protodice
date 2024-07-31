@@ -382,50 +382,47 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         event.dataTransfer.effectAllowed = 'move'; // Allow moving
     };
 
-    // Improved drag-and-drop functionality for placing defenses and monsters
+    // Allow drop functionality
     proto.allowDrop = function(event) {
-      event.preventDefault(); // Prevent default behavior
-      const type = event.dataTransfer.getData('text/plain'); // Retrieve the drag type
-      const targetCell = event.target; // Get the target cell
+        event.preventDefault(); // Prevent default behavior
+        const type = event.dataTransfer.getData('text/plain'); // Retrieve the drag type
 
-      if (targetCell.classList.contains('droppable')) {
-          const col = Array.from(targetCell.parentNode.children).indexOf(targetCell);
-          const row = Array.from(targetCell.parentNode.parentNode.children).indexOf(targetCell.parentNode);
+        // Check if the target is a valid droppable area
+        if (event.target.classList.contains('droppable')) {
+            const col = Array.from(event.target.parentNode.children).indexOf(event.target);
+            const row = Array.from(event.target.parentNode.parentNode.children).indexOf(event.target.parentNode);
 
-          // Determine the validity of the drop
-          if ((type === 'defense' && col < 4) || (type === 'monster' && col > 4)) {
-            event.dataTransfer.dropEffect = 'move'; // Valid drop
-          } else {
-              event.dataTransfer.dropEffect = 'none'; // Invalid drop
-          }
-      }
-  };
+            if ((type === 'defense' && col < 4) || (type === 'monster' && col > 4)) {
+                event.dataTransfer.dropEffect = 'move'; // Valid drop
+            } else {
+                event.dataTransfer.dropEffect = 'none'; // Invalid drop
+            }
+        }
+    };
 
-    proto.onDropCell = function(event, row, col) {
+    // Handle drop event
+proto.onDropCell = function(event, row, col) {
     event.preventDefault(); // Prevent default behavior
     const type = event.dataTransfer.getData('text/plain'); // Retrieve the type from the drag data
 
-    // Check the drop validity
-    const cellContent = proto.gameData.track[row][col];
     if ((type === 'defense' && col < 4) || (type === 'monster' && col > 4)) {
+        const cellContent = proto.gameData.track[row][col];
         if (!cellContent) {
+            // Place the defense or monster in the cell
+            proto.gameData.track[row][col] = {
+                type: type,
+                content: type === 'defense' ? angular.copy(proto.currentDefense) : angular.copy(proto.currentMonster)
+            };
+
+            // Clear the current selection
             if (type === 'defense') {
-                proto.gameData.track[row][col] = {
-                    type: 'defense',
-                    content: angular.copy(proto.currentDefense) // Make a copy of the defense object
-                };
                 proto.currentDefense = null; // Clear current defense
-                proto.showFinishTurnButton = true; // Show finish turn button
-                AlertService.showAlert(`Defense placed at Row ${row}, Column ${col}.`, 'success');
             } else if (type === 'monster') {
-                proto.gameData.track[row][col] = {
-                    type: 'monster',
-                    content: angular.copy(proto.currentMonster) // Make a copy of the monster object
-                };
                 proto.currentMonster = null; // Clear current monster
-                proto.showFinishTurnButton = true; // Show finish turn button
-                AlertService.showAlert(`Monster placed at Row ${row}, Column ${col}.`, 'success');
             }
+
+            // Show success message
+            AlertService.showAlert(`${type.charAt(0).toUpperCase() + type.slice(1)} placed at Row ${row}, Column ${col}.`, 'success');
         } else {
             AlertService.showAlert('Invalid placement! Cell is already occupied.', 'error');
         }
