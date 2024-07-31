@@ -59,10 +59,8 @@
                                 'monster-zone': colIndex > 4
                             }"
                             id="cell-{{rowIndex}}-{{colIndex}}"
-                            droppable="true"
                             ng-drop="mainCtrl.onDropCell($event, rowIndex, colIndex)"
                             ng-drag-over="mainCtrl.allowDrop($event)"
-                            ng-drag-leave="mainCtrl.onDragLeave($event)">
                             <!-- Game cell content -->
                             <div class="defense" ng-if="cell && cell.type === 'defense'">
                                 <img class="defense-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
