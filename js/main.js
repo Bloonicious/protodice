@@ -375,9 +375,36 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         }
     };
 
+    proto.onDragStart = function(event, type) {
+        event.dataTransfer.setData('type', type);
+    };
+
     // Improved drag-and-drop functionality for placing defenses and monsters
     proto.allowDrop = function(event) {
         event.preventDefault();
+    };
+
+    proto.onDropCell = function(event, row, col) {
+        event.preventDefault();
+        var type = event.dataTransfer.getData('type');
+        
+        if (type === 'defense' && col < 4 && !proto.gameData.track[row][col]) {
+            proto.gameData.track[row][col] = {
+                type: 'defense',
+                content: vm.currentDefense
+            };
+            proto.currentDefense = null;
+            proto.showFinishTurnButton = true;
+        } else if (type === 'monster' && col >= 5 && !proto.gameData.track[row][col]) {
+            proto.gameData.track[row][col] = {
+                type: 'monster',
+                content: vm.currentMonster
+            };
+            proto.currentMonster = null;
+            proto.showFinishTurnButton = true;
+        } else {
+            AlertService.showAlert('Invalid placement!', 'error');
+        }
     };
 
     proto.dragDefense = function(event, defense) {
