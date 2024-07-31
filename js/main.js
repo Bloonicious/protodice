@@ -385,58 +385,76 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
     };
 
     proto.dropDefense = function(event, row, col) {
-        if (col < 4) {
-            proto.gameData.defenses[row][col] = proto.currentDefense;
-            proto.currentDefense = null;
-        }
-    };
+    if (col < 4 && !proto.gameData.track[row][col]) {  // Ensure placement is within the leftmost columns and the cell is empty
+        proto.gameData.track[row][col] = {
+            type: 'defense',
+            content: proto.currentDefense
+        };
+        proto.currentDefense = null;
+        proto.showFinishTurnButton = true;
+    } else {
+        AlertService.showAlert('Invalid placement for defense!', 'error');
+    }
+};
 
     proto.dragMonster = function(event, monster) {
         proto.currentMonster = monster;
     };
 
     proto.dropMonster = function(event, row, col) {
-        if (col >= 5) {
-            proto.gameData.monsters[row][col - 5] = proto.currentMonster;
-            proto.currentMonster = null;
-        }
-    };
+    if (col >= 5 && !proto.gameData.track[row][col]) {  // Ensure placement is within the rightmost columns and the cell is empty
+        proto.gameData.track[row][col] = {
+            type: 'monster',
+            content: proto.currentMonster
+        };
+        proto.currentMonster = null;
+        proto.showFinishTurnButton = true;
+    } else {
+        AlertService.showAlert('Invalid placement for monster!', 'error');
+    }
+};
 
     // AI placing defense logic
     proto.aiPlaceDefense = function() {
-        const rows = proto.gameData.defenses.length;
-        const cols = proto.gameData.defenses[0].length;
+    const rows = proto.gameData.track.length;
+    const cols = 4;  // Only first 4 columns for defenses
 
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                if (!proto.gameData.defenses[row][col]) {
-                    proto.gameData.defenses[row][col] = proto.currentDefense;
-                    proto.currentDefense = null;
-                    return;
-                }
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            if (!proto.gameData.track[row][col]) {
+                proto.gameData.track[row][col] = {
+                    type: 'defense',
+                    content: proto.currentDefense
+                };
+                proto.currentDefense = null;
+                return;
             }
         }
+    }
 
-        proto.currentDefense = null;
-    };
+    proto.currentDefense = null;
+};
 
     // AI placing monster logic
     proto.aiPlaceMonster = function() {
-        const rows = proto.gameData.monsters.length;
-        const cols = proto.gameData.monsters[0].length;
+    const rows = proto.gameData.track.length;
+    const cols = 4;  // Only last 4 columns for monsters
 
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                if (!proto.gameData.monsters[row][col]) {
-                    proto.gameData.monsters[row][col] = proto.currentMonster;
-                    proto.currentMonster = null;
-                    return;
-                }
+    for (let row = 0; row < rows; row++) {
+        for (let col = 5; col < 9; col++) {
+            if (!proto.gameData.track[row][col]) {
+                proto.gameData.track[row][col] = {
+                    type: 'monster',
+                    content: proto.currentMonster
+                };
+                proto.currentMonster = null;
+                return;
             }
         }
+    }
 
-        proto.currentMonster = null;
-    };
+    proto.currentMonster = null;
+};
 
     // AI and player take turns
     $scope.$watch(() => proto.gameData.currentPlayerIndex, (newVal, oldVal) => {
@@ -447,13 +465,55 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         }
     });
 
-    // Game advancement logic
-    proto.advanceGamePhase = function() {
-        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-        proto.gameData.turnCount++;
+    // Function to finish a turn
+    proto.finishTurn = function() {
+        proto.currentDefense = null;
+        proto.currentMonster = null;
         proto.diceRollResult = null;
+
+        proto.gameData.turnCount += 1;
+        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+
+        if (proto.gameData.currentPlayerIndex === 0) {
+            proto.gameData.waveCount += 1;
+
+            if (proto.gameData.waveCount > proto.gameData.maxWaves) {
+                proto.endGame();
+                return;
+            }
+        }
+
+        proto.currentPlayerName = proto.gameData.players[proto.gameData.currentPlayerIndex];
+        proto.showFinishTurnButton = false;
+        proto.showRollDiceButton = true;
+
+        AlertService.showAlert('Turn finished. It\'s ' + proto.currentPlayerName + '\'s turn!', 'info');
     };
 
+    // Game advancement logic
+    proto.advanceGamePhase = function() {
+    proto.currentDefense = null;
+    proto.currentMonster = null;
+    proto.diceRollResult = null;
+
+    proto.gameData.turnCount += 1;
+    proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+
+    if (proto.gameData.currentPlayerIndex === 0) {
+        proto.gameData.waveCount += 1;
+
+        if (proto.gameData.waveCount > proto.gameData.maxWaves) {
+            proto.endGame();
+            return;
+        }
+    }
+
+    proto.currentPlayerName = proto.gameData.players[proto.gameData.currentPlayerIndex];
+    proto.showFinishTurnButton = false;
+    proto.showRollDiceButton = true;
+
+    AlertService.showAlert('Turn finished. It\'s ' + proto.currentPlayerName + '\'s turn!', 'info');
+};
     // Set maximum waves
     proto.setMaxWaves = function(maxWaves) {
         if (maxWaves === '∞') {
