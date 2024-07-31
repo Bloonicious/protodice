@@ -375,6 +375,95 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
         }
     };
 
+    // Improved drag-and-drop functionality for placing defenses and monsters
+    proto.allowDrop = function(event) {
+        event.preventDefault();
+    };
+
+    proto.dragDefense = function(event, defense) {
+        proto.currentDefense = defense;
+    };
+
+    proto.dropDefense = function(event, row, col) {
+        if (col < 4) {
+            proto.gameData.defenses[row][col] = proto.currentDefense;
+            proto.currentDefense = null;
+        }
+    };
+
+    proto.dragMonster = function(event, monster) {
+        proto.currentMonster = monster;
+    };
+
+    proto.dropMonster = function(event, row, col) {
+        if (col >= 5) {
+            proto.gameData.monsters[row][col - 5] = proto.currentMonster;
+            proto.currentMonster = null;
+        }
+    };
+
+    // AI placing defense logic
+    proto.aiPlaceDefense = function() {
+        const rows = proto.gameData.defenses.length;
+        const cols = proto.gameData.defenses[0].length;
+
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                if (!proto.gameData.defenses[row][col]) {
+                    proto.gameData.defenses[row][col] = proto.currentDefense;
+                    proto.currentDefense = null;
+                    return;
+                }
+            }
+        }
+
+        proto.currentDefense = null;
+    };
+
+    // AI placing monster logic
+    proto.aiPlaceMonster = function() {
+        const rows = proto.gameData.monsters.length;
+        const cols = proto.gameData.monsters[0].length;
+
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                if (!proto.gameData.monsters[row][col]) {
+                    proto.gameData.monsters[row][col] = proto.currentMonster;
+                    proto.currentMonster = null;
+                    return;
+                }
+            }
+        }
+
+        proto.currentMonster = null;
+    };
+
+    // AI and player take turns
+    $scope.$watch(() => proto.gameData.currentPlayerIndex, (newVal, oldVal) => {
+        if (proto.gameData.players[newVal] === 'AI') {
+            $timeout(() => {
+                proto.rollDice();
+            }, 1000);
+        }
+    });
+
+    // Game advancement logic
+    proto.advanceGamePhase = function() {
+        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
+        proto.gameData.turnCount++;
+        proto.diceRollResult = null;
+    };
+
+    // Set maximum waves
+    proto.setMaxWaves = function(maxWaves) {
+        if (maxWaves === '∞') {
+            proto.gameData.maxWaves = 9999;
+        } else {
+            proto.gameData.maxWaves = parseInt(maxWaves);
+        }
+        AlertService.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`, 'info');
+    };
+
     // Check wave progress and adjust game state
     proto.checkWaveProgress = function(game) {
         if (game.waveCount < game.maxWaves || game.maxWaves === 9999) {
@@ -407,131 +496,5 @@ app.controller('MainController', ['$scope', '$timeout', 'ConfigService', 'AlertS
             AlertService.showAlert('Defenders have won the game by surviving all waves!', 'info');
             game.status = 'ended';
         }
-    };
-
-    // Function to check if a drag operation is valid for the given cell
-    proto.canDropOnCell = function(rowIndex, colIndex, data) {
-        if (data === 'defense') {
-            return colIndex >= 0 && colIndex < 4 && colIndex !== 4;
-        } else if (data === 'monster') {
-            return colIndex > 4 && colIndex < 9;
-        }
-        return false;
-    };
-
-    proto.dropDefense = function(event, x, y) {
-        if (proto.currentDefense && !proto.gameData.defenses[x][y]) {
-            $scope.$apply(function() {
-                proto.gameData.defenses[x][y] = proto.currentDefense;
-                proto.currentDefense = null;
-                proto.advanceGamePhase();
-            });
-        } else {
-            AlertService.showAlert('Invalid placement for defense.', 'warning');
-        }
-    };
-
-    proto.dropMonster = function(event, x, y) {
-        if (proto.currentMonster && !proto.gameData.monsters[x][y]) {
-            $scope.$apply(function() {
-                proto.gameData.monsters[x][y] = proto.currentMonster;
-                proto.currentMonster = null;
-                proto.advanceGamePhase();
-            });
-        } else {
-            AlertService.showAlert('Invalid placement for monster.', 'warning');
-        }
-    };
-
-    proto.aiPlaceDefense = function() {
-        const x = Math.floor(Math.random() * 5);
-        const y = Math.floor(Math.random() * 4);
-
-        if (!proto.gameData.defenses[x][y]) {
-            proto.gameData.defenses[x][y] = proto.currentDefense;
-            proto.currentDefense = null;
-        } else {
-            proto.aiPlaceDefense();
-        }
-    };
-
-    proto.aiPlaceMonster = function() {
-        const x = Math.floor(Math.random() * 5);
-        const y = Math.floor(Math.random() * 4);
-
-        if (!proto.gameData.monsters[x][y]) {
-            proto.gameData.monsters[x][y] = proto.currentMonster;
-            proto.currentMonster = null;
-        } else {
-            proto.aiPlaceMonster();
-        }
-    };
-    
-// Function to handle dropping an item on the game grid
-proto.onDrop = function(event, rowIndex, colIndex, cell) {
-        event.preventDefault();
-        var data = event.dataTransfer.getData('text');
-        var item = JSON.parse(data);
-
-        if (item.type === 'defense' && colIndex < 4) {
-            proto.gameData.track[rowIndex][colIndex] = {
-                type: 'defense',
-                content: item
-            };
-        } else if (item.type === 'monster' && colIndex > 4) {
-            proto.gameData.track[rowIndex][colIndex] = {
-                type: 'monster',
-                content: item
-            };
-        }
-        $scope.$apply();
-    };
-
-// Handles placement data
-proto.updatePlacedStatus = function(type, row, col) {
-    if (type === 'defense' && proto.currentDefense) {
-        if (!proto.gameData.track[row][col]) {
-            proto.gameData.track[row][col] = proto.currentDefense;
-            proto.currentDefense = null;
-        } else {
-            AlertService.showAlert('Place your defense in an empty spot.', 'warning');
-        }
-    } else if (type === 'monster' && proto.currentMonster) {
-        if (!proto.gameData.track[row][col]) {
-            proto.gameData.track[row][col] = proto.currentMonster;
-            proto.currentMonster = null;
-        } else {
-            AlertService.showAlert('Place your monster in an empty spot.', 'warning');
-        }
-    }
-    $timeout(function() {
-        $scope.$apply();
-    }, 0);
-};
-    
-    proto.advanceGamePhase = function() {
-        proto.gameData.currentPlayerIndex = (proto.gameData.currentPlayerIndex + 1) % proto.gameData.players.length;
-        proto.gameData.turnCount++;
-        proto.diceRollResult = null;
-    };
-
-    // Function to handle drag over event
-    proto.onDragOver = function(event) {
-        event.preventDefault();
-    };
-
-    proto.onDragLeave = function(event) {
-        event.preventDefault();
-    };
-
-
-    // Set maximum waves
-    proto.setMaxWaves = function(maxWaves) {
-        if (maxWaves === '∞') {
-            proto.gameData.maxWaves = 9999;
-        } else {
-            proto.gameData.maxWaves = parseInt(maxWaves);
-        }
-        AlertService.showAlert(`Max waves set to ${maxWaves === '∞' ? 'infinity' : maxWaves}`, 'info');
     };
 }]);
