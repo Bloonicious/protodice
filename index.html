@@ -49,59 +49,54 @@
             <p>Instructions on how to play the game.</p>
         </div>
         <div class="game-area" ng-show="mainCtrl.showGameArea">
-            <table>
-                <tbody>
-                    <tr ng-repeat="(rowIndex, row) in mainCtrl.gameData.track">
-                        <td ng-repeat="(colIndex, cell) in row track by $index"
-    ng-class="{
-        'defense-zone': colIndex < 4,
-        'bridge-zone': colIndex === 4,
-        'monster-zone': colIndex > 4
-    }"
-    id="cell-{{rowIndex}}-{{colIndex}}"
-    ng-drop="mainCtrl.onDropCell($event, rowIndex, colIndex)"
-    ng-drag-over="mainCtrl.allowDrop($event)">
-    <!-- Game cell content -->
-    <div class="defense" ng-if="cell && cell.type === 'defense'">
-        <img class="defense-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
-        <div class="hp-bar">
-            <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
+    <table>
+        <tbody>
+            <tr ng-repeat="(rowIndex, row) in mainCtrl.gameData.track">
+                <td ng-repeat="(colIndex, cell) in row track by $index"
+                    ng-class="{
+                        'defense-zone': colIndex < 4,
+                        'bridge-zone': colIndex === 4,
+                        'monster-zone': colIndex > 4
+                    }"
+                    id="cell-{{rowIndex}}-{{colIndex}}"
+                    ng-drop="mainCtrl.onDropCell($event, rowIndex, colIndex)"
+                    ng-drag-over="mainCtrl.allowDrop($event)"
+                    class="droppable">
+                    <!-- Game cell content -->
+                    <div class="defense" ng-if="cell && cell.type === 'defense'">
+                        <img class="defense-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
+                        <div class="hp-bar">
+                            <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
+                        </div>
+                    </div>
+                    <div class="monster" ng-if="cell && cell.type === 'monster'">
+                        <img class="monster-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
+                        <div class="hp-bar">
+                            <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="defenseHolder" ng-show="mainCtrl.currentDefense" draggable="true" 
+         ng-drag-start="mainCtrl.dragDefense($event, mainCtrl.currentDefense)">
+        <div class="defense draggable">
+            <img class="defense-img" ng-src="assets/images/{{mainCtrl.currentDefense.type | lowercase}}.png" alt="{{mainCtrl.currentDefense.type}}">
+            <div class="hp-bar">
+                <div class="hp" ng-style="{'width': (mainCtrl.currentDefense.currentHp / mainCtrl.currentDefense.maxHp) * 100 + '%'}"></div>
+            </div>
         </div>
     </div>
-    <div class="monster" ng-if="cell && cell.type === 'monster'">
-        <img class="monster-img" ng-src="assets/images/{{cell.content.type | lowercase}}.png" alt="{{cell.content.type}}">
-        <div class="hp-bar">
-            <div class="hp" ng-style="{'width': (cell.content.currentHp / cell.content.maxHp) * 100 + '%'}"></div>
+    <div id="monsterHolder" ng-show="mainCtrl.currentMonster" draggable="true" 
+         ng-drag-start="mainCtrl.dragMonster($event, mainCtrl.currentMonster)">
+        <div class="monster draggable">
+            <img class="monster-img" ng-src="assets/images/{{mainCtrl.currentMonster.type | lowercase}}.png" alt="{{mainCtrl.currentMonster.type}}">
+            <div class="hp-bar">
+                <div class="hp" ng-style="{'width': (mainCtrl.currentMonster.currentHp / mainCtrl.currentMonster.maxHp) * 100 + '%'}"></div>
+            </div>
         </div>
     </div>
-</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div id="defenseHolder" ng-show="mainCtrl.currentDefense">
-                <div class="defense draggable" 
-                    draggable="true" 
-                    ng-drag="true" 
-                    ng-drag-data="mainCtrl.currentDefense" 
-                    ng-drag-start="mainCtrl.dragDefense($event, mainCtrl.currentDefense)">
-                    <img class="defense-img" ng-src="assets/images/{{mainCtrl.currentDefense.type | lowercase}}.png" alt="{{mainCtrl.currentDefense.type}}">
-                    <div class="hp-bar">
-                        <div class="hp" ng-style="{'width': (mainCtrl.currentDefense.currentHp / mainCtrl.currentDefense.maxHp) * 100 + '%'}"></div>
-                    </div>
-                </div>
-            </div>
-            <div id="monsterHolder" ng-show="mainCtrl.currentMonster">
-                <div class="monster draggable" 
-                    draggable="true" 
-                    ng-drag="true" 
-                    ng-drag-data="mainCtrl.currentMonster" 
-                    ng-drag-start="mainCtrl.dragMonster($event, mainCtrl.currentMonster)">
-                    <img class="monster-img" ng-src="assets/images/{{mainCtrl.currentMonster.type | lowercase}}.png" alt="{{mainCtrl.currentMonster.type}}">
-                    <div class="hp-bar">
-                        <div class="hp" ng-style="{'width': (mainCtrl.currentMonster.currentHp / mainCtrl.currentMonster.maxHp) * 100 + '%'}"></div>
-                    </div>
-                </div>
-            </div>
             <div id="turnIndicator" ng-show="mainCtrl.showTurnIndicator">
                 <h3>Current Turn: <span id="currentPlayerName" ng-bind="mainCtrl.currentPlayerName"></span></h3>
                 <h3>Dice Roll: <span id="diceRollResult" ng-bind="mainCtrl.diceRollResult"></span></h3>
